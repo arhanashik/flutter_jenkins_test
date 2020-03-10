@@ -3,9 +3,6 @@ import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
-import 'package:o2o/ui/widget/input/pin_entry.dart';
-import 'package:o2o/ui/widget/button/simple_button.dart';
-import 'package:o2o/ui/widget/toast/toast_util.dart';
 
 class Step3Screen extends StatefulWidget {
 

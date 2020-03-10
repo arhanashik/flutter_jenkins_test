@@ -14,7 +14,9 @@ import 'package:o2o/ui/screen/packing/step_3.dart';
 import 'package:o2o/ui/screen/packing/step_4.dart';
 import 'package:o2o/ui/screen/packing/step_5.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
+import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_missing_information_checker_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_order_list_dialog.dart';
@@ -298,7 +300,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     ));
 
     if (resultList != null) {
-      ToastUtil.showCustomToast(
+      ToastUtil.show(
         context,
         '商品を削除しました。',
         icon: Icon(Icons.close,),
@@ -354,24 +356,29 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(locale.txtShippingPreparation),
-          centerTitle: true,
-          actions: <Widget>[
-            PopupMenuButton(
-                icon: Icon(_choices[0].icon),
-                onSelected: _select,
-                itemBuilder: (BuildContext context) {
-                  final choices = _currentStep == Step.STEP_1? _choices.skip(1)
+        appBar: TopBar (
+          title: locale.txtShippingPreparation,
+          navigationIcon: AppIcons.loadIcon(
+              AppIcons.icBackToList, size: 48.0, color: AppColors.colorBlue
+          ),
+          iconColor: AppColors.colorBlue,
+          background: Colors.white,
+          menu: PopupMenuButton(
+              child: AppIcons.loadIcon(
+                  AppIcons.icSettings, size: 48.0, color: AppColors.colorBlue
+              ),
+              onSelected: _select,
+              itemBuilder: (BuildContext context) {
+                final choices = _currentStep == Step.STEP_1? _choices.skip(1)
                       : [_choices[2]];
-                  return choices.map((Choice choice) {
-                    return PopupMenuItem<Choice>(
-                      value: choice,
-                      child: Text(choice.title),
-                    );
-                  }).toList();
-                }),
-          ],
+                return choices.map((Choice choice) {
+                  return PopupMenuItem<Choice>(
+                    value: choice,
+                    child: Text(choice.title),
+                  );
+                }).toList();
+              }),
+          onTapNavigation: () { _onWillPop();},
         ),
         backgroundColor: Color.fromARGB(255, 230, 242, 255),
         body: _bodyBuilder(),
@@ -391,29 +398,44 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     requestBody['orderNo'] = orderItem.orderNo;
     requestBody['receiptNo'] = receiptNo;
 
-    final response = await HttpUtil.postReq(AppConst.UPDATE_RECEIPT_NUMBER, requestBody);
-    print('code: ${response.statusCode}');
-    if (response.statusCode != 200) {
-      SnackbarUtil.show(context, 'Failed to upate receipt number');
-      return;
-    }
+//    CommonWidget.showLoader(context, cancelable: false);
+//    final response = await HttpUtil.postReq(AppConst.UPDATE_RECEIPT_NUMBER, requestBody);
+//    print('code: ${response.statusCode}');
+//    Navigator.pop(context);
+//    if (response.statusCode != 200) {
+//      SnackbarUtil.show(context, 'Failed to upate receipt number');
+//      return;
+//    }
 
     setState(() => _currentStep = Step.STEP_3);
   }
 
   _completePacking() async {
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-    requestBody['orderNo'] = orderItem.orderNo;
-    requestBody['status'] = PickingStatus.WORKING;
-
-    final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, requestBody);
-    print('code: ${response.statusCode}');
-    if (response.statusCode != 200) {
-      SnackbarUtil.show(context, 'Failed to upate picking status');
+    if(!isOnline) {
+      ToastUtil.show(
+          context, 'Connect to internet first',
+          icon: Icon(Icons.error, color: Colors.white,), error: true
+      );
       return;
     }
+
+//    CommonWidget.showLoader(context, cancelable: true);
+//    String imei = await PrefUtil.read(PrefUtil.IMEI);
+//    final requestBody = HashMap();
+//    requestBody['imei'] = imei;
+//    requestBody['orderNo'] = orderItem.orderNo;
+//    requestBody['status'] = PickingStatus.WORKING;
+//
+//    final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, requestBody);
+//    print('code: ${response.statusCode}');
+//    Navigator.of(context).pop();
+//    if (response.statusCode != 200) {
+//      ToastUtil.show(
+//          context, 'Failed to upate picking status',
+//          icon: Icon(Icons.error, color: Colors.white,), error: true
+//      );
+//      return;
+//    }
 
     Navigator.of(context).pop({'order_id': orderItem.orderNo});
   }

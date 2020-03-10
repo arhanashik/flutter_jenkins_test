@@ -128,7 +128,7 @@ class _AddQrCodeStep1State extends BaseState<AddQrCodeStep1> {
       setState(() {
         qrText = scanData;
         _qrCodes.add(qrText);
-        ToastUtil.showCustomToast(context, locale.txtScanned1QRCode);
+        ToastUtil.show(context, locale.txtScanned1QRCode);
       });
     });
   }

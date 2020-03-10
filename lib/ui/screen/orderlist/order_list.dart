@@ -11,7 +11,10 @@ import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/error/error.dart';
 import 'package:o2o/ui/screen/picking/picking.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
+import 'package:o2o/ui/widget/common/sliverAppBarDelegate.dart';
+import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/completed_order_list_item.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/order_list_item.dart';
@@ -124,7 +127,7 @@ class _OrderListState extends BaseState<OrderList> {
               ],
             );
           }
-          return CompletedOrderListItem(
+          return OrderListItem(
             context: context,
             orderItem: item,
             onPressed: () => _confirmStartPickingTask(item),
@@ -140,9 +143,7 @@ class _OrderListState extends BaseState<OrderList> {
       delegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
           final item = _orderItems[index];
-          if(item is OrderItem
-              && item.pickingStatus == PickingStatus.WORKING
-              && item.lockedName.isEmpty) {
+          if(item is OrderItem && item.pickingStatus == PickingStatus.WORKING) {
             return Stack(
               children: <Widget>[
                 OrderListItem(
@@ -166,6 +167,12 @@ class _OrderListState extends BaseState<OrderList> {
   }
 
   _bodyBuilder() {
+    final deliveryTime = _timeOrder.scheduledDeliveryDateTime.substring(
+        _timeOrder.scheduledDeliveryDateTime.lastIndexOf(" ")
+    );
+    final deliveryHour = deliveryTime.substring(0, deliveryTime.indexOf(':'));
+    final deliveryMin = deliveryTime.substring(deliveryTime.indexOf(':') + 1);
+
     return
         loadingState == LoadingState.ERROR
             ? ErrorScreen(
@@ -181,6 +188,14 @@ class _OrderListState extends BaseState<OrderList> {
 
         ) : CustomScrollView(
           slivers: <Widget>[
+            SliverPersistentHeader(
+                delegate: SliverAppBarDelegate(
+                  minHeight: 36,
+                  maxHeight: 36,
+                  child: CommonWidget.sectionTimeBuilder(deliveryHour, deliveryMin),
+                ),
+                pinned: true
+            ),
             SliverToBoxAdapter(
               child: _sectionTitleBuilder(locale.txtOrderRequiredDeliveryPreparation),
             ),
@@ -206,21 +221,32 @@ class _OrderListState extends BaseState<OrderList> {
   Widget build(BuildContext context) {
     super.build(context);
 
-    final deliveryTime = _timeOrder.scheduledDeliveryDateTime.substring(
-        _timeOrder.scheduledDeliveryDateTime.lastIndexOf(" ")
-    );
-    final deliveryHour = deliveryTime.substring(0, deliveryTime.indexOf(':'));
-    final deliveryMin = deliveryTime.substring(deliveryTime.indexOf(':') + 1);
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(locale.txtOrderList),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(36.0),
-          child: CommonWidget.sectionTimeBuilder(deliveryHour, deliveryMin),
+      appBar: TopBar(
+        title: locale.txtOrderList,
+        navigationIcon: AppIcons.loadIcon(
+            AppIcons.icBackToTimeOrderList,
+            size: 64.0,
+            color: AppColors.colorBlue
         ),
       ),
+//      appBar: AppBar(
+//        leading: Container(
+//          alignment: Alignment.center,
+//          padding: EdgeInsets.only(left: 13.0),
+//          child: CommonWidget.labeledButton(
+//              AppIcons.loadIcon(AppIcons.icList, size: 17.0, color: AppColors.colorBlue),
+//              "時間帯別一覧へ",
+//                  () => Navigator.of(context).pop()
+//          ),
+//        ),
+//        title: Text(locale.txtOrderList),
+//        centerTitle: true,
+//        bottom: PreferredSize(
+//          preferredSize: Size.fromHeight(36.0),
+//          child: CommonWidget.sectionTimeBuilder(deliveryHour, deliveryMin),
+//        ),
+//      ),
       backgroundColor: AppColors.background,
       body: _bodyBuilder(),
     );
@@ -231,9 +257,7 @@ class _OrderListState extends BaseState<OrderList> {
 
     setState(() => loadingState = LoadingState.LOADING);
 
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-//    String requestBody = '{"imei": "$imei",'
-//        '"deliveryDateTime": "${_timeOrder.scheduledDeliveryDateTime}"}';
+    /*String imei = await PrefUtil.read(PrefUtil.IMEI);
     final requestBody = HashMap();
     requestBody['imei'] = imei;
     requestBody['deliveryDateTime'] = _timeOrder.scheduledDeliveryDateTime;
@@ -249,7 +273,8 @@ class _OrderListState extends BaseState<OrderList> {
     List jsonData = json.decode(response.body);
     List<OrderItem> items = jsonData.map(
             (data) => OrderItem.fromJson(data)
-    ).toList();
+    ).toList();*/
+    List<OrderItem> items = OrderItem.dummyOrderItems();
 
     LoadingState newState = LoadingState.NO_DATA;
     if (_orderItems.isNotEmpty || items.isNotEmpty) {
@@ -265,18 +290,18 @@ class _OrderListState extends BaseState<OrderList> {
   }
 
   _startPickingTaskForResult(OrderItem orderItem) async {
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-    requestBody['orderNo'] = orderItem.orderNo;
-    requestBody['status'] = PickingStatus.WORKING;
-
-    final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, requestBody);
-    print('code: ${response.statusCode}');
-    if (response.statusCode != 200) {
-      SnackbarUtil.show(context, 'Failed to upate picking status');
-      return;
-    }
+//    String imei = await PrefUtil.read(PrefUtil.IMEI);
+//    final requestBody = HashMap();
+//    requestBody['imei'] = imei;
+//    requestBody['orderNo'] = orderItem.orderNo;
+//    requestBody['status'] = PickingStatus.WORKING;
+//
+//    final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, requestBody);
+//    print('code: ${response.statusCode}');
+//    if (response.statusCode != 200) {
+//      SnackbarUtil.show(context, 'Failed to upate picking status');
+//      return;
+//    }
 
     orderItem.pickingStatus = PickingStatus.WORKING;
     final results = await Navigator.of(context).push(MaterialPageRoute(
@@ -287,14 +312,15 @@ class _OrderListState extends BaseState<OrderList> {
 
     if (results != null && results.containsKey('order_id')) {
       final item = _orderItems.firstWhere(
-              (element) => element is OrderItem && element.orderNo == results['order_id']
+              (element) => element is OrderItem
+                  && element.orderNo == results['order_id']
       );
       setState(() {
         _orderItems.remove(item);
         _completedOrderItems.add(item);
       });
       String msg = locale.txtOrderNumber + ' : '
-          + results['order_id'] + ' の発送準備を完了しました。';
+          + '${results['order_id']} の発送準備を完了しました。';
       SnackbarUtil.show(context, msg, durationInSec: 3);
     }
   }

@@ -10,12 +10,13 @@ import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/data/response/PickedItemCheckResponse.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
-import 'package:o2o/ui/screen/orderlist/no_order_list_data.dart';
-import 'package:o2o/ui/screen/orderlist/order_list_error.dart';
+import 'package:o2o/ui/screen/error/error.dart';
 import 'package:o2o/ui/screen/packing/packing.dart';
 import 'package:o2o/ui/screen/scanner/scanner.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
+import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/add_product_dialog.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_missing_information_checker_dialog.dart';
@@ -143,7 +144,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
-  Text _boldTextBuilder(String text, double size) {
+  _boldTextBuilder(String text, double size) {
     return Text(
       text,
       style: TextStyle(
@@ -151,7 +152,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
-  Container _sectionHeaderBuilder(String text) {
+  _sectionHeaderBuilder(String text) {
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -174,7 +175,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     ));
 
     if (resultList != null) {
-      ToastUtil.showCustomToast(
+      ToastUtil.show(
         context, '商品を削除しました。', icon: Icon(Icons.close,),
       );
       Navigator.of(context).pop();
@@ -221,27 +222,27 @@ class _PickingScreenState extends BaseState<PickingScreen>
 
   _startPackingForResult() async {
     //update picking status as done
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-    requestBody['orderNo'] = _orderItem.orderNo;
-    requestBody['status'] = PickingStatus.DONE;
-
-    var response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, requestBody);
-    print('code: ${response.statusCode}');
-    if (response.statusCode != 200) {
-      ToastUtil.showCustomToast(context, 'Failed to upate picking status');
-      return;
-    }
-
-    //update packing status as working
-    requestBody['status'] = PackingStatus.WORKING;
-    response = await HttpUtil.postReq(AppConst.UPDATE_PACKING_STATUS, requestBody);
-    print('code: ${response.statusCode}');
-    if (response.statusCode != 200) {
-      ToastUtil.showCustomToast(context, 'Failed to upate packing status');
-      return;
-    }
+//    String imei = await PrefUtil.read(PrefUtil.IMEI);
+//    final requestBody = HashMap();
+//    requestBody['imei'] = imei;
+//    requestBody['orderNo'] = _orderItem.orderNo;
+//    requestBody['status'] = PickingStatus.DONE;
+//
+//    var response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, requestBody);
+//    print('code: ${response.statusCode}');
+//    if (response.statusCode != 200) {
+//      ToastUtil.showCustomToast(context, 'Failed to upate picking status');
+//      return;
+//    }
+//
+//    //update packing status as working
+//    requestBody['status'] = PackingStatus.WORKING;
+//    response = await HttpUtil.postReq(AppConst.UPDATE_PACKING_STATUS, requestBody);
+//    print('code: ${response.statusCode}');
+//    if (response.statusCode != 200) {
+//      ToastUtil.showCustomToast(context, 'Failed to upate packing status');
+//      return;
+//    }
 
     _pauseCamera();
     final results = await Navigator.of(context).push(MaterialPageRoute(
@@ -323,7 +324,19 @@ class _PickingScreenState extends BaseState<PickingScreen>
   }
 
   _bodyBuilder() {
-    return Container(
+    return loadingState == LoadingState.ERROR
+        ? ErrorScreen(
+        errorMessage: locale.errorMsgCannotGetData,
+        btnText: locale.txtReload,
+        onClickBtn: () => _fetchData(),
+        showHelpTxt: true
+    ) : loadingState == LoadingState.NO_DATA
+        ? ErrorScreen(
+      errorMessage: locale.errorMsgNoData,
+      btnText: locale.refreshOrderList,
+      onClickBtn: () => _fetchData(),
+
+    ): Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -350,7 +363,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
   @override
   void initState() {
     super.initState();
-    _fetchOrderList();
+    _fetchData();
     _pauseCamera();
   }
 
@@ -363,14 +376,15 @@ class _PickingScreenState extends BaseState<PickingScreen>
       onWillPop: _onWillPop,
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          title: Text(''),
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          iconTheme: IconThemeData(color: Colors.white),
-          actions: <Widget>[
-            PopupMenuButton(
-                icon: Icon(_choices[0].icon),
+        appBar: TopBar (
+          title: '',
+          navigationIcon: AppIcons.loadIcon(
+              AppIcons.icBackToList, size: 48.0, color: Colors.white
+          ),
+          iconColor: Colors.white,
+          background: Colors.transparent,
+          menu: PopupMenuButton(
+                child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
                 onSelected: _select,
                 itemBuilder: (BuildContext context) {
                   return _choices.skip(1).map((Choice choice) {
@@ -380,14 +394,29 @@ class _PickingScreenState extends BaseState<PickingScreen>
                     );
                   }).toList();
                 }),
-          ],
+          onTapNavigation: () { _onWillPop();},
         ),
+//        appBar: AppBar(
+//          title: Text(''),
+//          centerTitle: true,
+//          backgroundColor: Colors.transparent,
+//          iconTheme: IconThemeData(color: Colors.white),
+//          actions: <Widget>[
+//            PopupMenuButton(
+//                icon: Icon(_choices[0].icon),
+//                onSelected: _select,
+//                itemBuilder: (BuildContext context) {
+//                  return _choices.skip(1).map((Choice choice) {
+//                    return PopupMenuItem<Choice>(
+//                      value: choice,
+//                      child: Text(choice.title),
+//                    );
+//                  }).toList();
+//                }),
+//          ],
+//        ),
         backgroundColor: AppColors.colorWhite,
-        body: loadingState == LoadingState.ERROR
-            ? OrderListErrorScreen()
-            : loadingState == LoadingState.NO_DATA
-            ? NoOrderListDataScreen()
-            : _bodyBuilder(),
+        body: _bodyBuilder(),
       ),
     );
   }
@@ -416,28 +445,29 @@ class _PickingScreenState extends BaseState<PickingScreen>
     _controller?.resumeCamera();
   }
 
-  _fetchOrderList() async {
+  _fetchData() async {
     if (loadingState == LoadingState.LOADING) return;
 
     setState(() => loadingState = LoadingState.LOADING);
 
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-    requestBody['orderNo'] = _orderItem.orderNo;
-
-    final response = await HttpUtil.postReq(AppConst.GET_PICKING_LIST, requestBody);
-    print('code: ${response.statusCode}');
-    if (response.statusCode != 200) {
-      setState(() => loadingState = LoadingState.ERROR);
-      return;
-    }
-
-    print('body: ${response.body}');
-    List jsonData = json.decode(response.body);
-    List<ProductEntity> items = jsonData.map(
-            (data) => ProductEntity.fromJson(data)
-    ).toList();
+//    String imei = await PrefUtil.read(PrefUtil.IMEI);
+//    final requestBody = HashMap();
+//    requestBody['imei'] = imei;
+//    requestBody['orderNo'] = _orderItem.orderNo;
+//
+//    final response = await HttpUtil.postReq(AppConst.GET_PICKING_LIST, requestBody);
+//    print('code: ${response.statusCode}');
+//    if (response.statusCode != 200) {
+//      setState(() => loadingState = LoadingState.ERROR);
+//      return;
+//    }
+//
+//    print('body: ${response.body}');
+//    List jsonData = json.decode(response.body);
+//    List<ProductEntity> items = jsonData.map(
+//            (data) => ProductEntity.fromJson(data)
+//    ).toList();
+    List<ProductEntity> items = ProductEntity.dummyProducts();
 
     LoadingState newState = LoadingState.NO_DATA;
     if (_scanCompletedProducts.isNotEmpty || items.isNotEmpty) {
@@ -457,7 +487,25 @@ class _PickingScreenState extends BaseState<PickingScreen>
   void _fullScreenScanner() async {
     final results = await Navigator.of(context).push(
         MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => ScannerScreen(),
+            builder: (BuildContext context) => ScannerScreen(
+              navigationIcon: AppIcons.loadIcon(
+                  AppIcons.icBackToList,
+                  size: 64.0,
+                  color: Colors.white
+              ),
+              menu: PopupMenuButton(
+                child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
+                onSelected: _select,
+                itemBuilder: (BuildContext context) {
+                  return _choices.skip(1).map((Choice choice) {
+                    return PopupMenuItem<Choice>(
+                      value: choice,
+                      child: Text(choice.title),
+                    );
+                  }).toList();
+                }),
+              onTapNavigation: () { _onWillPop();},
+            ),
             fullscreenDialog: true
         )
     );
@@ -469,10 +517,21 @@ class _PickingScreenState extends BaseState<PickingScreen>
       _checkJanCodeProduct(_qrText);
     }
 
-    if (_qrText.isEmpty) ToastUtil.showCustomToast(context, 'Scanning canceled');
+    if (_qrText.isEmpty) ToastUtil.show(context, 'Scanning canceled');
   }
 
   _checkJanCodeProduct(janCode) async {
+    if(!isOnline) {
+      ToastUtil.show(
+          context, 'Connect to internet first',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
+      _resumeCamera();
+      return;
+    }
+
+    CommonWidget.showLoader(context, cancelable: true);
     String imei = await PrefUtil.read(PrefUtil.IMEI);
     final requestBody = HashMap();
     requestBody['imei'] = imei;
@@ -481,8 +540,13 @@ class _PickingScreenState extends BaseState<PickingScreen>
 
     final response = await HttpUtil.postReq(AppConst.CHECK_PICKED_ITEM, requestBody);
     print('code: ${response.statusCode}');
+    Navigator.of(context).pop();
     if (response.statusCode != 200) {
-      ToastUtil.showCustomToast(context, 'Please try again');
+      ToastUtil.show(
+          context, 'Please try again',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
       _resumeCamera();
       return;
     }
@@ -492,13 +556,21 @@ class _PickingScreenState extends BaseState<PickingScreen>
         json.decode(response.body)
     );
     if(pickedResponse.resultCode == PickingCheckStatus.NOT_AVAILABLE) {
-      ToastUtil.showCustomToast(context, 'No product with $janCode');
+      ToastUtil.show(
+          context, 'No product with $janCode',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
       _resumeCamera();
       return;
     }
 
     if(pickedResponse.resultCode == PickingCheckStatus.PICKED) {
-      ToastUtil.showCustomToast(context, 'Product already picked with $janCode');
+      ToastUtil.show(
+          context, 'Product already picked with $janCode',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
       _resumeCamera();
       return;
     }
@@ -513,13 +585,13 @@ class _PickingScreenState extends BaseState<PickingScreen>
           print('Product not picked for $janCode');
         }
     ) != null) {
-      ToastUtil.showCustomToast(context, 'Product already picked with $janCode');
+      ToastUtil.show(context, 'Product already picked with $janCode');
       _resumeCamera();
       return;
     }
     final product = _scannedProducts.firstWhere(
             (element) => element.janCode.toString() == janCode, orElse: () {
-      ToastUtil.showCustomToast(context, 'No product with $janCode');
+      ToastUtil.show(context, 'No product with $janCode');
       _resumeCamera();
       return;
     });
@@ -543,7 +615,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_COUNT, requestBody);
     print('code: ${response.statusCode}');
     if (response.statusCode != 200) {
-      ToastUtil.showCustomToast(context, 'Please try again');
+      ToastUtil.show(context, 'Please try again');
       _resumeCamera();
       return;
     }
@@ -557,7 +629,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
       loadingState = LoadingState.OK;
     });
 
-    ToastUtil.showCustomToast(context, 'Product picked');
+    ToastUtil.show(context, 'Product picked');
     _resumeCamera();
   }
 

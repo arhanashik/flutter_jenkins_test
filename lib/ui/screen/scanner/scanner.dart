@@ -1,109 +1,88 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/ui/screen/base/base_state.dart';
+import 'package:o2o/ui/screen/home/history/search_history.dart';
+import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScannerScreen extends StatefulWidget {
-  ScannerScreen({Key key}) : super(key: key);
+  ScannerScreen({
+    Key key,
+    @required this.navigationIcon,
+    this.menu,
+    this.onTapNavigation,
+  }) : super(key: key);
+  final Widget navigationIcon;
+  final Widget menu;
+  final Function onTapNavigation;
 
   @override
-  _ScannerScreenState createState() => _ScannerScreenState();
+  _ScannerScreenState createState() => _ScannerScreenState(
+    navigationIcon, menu, onTapNavigation
+  );
 }
 
-class _ScannerScreenState extends State<ScannerScreen> {
-  O2OLocalizations locale;
+class _ScannerScreenState extends BaseState<ScannerScreen> {
 
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'SCANNER');
-  var qrText = "";
-  QRViewController controller;
-  bool flashOn = false;
+  _ScannerScreenState(this.navigationIcon, this.menu, this.onTapNavigation);
+  final Widget navigationIcon;
+  final Widget menu;
+  final Function onTapNavigation;
 
-  Stack _scannerViewStack() {
-    return Stack(
-      alignment: Alignment.topRight,
-      children: <Widget>[
-        Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: QRView(
-            key: qrKey,
-            onQRViewCreated: _onQRViewCreated,
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(right: 16, top: 80),
-          child: Column(
+  final GlobalKey _qrKey = GlobalKey(debugLabel: 'SCANNER');
+  var _qrCode = "";
+  QRViewController _controller;
+  bool _flashOn = false;
+
+  _scannerViewStack() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: QRView(
+        key: _qrKey,
+        onQRViewCreated: _onQRViewCreated,
+      ),
+    );
+  }
+
+  _bodyBuilder() {
+    return Container(
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: <Widget>[
+          _scannerViewStack(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
               GestureDetector(
                 child: Container(
+                  margin: EdgeInsets.only(right: 16,bottom: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                   child: Icon(
-                    flashOn? Icons.flash_off : Icons.flash_on,
+                    _flashOn? Icons.flash_off : Icons.flash_on,
                     color: Colors.lightBlue,
                   ),
                   padding: EdgeInsets.all(2),
                 ),
                 onTap: _toggleFlush,
               ),
-              Padding(padding: EdgeInsets.only(top: 16),),
-              GestureDetector(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  child: Icon(
-                    Icons.switch_camera,
-                    color: Colors.lightBlue,
-                  ),
-                  padding: EdgeInsets.all(2),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 100,
+                color: AppColors.colorBlue,
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  locale.msgReadQRCode,
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
-                onTap: _flipCamera,
-              ),
-              Padding(padding: EdgeInsets.only(top: 16),),
-              GestureDetector(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  child: Icon(
-                    Icons.fullscreen_exit,
-                    color: Colors.lightBlue,
-                  ),
-                  padding: EdgeInsets.all(2),
-                ),
-                onTap: () {
-                  _pauseCamera();
-                  _exitScannerWithResult();
-                },
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Container _bodyBuilder() {
-    return Container(
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: <Widget>[
-          _scannerViewStack(),
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: 100,
-            color: Color(0xbb000000),
-            padding: EdgeInsets.all(16),
-            child: Text(
-              locale.msgScanBarcodeExtended,
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ),
+          )
         ],
       ),
     );
@@ -111,14 +90,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    locale = O2OLocalizations.of(context);
+    super.build(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(''),
-        backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Colors.white),
+      appBar: TopBar(
+        title: '',
+        navigationIcon: navigationIcon,
+        background: Colors.transparent,
+        menu: menu,
+        onTapNavigation: onTapNavigation,
       ),
       backgroundColor: Color.fromARGB(255, 230, 242, 255),
       body: _bodyBuilder(),
@@ -132,38 +113,51 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
+    this._controller = controller;
     controller.scannedDataStream.listen((scanData) {
       _pauseCamera();
-      setState(() => qrText = scanData);
-      _exitScannerWithResult();
+      setState(() => _qrCode = scanData);
+//      _exitScannerWithResult();
+      _searchQrCode();
     });
   }
 
   void _flipCamera() {
-    controller?.flipCamera();
+    _controller?.flipCamera();
   }
 
   void _toggleFlush() {
-    controller?.toggleFlash();
-    setState(() => flashOn = !flashOn);
+    _controller?.toggleFlash();
+    setState(() => _flashOn = !_flashOn);
   }
 
   void _pauseCamera() {
-    controller?.pauseCamera();
+    _controller?.pauseCamera();
   }
 
   void _resumeCamera() {
-    controller?.resumeCamera();
+    _controller?.resumeCamera();
   }
 
   void _exitScannerWithResult() {
-    Navigator.of(context).pop({'qrCode': qrText});
+    Navigator.of(context).pop({'qrCode': _qrCode});
+  }
+
+  void _searchQrCode() {
+    Navigator.of(context).push(
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => SearchHistory(
+          searchQuery: _qrCode,
+          hint: locale.hintSearchByQrCode,
+          type: SearchType.QR_CODE,
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 

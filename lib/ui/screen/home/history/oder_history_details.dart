@@ -191,7 +191,7 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
       locale.txtOk,
       () {
         setState(() => _qrCodes.remove(qrCode));
-        ToastUtil.showCustomToast(
+        ToastUtil.show(
           context, 'QRコード: $qrCodeを削除しました。',
         );
       }
@@ -236,7 +236,7 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
           if (code.isNotEmpty && code is String && code.length == 4) {
             Navigator.of(context).pop();
             setState(() => _receiptNumber = code);
-            ToastUtil.showCustomToast(context, locale.txtReceiptNumberUpdated);
+            ToastUtil.show(context, locale.txtReceiptNumberUpdated);
           }
         }).show();
   }
@@ -259,7 +259,7 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
 
       if(newCodes.isNotEmpty) {
         setState(() => _qrCodes = resultList);
-        ToastUtil.showCustomToast(
+        ToastUtil.show(
           context, 'QRコード: ${newCodes.join(', ')}を追加しました。',
         );
       }

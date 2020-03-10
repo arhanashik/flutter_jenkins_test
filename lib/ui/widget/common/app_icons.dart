@@ -24,4 +24,8 @@ class AppIcons {
   static ImageIcon icBarCode = _loadIcon('${_iconDir}ic_bar_code.png',);
   static ImageIcon icQrCode = _loadIcon('${_iconDir}ic_qr_code.png',);
   static ImageIcon icArrowExport = _loadIcon('${_iconDir}ic_arrow_export.png',);
+  static ImageIcon icBackToTimeOrderList = _loadIcon('${_iconDir}ic_back_to_time_order_list.png',);
+  static ImageIcon icBack = _loadIcon('${_iconDir}ic_back.png',);
+  static ImageIcon icSettings = _loadIcon('${_iconDir}ic_settings.png',);
+  static ImageIcon icBackToList = _loadIcon('${_iconDir}ic_back_to_list.png',);
 }

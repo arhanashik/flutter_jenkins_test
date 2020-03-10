@@ -33,4 +33,15 @@ class TimeOrder {
     'incompleteOrderCount': incompleteOrderCount,
     'totalProductCount': totalProductCount,
   };
+
+  static dummyTimeOrderList() {
+    return [
+      TimeOrder(
+        scheduledDeliveryDateTime: "2020-02-12 11:20",
+        orderCount: 3,
+        incompleteOrderCount: 2,
+        totalProductCount: 5,
+      ),
+    ];
+  }
 }

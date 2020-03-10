@@ -38,12 +38,11 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
 
     setState(() => loadingState = LoadingState.LOADING);
 
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    /*String imei = await PrefUtil.read(PrefUtil.IMEI);
     final requestBody = HashMap();
     requestBody['imei'] = imei;
 
     final response = await HttpUtil.postReq(AppConst.GET_TIME_ORDER, requestBody);
-//    print('code: ${response.statusCode}, body: ${response.body}');
     print('code: ${response.statusCode}');
     if (response.statusCode != 200) {
       setState(() => loadingState = LoadingState.ERROR);
@@ -53,10 +52,11 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
     List jsonData = json.decode(response.body);
     List<TimeOrderListItem> items = jsonData.map(
             (data) => TimeOrderListItem.fromJson(data)
-    ).toList();
+    ).toList();*/
+    List<TimeOrderListItem> items = TimeOrderListItem.dummyTimeOrderList();
 
     LoadingState newState = LoadingState.NO_DATA;
-    if (timeOrders.isNotEmpty || jsonData.isNotEmpty) {
+    if (timeOrders.isNotEmpty || items.isNotEmpty) {
       for (int i = 0; i < items.length; i++) {
         final item = items[i];
         String rawDate = item.date;

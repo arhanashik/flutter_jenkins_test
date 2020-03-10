@@ -12,8 +12,9 @@ class O2OApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      onGenerateTitle: (BuildContext context) =>
-          O2OLocalizations.of(context).title,
+      onGenerateTitle: (BuildContext context) => O2OLocalizations.of(
+          context
+      ).title,
       theme: buildTheme(),
       initialRoute: '/splash',
       routes: {

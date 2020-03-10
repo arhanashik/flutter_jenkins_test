@@ -35,4 +35,12 @@ class TimeOrderListItem {
     'date': date,
     'timeOrderSummaryList': timeOrderList.map((data) => data.toJson()),
   };
+
+  static dummyTimeOrderList() {
+    return [
+      TimeOrderListItem(
+          date: "2020-02-12", timeOrderList: TimeOrder.dummyTimeOrderList()
+      ),
+    ];
+  }
 }

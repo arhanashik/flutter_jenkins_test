@@ -3,6 +3,47 @@ import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 
 class CommonWidget {
+
+  static circledTextBuilder({
+    @required String text,
+    @required double radius,
+    Color textColor = AppColors.colorBlueDark,
+    double fontSize = 24.0,
+  }) {
+    return Container(
+      width: radius * 2,
+      height: radius * 2,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              colors: AppColors.btnGradient,
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter
+          ),
+          borderRadius: BorderRadius.circular(radius)
+      ),
+      child: Container(
+        width: radius * 2 - 16,
+        height: radius * 2 - 16,
+        decoration: BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.circular(radius - 8)
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+                fontSize: fontSize,
+                color: textColor,
+                fontWeight: FontWeight.bold
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+
   static Container buildDialogHeader(BuildContext context, String title, {double fontSize = 16.0}) {
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -137,6 +178,58 @@ class CommonWidget {
           ),
         ],
       ),
+    );
+  }
+
+  static labeledButton(
+      ImageIcon icon,
+      String label,
+      Function onPressed, {
+      Color color = AppColors.colorBlue
+  }) {
+    return InkWell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(bottom: 5.0,),
+            child: icon,
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+      onTap: () => onPressed(),
+    );
+  }
+
+  static showLoader(
+    BuildContext context, {
+    bool cancelable = false
+  }){
+    showDialog(
+      barrierDismissible: cancelable,
+      context:context,
+      builder:(BuildContext context){
+        return AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              Container(
+                  margin: EdgeInsets.only(left: 16),
+                  child:Text("Please wait..." )
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

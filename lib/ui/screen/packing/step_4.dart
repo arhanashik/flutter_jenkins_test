@@ -7,6 +7,7 @@ import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_item_chooser_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
@@ -131,7 +132,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
     if (resultList != null) {
       setState(() => _scannedQrCodes.removeAll(resultList));
 
-      ToastUtil.showCustomToast(
+      ToastUtil.show(
           context,
           '${resultList.join(',')} を削除しました。',
         icon: Icon(Icons.delete,),
@@ -198,7 +199,17 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   }
 
   _checkQrProduct(qrCode) async {
+    if(!isOnline) {
+      ToastUtil.show(
+          context, 'Connect to internet first',
+          icon: Icon(Icons.error, color: Colors.white,),
+          verticalMargin: 200, error: true
+      );
+      _resumeCamera();
+      return;
+    }
 
+    CommonWidget.showLoader(context, cancelable: true);
     String imei = await PrefUtil.read(PrefUtil.IMEI);
     final requestBody = HashMap();
     requestBody['imei'] = imei;
@@ -206,27 +217,40 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
     final response = await HttpUtil.postReq(AppConst.CHECK_PACKING_QR_CODE, requestBody);
     print('code: ${response.statusCode}');
+    Navigator.of(context).pop();
     _resumeCamera();
 
     if (response.statusCode != 200) {
-      ToastUtil.showCustomToast(context, 'Please try again');
+      ToastUtil.show(
+          context, 'Please try again',
+          icon: Icon(Icons.error, color: Colors.white,),
+          verticalMargin: 200, error: true
+      );
       return;
     }
 
     print('body: ${response.body}');
     final responseCode = json.decode(response.body);
     if(responseCode['resultCode'] == PackingQrCodeStatus.NOT_ISSUED) {
-      ToastUtil.showCustomToast(context, 'No Product from HTKK $qrCode');
+      ToastUtil.show(
+          context, 'No Product from HTKK $qrCode',
+          icon: Icon(Icons.error, color: Colors.white,),
+          verticalMargin: 200, error: true
+      );
       return;
     }
 
     if(responseCode['resultCode'] == PackingQrCodeStatus.REGISTERED) {
-      ToastUtil.showCustomToast(context, 'Product already registered with $qrCode');
+      ToastUtil.show(
+          context, 'Product already registered with $qrCode',
+          icon: Icon(Icons.error, color: Colors.white,),
+          verticalMargin: 200, error: true
+      );
       return;
     }
 
     setState(() => _scannedQrCodes.add(qrText));
-    ToastUtil.showCustomToast(context, locale.txtScanned1QRCode);
+    ToastUtil.show(context, locale.txtScanned1QRCode, verticalMargin: 200,);
   }
 
   @override

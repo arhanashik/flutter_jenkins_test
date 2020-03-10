@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:o2o/ui/widget/common/app_colors.dart';
 
 ThemeData buildTheme() {
 
@@ -40,6 +41,7 @@ ThemeData buildTheme() {
 
   return base.copyWith(
       textTheme: _buildTextTheme(base.textTheme),
-      appBarTheme: _buildAppBarTheme()
+      appBarTheme: _buildAppBarTheme(),
+      backgroundColor: AppColors.background,
   );
 }
