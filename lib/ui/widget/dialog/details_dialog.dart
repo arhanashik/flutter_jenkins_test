@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/constant/const.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/util/common.dart';
 
 class DetailsDialog {
@@ -11,8 +12,6 @@ class DetailsDialog {
   DetailsDialog(this.context, this.title, this.subtitle, this.imgUrl);
 
   show() {
-    final imageUrl = imgUrl.isEmpty ? AppConst.NO_IMAGE_URL_LARGE : imgUrl;
-
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -33,10 +32,12 @@ class DetailsDialog {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Image.network(
-                      imageUrl,
+                    AppImages.loadSizedImage(
+                      imgUrl,
                       width: MediaQuery.of(context).size.width - 120,
                       height: MediaQuery.of(context).size.width - 120,
+                      isAsset: false,
+                      placeholder: AppImages.NO_IMAGE_URL_LARGE,
                     ),
                   ],
                 ),

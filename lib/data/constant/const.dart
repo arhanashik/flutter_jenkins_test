@@ -27,9 +27,6 @@ class AppConst {
   static const CHECK_PACKING_QR_CODE = '$_BASE_URL/packing/qr_code/judge';
 
   static const WEEKDAYS = const ["月","火","水","木","金","土","日",];
-
-  static const NO_IMAGE_URL = 'https://via.placeholder.com/150/999999/fff?text=NO+IMAGE';
-  static const NO_IMAGE_URL_LARGE = 'https://via.placeholder.com/240/999999/fff?text=NO+IMAGE';
 }
 
 class PickingStatus {

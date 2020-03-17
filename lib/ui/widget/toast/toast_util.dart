@@ -9,7 +9,7 @@ class ToastUtil {
   static void show(
       BuildContext context,
       String message, {
-        Icon icon = const Icon(Icons.thumb_up, size: 24),
+        Icon icon = const Icon(Icons.thumb_up, size: 24, color: Colors.white,),
         bool fromTop = false,
         double verticalMargin = 40.0,
         bool error = false
@@ -107,7 +107,7 @@ class ToastUtil {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                 decoration: BoxDecoration(
-                    color: error? Colors.redAccent : Colors.white,
+                    color: error? Colors.redAccent : Colors.blue,
                     borderRadius: BorderRadius.circular(5)
                 ),
                 child: Row(
@@ -125,7 +125,7 @@ class ToastUtil {
                           softWrap: true,
                           style: TextStyle(
                             fontSize: 14,
-                            color: error? Colors.white : Colors.black,
+                            color: Colors.white,
                           ),
                         ),
                       ),

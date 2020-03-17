@@ -91,6 +91,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         () => setState(() => _currentStep = Step.STEP_4)
       ),
       Step4Screen(
+        _scannedQrCodes,
         () => setState(() => _currentStep = Step.STEP_3),
         (qrCodes) {
           setState(() {
@@ -100,7 +101,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         }
       ),
       Step5Screen(
-        _scannedQrCodes.toList(),
+        _scannedQrCodes,
         () => setState(() => _currentStep = Step.STEP_4),
         () => _completePacking(),
       )

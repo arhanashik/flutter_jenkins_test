@@ -7,18 +7,17 @@ import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 
-class FullScreenItemChooserDialog extends StatefulWidget {
-  FullScreenItemChooserDialog({this.items});
-
+class Step5QrCodeListDialog extends StatefulWidget {
+  Step5QrCodeListDialog({this.items});
   final List<String> items;
 
   @override
-  FullScreenItemChooserDialogState createState() => new FullScreenItemChooserDialogState(items);
+  Step5QrCodeListDialogState createState() => new Step5QrCodeListDialogState(items);
 }
 
-class FullScreenItemChooserDialogState extends BaseState<FullScreenItemChooserDialog> {
+class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
 
-  FullScreenItemChooserDialogState(this._items);
+  Step5QrCodeListDialogState(this._items);
 
   List<String> _items = List();
   HashSet<String> _resultList = HashSet();
@@ -33,6 +32,17 @@ class FullScreenItemChooserDialogState extends BaseState<FullScreenItemChooserDi
         _resultList.remove(item);
       });
     }
+  }
+
+  _confirmAddNew() {
+    String msg = 'QRコード読み取り画面に\n戻ります。よろしいですか？';
+    ConfirmationDialog(
+        context,
+        'QRコード読み取り作業に戻ります',
+        msg,
+        locale.txtOk,
+            () => Navigator.of(context).pop(_items.toList())
+    ).show();
   }
 
   _confirmBefore() {
@@ -78,13 +88,13 @@ class FullScreenItemChooserDialogState extends BaseState<FullScreenItemChooserDi
               if(index == 0) {
                 return Container(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: AppColors.blueGradient),
+                      gradient: LinearGradient(colors: AppColors.blueGradient),
                     border: Border(bottom: BorderSide(color: Colors.black12))
                   ),
                   padding: EdgeInsets.all(16,),
                   alignment: Alignment.center,
                   child: Text(
-                    locale.txtCheckQrCodeToDelete,
+                    '読み取った配送ラベルの\nQRコードを編集できます。',
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -112,19 +122,42 @@ class FullScreenItemChooserDialogState extends BaseState<FullScreenItemChooserDi
               );
             }
         ),
-        Container(
-          height: 48.0,
-          margin: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          child: GradientButton(
-            text: locale.txtDeleteSelectedQrCodes,
-            onPressed: () {
-              _confirmBefore();
-            },
-            enabled: _resultList.isNotEmpty,
-            showIcon: true,
-            icon: Icon(Icons.play_circle_filled, size: 28.0,),
-            borderRadius: 24.0,
-          ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: GradientButton(
+                text: "QRコードを追加で読み取る",
+                onPressed: () {
+                  _confirmAddNew();
+                },
+                showIcon: true,
+                icon: Icon(Icons.add, size: 28.0, color: Colors.white,),
+                borderRadius: 24.0,
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: GradientButton(
+                text: "QRコードを削除する",
+                onPressed: () {
+                  _confirmBefore();
+                },
+                enabled: _resultList.isNotEmpty,
+                showIcon: true,
+                icon: Icon(
+                  Icons.delete,
+                  size: 28.0,
+                  color: _resultList.isEmpty? Colors.grey : Colors.black,
+                ),
+                borderRadius: 24.0,
+                txtColor: Colors.black,
+                disableTxtColor: Colors.grey,
+                gradient: AppColors.btnGradientLight,
+              ),
+            ),
+          ],
         ),
       ],
     );

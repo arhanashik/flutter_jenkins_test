@@ -65,11 +65,19 @@ flutter:
     - assets/icon/ic_back.png
     - assets/icon/ic_settings.png
     - assets/icon/ic_back_to_list.png
+    - assets/icon/ic_digit_1.png
+    - assets/icon/ic_digit_2.png
+    - assets/icon/ic_digit_2_red.png
+    - assets/icon/ic_digit_3.png
+    - assets/icon/ic_digit_3_red.png
+    - assets/icon/ic_close.png
     - assets/images/img_temp.jpeg
     - assets/images/qr.svg
     - assets/images/img_label_instruction.png
     - assets/images/img_tag_instruction.png
     - assets/images/img_qr_code_label_ok.png
+    - assets/images/img_qr_code_label_error_step_2.png
+    - assets/images/img_qr_code_label_error_step_3.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

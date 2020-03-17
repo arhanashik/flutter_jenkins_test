@@ -49,8 +49,8 @@ class AppColors {
   ];
 
   static const List<Color> disabledGradient = const <Color>[
-    const Color(0xFF485461),
-    const Color(0xFF485461),
-    const Color(0xFF485461),
+    const Color(0xFFD6D6D6),
+    const Color(0xFFD6D6D6),
+    const Color(0xFFD6D6D6),
   ];
 }

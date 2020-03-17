@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
+import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/packing_product_item.dart';
 
 class FullScreenOrderListDialog extends StatefulWidget {
@@ -41,14 +43,18 @@ class FullScreenOrderListDialogState extends BaseState<FullScreenOrderListDialog
     return Scaffold(
       appBar: AppBar(
         title: Text(locale.txtProductList,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.white,
+        elevation: 2.0,
         actions: <Widget>[
-          IconButton(
-            icon: new Icon(Icons.close, color: Colors.white,),
-            onPressed: () => Navigator.of(context).pop(null),
+          InkWell(
+            child: Padding(
+              child: AppIcons.loadIcon(AppIcons.icClose, color: AppColors.colorBlue),
+              padding: EdgeInsets.only(right: 16.0),
+            ),
+            onTap: () => Navigator.of(context).pop(null),
           ),
         ],
         leading: new Container(),

@@ -1,3 +1,6 @@
+import 'package:o2o/data/constant/const.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
+
 class ProductEntity {
   String title;
   int janCode;
@@ -55,17 +58,12 @@ class ProductEntity {
         'Product 1 name is very large but still it is okay bro',
         1111111111111,
         'Category 1 very very large and so large is not wow great fine ',
-        1,
-        3,
-        'assets/images/img_temp.jpeg',
-        price: 1200,
+        3, 1, AppImages.NO_IMAGE_URL, price: 1200,
       ),
       ProductEntity('Product 2', 1111111111111,
-        'Category 2', 1, 2, 'assets/images/img_temp.jpeg',
-        price: 1200,),
+        'Category 2', 2, 1, AppImages.NO_IMAGE_URL, price: 1200,),
       ProductEntity('Product 3', 1111111111111,
-        'Category 3', 3, 4, 'assets/images/img_temp.jpeg',
-        price: 1200,),
+        'Category 3', 3, 3, AppImages.NO_IMAGE_URL, price: 1200,),
     ];
   }
 }

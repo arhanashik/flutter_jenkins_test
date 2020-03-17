@@ -6,6 +6,7 @@ class GradientButton extends StatelessWidget {
   GradientButton({
     this.text,
     this.txtColor = Colors.white,
+    this.disableTxtColor = Colors.white,
     this.fontSize = 14.0,
     this.fontWeight = FontWeight.w600,
     this.onPressed,
@@ -21,6 +22,7 @@ class GradientButton extends StatelessWidget {
 
   final String text;
   final Color txtColor;
+  final Color disableTxtColor;
   final double fontSize;
   final FontWeight fontWeight;
   final Function onPressed;
@@ -65,7 +67,9 @@ class GradientButton extends StatelessWidget {
             Text(
                 text,
                 style: TextStyle(
-                    color:txtColor, fontSize: fontSize, fontWeight: fontWeight
+                    color: enabled? txtColor : disableTxtColor,
+                    fontSize: fontSize,
+                    fontWeight: fontWeight
                 )
             )
           ],

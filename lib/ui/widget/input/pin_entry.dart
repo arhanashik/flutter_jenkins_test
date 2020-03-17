@@ -119,21 +119,19 @@ class PinEntryState extends State<PinEntry> {
         obscureText: widget.isTextObscure,
         decoration: InputDecoration(
             hintText: 'ー',
-            hintStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.normal),
+            hintStyle: TextStyle(
+                color: Colors.black54, fontWeight: FontWeight.normal
+            ),
             counterText: '',
-            border: widget.showFieldAsBox
-              ? OutlineInputBorder(borderSide: BorderSide(width: 3.0, color: Colors.blue),)
-              : null,
+//            border: widget.showFieldAsBox ? _outlineBorder() : InputBorder.none,
             enabledBorder: widget.showFieldAsBox
-                ? OutlineInputBorder(borderSide: BorderSide(width: 3.0, color: Colors.black12),)
-                : null,
-            focusedBorder: OutlineInputBorder(borderSide: BorderSide(width: 3.0, color: Colors.blue),),
+                ? _outlineBorder(color: lastDigit.isEmpty? Colors.black12 : Colors.lightBlue)
+                : InputBorder.none,
+            focusedBorder: _outlineBorder(),
             contentPadding: EdgeInsets.all(10),
         ),
         onChanged: (String str) {
-          setState(() {
-            _pin[i] = str;
-          });
+          setState(() => _pin[i] = str);
           if (i + 1 != widget.fields) {
             _focusNodes[i].unfocus();
             if (lastDigit != null && _pin[i] == '') {
@@ -158,6 +156,12 @@ class PinEntryState extends State<PinEntry> {
           }
         },
       ),
+    );
+  }
+
+  _outlineBorder({double width = 3.0, Color color = Colors.blue}) {
+    return OutlineInputBorder(
+        borderSide: BorderSide(width: width, color: color)
     );
   }
 

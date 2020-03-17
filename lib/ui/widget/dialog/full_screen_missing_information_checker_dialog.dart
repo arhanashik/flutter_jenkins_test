@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/checkable_product_item.dart';
-import 'package:o2o/ui/widget/button/simple_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 
 class FullScreenMissingInformationCheckerDialog extends StatefulWidget {
   FullScreenMissingInformationCheckerDialog({this.items});
@@ -112,13 +112,16 @@ class FullScreenMissingInformationCheckerDialogState extends BaseState<FullScree
       appBar: AppBar(
         title: Text(
             confirmation? locale.txtConfirmMissingInfo : '',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.black),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.white,
         actions: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.close, color: Colors.white,),
-            onPressed: () => Navigator.of(context).pop(null),
+          InkWell(
+            child: Padding(
+              child: AppIcons.loadIcon(AppIcons.icClose, color: AppColors.colorBlue),
+              padding: EdgeInsets.only(right: 16.0),
+            ),
+            onTap: () => Navigator.of(context).pop(null),
           ),
         ],
         leading: new Container(),
@@ -128,13 +131,12 @@ class FullScreenMissingInformationCheckerDialogState extends BaseState<FullScree
             width: MediaQuery.of(context).size.width,
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(bottom: BorderSide(color: Colors.black12, width: 2)),
+              gradient: LinearGradient(colors: AppColors.blueGradient),
             ),
             alignment: Alignment.center,
             child: Text(
                 confirmation? locale.msgConfirmMissingInfo : locale.txtSelectProductToCheckMissingInfo,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ),

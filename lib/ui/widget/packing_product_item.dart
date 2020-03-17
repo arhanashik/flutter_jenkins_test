@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/details_dialog.dart';
 import 'package:o2o/util/localization/o2o_localizations.dart';
 
@@ -18,7 +19,7 @@ class PackingProductItem extends StatelessWidget {
     O2OLocalizations locale = O2OLocalizations.of(context);
 
     return ListTile(
-      leading: Image.asset(product.imageUrl, fit: BoxFit.fill,),
+      leading: AppImages.loadImage(product.imageUrl, isAsset: false),
       title: Text(
         product.title,
         style: TextStyle(

@@ -1,24 +1,31 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
+import 'package:o2o/ui/screen/packing/step_5_qr_code_list_dialog.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
+import 'package:o2o/ui/widget/toast/toast_util.dart';
 
 class Step5Screen extends StatefulWidget {
 
   Step5Screen(this.qrCodes, this.onPrevScreen, this.onCompletion);
-  final List<String> qrCodes;
+  final HashSet<String> qrCodes;
   final Function onPrevScreen;
   final Function onCompletion;
 
   @override
-  _Step5ScreenState createState() => _Step5ScreenState(qrCodes, onPrevScreen, onCompletion);
+  _Step5ScreenState createState() => _Step5ScreenState(
+      qrCodes, onPrevScreen, onCompletion
+  );
 }
 
 class _Step5ScreenState extends BaseState<Step5Screen> {
 
   _Step5ScreenState(this.qrCodes, this.onPrevScreen, this.onCompletion);
-  final List<String> qrCodes;
+  final HashSet<String> qrCodes;
   final Function onPrevScreen;
   final Function onCompletion;
 
@@ -414,11 +421,28 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
     );
   }
 
-  _buildLabelAddingInstruction() {
-    return Container(
-      alignment: Alignment.center,
-      child: Image.asset('assets/images/img_tag_instruction.png',),
-    );
+  _showQrCodeList() async {
+    final List resultList = await Navigator.of(context).push(MaterialPageRoute<List>(
+        builder: (BuildContext context) {
+          return Step5QrCodeListDialog(items: qrCodes.toList(),);
+        },
+        fullscreenDialog: true
+    ));
+
+    if (resultList != null) {
+      if(resultList.length == qrCodes.length) {
+        onPrevScreen();
+        return;
+      }
+
+      setState(() => qrCodes.removeAll(resultList));
+
+      ToastUtil.show(
+        context,
+        '${resultList.join(',')} を削除しました。',
+        icon: Icon(Icons.delete,),
+      );
+    }
   }
 
   _buildBody() {
@@ -428,9 +452,30 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
 //          padding: EdgeInsets.all(10),
 //          child: _buildLabelExample(),
 //        ),
+        InkWell(
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            margin: EdgeInsets.symmetric(horizontal: 36.0, vertical: 16.0),
+            decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.all(Radius.circular(25.0))
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text('読み取った荷札QRコードを確認する', style: TextStyle(
+                  color: Colors.black, fontSize: 14,
+                ),),
+                Icon(Icons.arrow_forward_ios)
+              ],
+            ),
+          ),
+          onTap: () => _showQrCodeList(),
+        ),
         Container(
           alignment: Alignment.center,
-          child: Image.asset('assets/images/img_qr_code_label_ok.png',),
+          child: AppImages.imgQrCodeLabelOk,
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
@@ -442,7 +487,7 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
         ),
         Padding(
           padding: EdgeInsets.all(10),
-          child: _buildLabelAddingInstruction(),
+          child: AppImages.imgTagInstruction,
         ),
 //        Padding(
 //          padding: EdgeInsets.all(10),

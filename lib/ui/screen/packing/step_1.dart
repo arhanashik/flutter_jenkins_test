@@ -6,7 +6,6 @@ import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/packing_product_item.dart';
-import 'package:o2o/ui/widget/button/simple_button.dart';
 
 class Step1Screen extends StatefulWidget {
 

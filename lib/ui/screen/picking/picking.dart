@@ -516,8 +516,6 @@ class _PickingScreenState extends BaseState<PickingScreen>
       });
       _checkJanCodeProduct(_qrText);
     }
-
-    if (_qrText.isEmpty) ToastUtil.show(context, 'Scanning canceled');
   }
 
   _checkJanCodeProduct(janCode) async {

@@ -74,7 +74,9 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: 100,
-                color: AppColors.colorBlue,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: AppColors.blueGradient)
+                ),
                 padding: EdgeInsets.all(16),
                 child: Text(
                   locale.msgReadQRCode,

@@ -16,17 +16,20 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class Step4Screen extends StatefulWidget {
 
-  Step4Screen(this.onPrevScreen, this.onNextScreen);
+  Step4Screen(this.qrCodes, this.onPrevScreen, this.onNextScreen);
+  final HashSet<String> qrCodes;
   final Function onPrevScreen;
   final Function onNextScreen;
 
   @override
-  _Step4ScreenState createState() => _Step4ScreenState(onPrevScreen, onNextScreen);
+  _Step4ScreenState createState() => _Step4ScreenState(
+      qrCodes, onPrevScreen, onNextScreen
+  );
 }
 
 class _Step4ScreenState extends BaseState<Step4Screen> {
 
-  _Step4ScreenState(this.onPrevScreen, this.onNextScreen);
+  _Step4ScreenState(this._scannedQrCodes, this.onPrevScreen, this.onNextScreen);
   final Function onPrevScreen;
   final Function onNextScreen;
 
@@ -34,7 +37,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   var qrText = "";
   QRViewController controller;
   bool flashOn = false;
-  final _scannedQrCodes = HashSet<String>();
+  final _scannedQrCodes;
 
   Container _sectionTitleBuilder(title) {
     return Container(
@@ -209,45 +212,45 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
       return;
     }
 
-    CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-    requestBody['qrCode'] = qrCode;
+//    CommonWidget.showLoader(context, cancelable: true);
+//    String imei = await PrefUtil.read(PrefUtil.IMEI);
+//    final requestBody = HashMap();
+//    requestBody['imei'] = imei;
+//    requestBody['qrCode'] = qrCode;
+//
+//    final response = await HttpUtil.postReq(AppConst.CHECK_PACKING_QR_CODE, requestBody);
+//    print('code: ${response.statusCode}');
+//    Navigator.of(context).pop();
+//    _resumeCamera();
+//
+//    if (response.statusCode != 200) {
+//      ToastUtil.show(
+//          context, 'Please try again',
+//          icon: Icon(Icons.error, color: Colors.white,),
+//          verticalMargin: 200, error: true
+//      );
+//      return;
+//    }
 
-    final response = await HttpUtil.postReq(AppConst.CHECK_PACKING_QR_CODE, requestBody);
-    print('code: ${response.statusCode}');
-    Navigator.of(context).pop();
-    _resumeCamera();
-
-    if (response.statusCode != 200) {
-      ToastUtil.show(
-          context, 'Please try again',
-          icon: Icon(Icons.error, color: Colors.white,),
-          verticalMargin: 200, error: true
-      );
-      return;
-    }
-
-    print('body: ${response.body}');
-    final responseCode = json.decode(response.body);
-    if(responseCode['resultCode'] == PackingQrCodeStatus.NOT_ISSUED) {
-      ToastUtil.show(
-          context, 'No Product from HTKK $qrCode',
-          icon: Icon(Icons.error, color: Colors.white,),
-          verticalMargin: 200, error: true
-      );
-      return;
-    }
-
-    if(responseCode['resultCode'] == PackingQrCodeStatus.REGISTERED) {
-      ToastUtil.show(
-          context, 'Product already registered with $qrCode',
-          icon: Icon(Icons.error, color: Colors.white,),
-          verticalMargin: 200, error: true
-      );
-      return;
-    }
+//    print('body: ${response.body}');
+//    final responseCode = json.decode(response.body);
+//    if(responseCode['resultCode'] == PackingQrCodeStatus.NOT_ISSUED) {
+//      ToastUtil.show(
+//          context, 'No Product from HTKK $qrCode',
+//          icon: Icon(Icons.error, color: Colors.white,),
+//          verticalMargin: 200, error: true
+//      );
+//      return;
+//    }
+//
+//    if(responseCode['resultCode'] == PackingQrCodeStatus.REGISTERED) {
+//      ToastUtil.show(
+//          context, 'Product already registered with $qrCode',
+//          icon: Icon(Icons.error, color: Colors.white,),
+//          verticalMargin: 200, error: true
+//      );
+//      return;
+//    }
 
     setState(() => _scannedQrCodes.add(qrText));
     ToastUtil.show(context, locale.txtScanned1QRCode, verticalMargin: 200,);

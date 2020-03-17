@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:o2o/data/constant/const.dart';
 import 'package:o2o/data/product/product_entity.dart';
-import 'package:o2o/ui/widget/progressbar/circular_progress_bar.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/details_dialog.dart';
+import 'package:o2o/ui/widget/progressbar/circular_progress_bar.dart';
 import 'package:o2o/util/localization/o2o_localizations.dart';
 
 class ScannedProductItem extends StatelessWidget {
@@ -25,15 +25,12 @@ class ScannedProductItem extends StatelessWidget {
     ).show();
   }
 
-  ListTile _listTileBuilder(context) {
+  _listTileBuilder(context) {
     O2OLocalizations locale = O2OLocalizations.of(context);
-
-    final imageUrl = scannedProduct.imageUrl.isEmpty
-        ? AppConst.NO_IMAGE_URL : scannedProduct.imageUrl;
 
     return ListTile(
       leading: GestureDetector(
-        child: Image.network(imageUrl, fit: BoxFit.fill,),
+        child: AppImages.loadImage(scannedProduct.imageUrl, isAsset: false),
         onTap: () => _showProductDetails(context),
       ),
       title: Text(
@@ -99,8 +96,6 @@ class ScannedProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      child: _listTileBuilder(context),
-    );
+    return _listTileBuilder(context);
   }
 }
