@@ -7,7 +7,7 @@ import 'package:o2o/ui/screen/home/history/order_list_history.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/order_history_list_item.dart';
-import 'package:o2o/util/Debouncer.dart';
+import 'package:o2o/util/helper/debouncer.dart';
 
 /// Created by mdhasnain on 07 Feb, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp

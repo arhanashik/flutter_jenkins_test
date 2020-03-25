@@ -3,8 +3,7 @@ import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
-import 'package:o2o/util/common.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class AddProductDialog {
 
@@ -125,7 +124,7 @@ class AddProductDialog {
           text: O2OLocalizations.of(context).txtSubmitAndNext,
           onPressed: () => onInsertAndNext(),
           showIcon: true,
-          padding: 24,
+          padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
         ),
       ],
     );
@@ -137,7 +136,7 @@ class AddProductDialog {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return Dialog(shape: Common.roundRectBorder(5.0), child: Container(
+          return Dialog(shape: CommonWidget.roundRectBorder(5.0), child: Container(
             child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setDialogState) {
                 return Column(

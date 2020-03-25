@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/ui/screen/home/history/order_list_history.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class OrderHistoryListItem extends StatelessWidget {
 

@@ -10,22 +10,22 @@ import 'package:o2o/data/timeorder/time_order.dart';
 
 class TimeOrderListItem {
   final String date;
-  final List timeOrderList;
+  final List timeOrderSummaryList;
 
   TimeOrderListItem._({
     this.date,
-    this.timeOrderList
+    this.timeOrderSummaryList
   });
 
   TimeOrderListItem({
     this.date,
-    this.timeOrderList
+    this.timeOrderSummaryList
   });
 
   factory TimeOrderListItem.fromJson(Map<String, dynamic> jsonData) {
     return new TimeOrderListItem._(
       date: jsonData['date'],
-      timeOrderList: jsonData['timeOrderSummaryList'].map(
+      timeOrderSummaryList: jsonData['timeOrderSummaryList'].map(
               (data) => TimeOrder.fromJson(data)
       ).toList(),
     );
@@ -33,13 +33,16 @@ class TimeOrderListItem {
 
   Map<String, dynamic> toJson() => {
     'date': date,
-    'timeOrderSummaryList': timeOrderList.map((data) => data.toJson()),
+    'timeOrderSummaryList': timeOrderSummaryList.map((data) => data.toJson()),
   };
 
   static dummyTimeOrderList() {
     return [
       TimeOrderListItem(
-          date: "2020-02-12", timeOrderList: TimeOrder.dummyTimeOrderList()
+          date: "2020-02-12", timeOrderSummaryList: TimeOrder.dummyTimeOrderList()
+      ),
+      TimeOrderListItem(
+          date: "2020-02-13", timeOrderSummaryList: TimeOrder.dummyTimeOrderList()
       ),
     ];
   }

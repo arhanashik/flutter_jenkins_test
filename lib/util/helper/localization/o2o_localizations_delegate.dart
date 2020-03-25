@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class O2OLocalizationsDelegate extends LocalizationsDelegate<O2OLocalizations> {
   const O2OLocalizationsDelegate();

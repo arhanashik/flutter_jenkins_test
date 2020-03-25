@@ -28,10 +28,5 @@ class AppIcons {
   static ImageIcon icBack = _loadIcon('${_iconDir}ic_back.png',);
   static ImageIcon icSettings = _loadIcon('${_iconDir}ic_settings.png',);
   static ImageIcon icBackToList = _loadIcon('${_iconDir}ic_back_to_list.png',);
-  static ImageIcon icDigit1 = _loadIcon('${_iconDir}ic_digit_1.png',);
-  static ImageIcon icDigit2 = _loadIcon('${_iconDir}ic_digit_2.png',);
-  static ImageIcon icDigit2Red = _loadIcon('${_iconDir}ic_digit_2_red.png',);
-  static ImageIcon icDigit3 = _loadIcon('${_iconDir}ic_digit_3.png',);
-  static ImageIcon icDigit3Red = _loadIcon('${_iconDir}ic_digit_3_red.png',);
   static ImageIcon icClose = _loadIcon('${_iconDir}ic_close.png',);
 }

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:o2o/ui/screen/splash/splash.dart';
 import 'package:o2o/theme.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
-import 'package:o2o/util/localization/o2o_localizations_delegate.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations_delegate.dart';
 
 class O2OApp extends StatelessWidget {
   @override

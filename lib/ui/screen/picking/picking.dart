@@ -3,12 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:o2o/data/choice/choice.dart';
-import 'package:o2o/data/constant/const.dart';
 import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/data/product/product_entity.dart';
-import 'package:o2o/data/response/PickedItemCheckResponse.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/error/error.dart';
 import 'package:o2o/ui/screen/packing/packing.dart';
@@ -24,28 +22,43 @@ import 'package:o2o/ui/widget/dialog/input_dialog.dart';
 import 'package:o2o/ui/widget/dialog/select_next_step_dialog.dart';
 import 'package:o2o/ui/widget/scanned_product_item.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
-import 'package:o2o/util/HttpUtil.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-class PickingScreen extends StatefulWidget {
-  final OrderItem orderItem;
+/// Created by mdhasnain on 31 Jan, 2020
+/// Email: md.hasnain@healthcare-tech.co.jp
+///
+/// Purpose of the class:
+/// 1. Show the picking and picked product list
+/// 2. Scan product with barcode scanner
+/// 3. Add new product after checking the barcode on server
+/// 4. Check the missing product status
 
-  PickingScreen({Key key, this.orderItem}) : super(key: key);
+class PickingScreen extends StatefulWidget {
+  PickingScreen({
+    Key key,
+    @required this.orderItem,
+    @required this.isUnderWork
+  }) : super(key: key);
+  final OrderItem orderItem;
+  final bool isUnderWork;
 
   @override
   _PickingScreenState createState() =>
-      _PickingScreenState(orderItem);
+      _PickingScreenState(orderItem, isUnderWork);
 }
 
 class _PickingScreenState extends BaseState<PickingScreen>
     with TickerProviderStateMixin {
 
-  _PickingScreenState(this._orderItem);
+  _PickingScreenState(this._orderItem, this._isUnderWork);
   final OrderItem _orderItem;
-  
+  bool _isUnderWork;
+  /// Two different list to separate the picking and picked products
   List<ProductEntity> _scannedProducts = List();
   List _scanCompletedProducts = List();
 
+  /// Option menus : (a) Report Missing (2) Manual JanCode input
   List<Choice> _choices = List();
   Choice _selectedChoice;
   void _select(Choice choice) {
@@ -57,6 +70,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     else if (_selectedChoice == _choices[2]) _customJANCodeInput();
   }
 
+  /// Initialize the menu items
   void _initChoices() {
     _choices.clear();
     _choices.add(Choice(title: locale.txtSettings, icon: Icons.settings));
@@ -66,11 +80,13 @@ class _PickingScreenState extends BaseState<PickingScreen>
     _selectedChoice = _choices[0];
   }
 
-  final GlobalKey _qrKey = GlobalKey(debugLabel: 'QR');
+  /// Barcode scanner properties
+  final GlobalKey _qrKey = GlobalKey(debugLabel: 'BARCODE');
   var _qrText = "";
   QRViewController _controller;
   bool _flashOn = false;
 
+  /// Barcode scanner widget with fullscreen, flush buttons
   _sectionBarcodeScanner() {
     return Container(
       constraints: BoxConstraints.expand(height: 220),
@@ -127,6 +143,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
+  /// Title widget for picked and picking product list
   _sectionTitleBuilder(title) {
     return Container(
       margin: EdgeInsets.only(left: 16, top: 16),
@@ -144,6 +161,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
+  /// Providing same type of Text widget from one place
   _boldTextBuilder(String text, double size) {
     return Text(
       text,
@@ -152,7 +170,8 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
-  _sectionHeaderBuilder(String text) {
+  /// Widget for the Barcode scanner label
+  _sectionScannerLabelBuilder() {
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -160,10 +179,11 @@ class _PickingScreenState extends BaseState<PickingScreen>
       ),
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
       alignment: Alignment.center,
-      child: _boldTextBuilder('$text', 14),
+      child: _boldTextBuilder(locale.msgScanBarcode, 14),
     );
   }
 
+  /// Checking the missing status of the products
   _checkMissingInformation() async {
     FullScreenMissingInformationCheckerDialog(items: _scannedProducts,);
 
@@ -182,6 +202,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     }
   }
 
+  /// Custom input for JAN Code
   _customJANCodeInput() {
     InputDialog(context, locale.titleInsertCodeManually, locale.txtEntryJANCode,
             (code) {
@@ -192,71 +213,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
         }).show();
   }
 
-  _selectNextStep() {
-    SelectNextStepDialog(
-        context: context,
-        title: locale.txtAllProductsPickingDone,
-        msg: locale.txtSelectNextStep,
-        warning: locale.txtProvideMissingInfo,
-        confirmBtnTxt: locale.txtProceedToShippingPreparation,
-        otherButtonText: locale.txtPickAnotherOrder,
-        onConfirm: () {
-          Navigator.of(context).pop();
-          ConfirmationDialog(
-            context,
-            locale.txtStartShippingPreparation,
-            locale.msgStartPicking,
-            locale.txtStart, () => _startPackingForResult()
-          ).show();
-        },
-        onReportMissing: () {
-          Navigator.of(context).pop();
-          _checkMissingInformation();
-        },
-        onOther: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
-        }
-    ).show();
-  }
-
-  _startPackingForResult() async {
-    //update picking status as done
-//    String imei = await PrefUtil.read(PrefUtil.IMEI);
-//    final requestBody = HashMap();
-//    requestBody['imei'] = imei;
-//    requestBody['orderNo'] = _orderItem.orderNo;
-//    requestBody['status'] = PickingStatus.DONE;
-//
-//    var response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, requestBody);
-//    print('code: ${response.statusCode}');
-//    if (response.statusCode != 200) {
-//      ToastUtil.showCustomToast(context, 'Failed to upate picking status');
-//      return;
-//    }
-//
-//    //update packing status as working
-//    requestBody['status'] = PackingStatus.WORKING;
-//    response = await HttpUtil.postReq(AppConst.UPDATE_PACKING_STATUS, requestBody);
-//    print('code: ${response.statusCode}');
-//    if (response.statusCode != 200) {
-//      ToastUtil.showCustomToast(context, 'Failed to upate packing status');
-//      return;
-//    }
-
-    _pauseCamera();
-    final results = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) =>
-            PackingScreen(
-              orderItem: _orderItem,
-            )
-    ));
-
-    if (results != null && results.containsKey('order_id')) {
-      Navigator.of(context).pop(results);
-    }
-  }
-
+  /// Create the lists of picked and picking products
   _createLists() {
     return CustomScrollView(
       slivers: <Widget>[
@@ -272,6 +229,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
+              final item = _scannedProducts[index];
               return Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey,),
@@ -280,8 +238,10 @@ class _PickingScreenState extends BaseState<PickingScreen>
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: ScannedProductItem(
-                  scannedProduct: _scannedProducts[index],
+                  scannedProduct: item,
                   onPressed: () => _selectNextStep(),
+                  onChangeQuantity:
+                      () => _getProductPickingCount(item.janCode.toString()),
                 ),
               );
             },
@@ -312,7 +272,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: ScannedProductItem(
                   scannedProduct: _scanCompletedProducts[index],
-                  onPressed: null,
+                  onPressed: () => _checkPickingStatus(),
                 ),
               );
             },
@@ -323,6 +283,12 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
+  /// This the body widget of the 'PickingScreen'
+  /// There are several checks inside it based on 'loadingState'
+  /// 1. If the there is error on api response the error screen is showed
+  /// 2. If the api returns no data then no data screen is showed
+  /// 3. Finally if we get data then a List is showed with a PullToRefresh widget
+  /// and a barcode scanner is shown on the top of the screen
   _bodyBuilder() {
     return loadingState == LoadingState.ERROR
         ? ErrorScreen(
@@ -341,7 +307,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           _sectionBarcodeScanner(),
-          _sectionHeaderBuilder(locale.msgScanBarcode),
+          _sectionScannerLabelBuilder(),
           Expanded(
             child: _createLists(),
           ),
@@ -350,6 +316,8 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
+  /// If user press on the back button, show the confirmation popup
+  /// and return to order list on confirmation
   Future<bool> _onWillPop() async {
     return (await ConfirmationDialog(
       context,
@@ -360,6 +328,8 @@ class _PickingScreenState extends BaseState<PickingScreen>
     ).show()) ?? false;
   }
 
+  /// 1. Fetch the data list for the first time
+  /// 2. Pause the barcode scanner initially
   @override
   void initState() {
     super.initState();
@@ -367,6 +337,10 @@ class _PickingScreenState extends BaseState<PickingScreen>
     _pauseCamera();
   }
 
+  /// Main building block of the screen
+  /// 1. 'TopBar' is a custom app bar for showing custom navigation icon,
+  /// custom title and custom menu
+  /// 2. WillPopScope is for detecting the back button press
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -394,7 +368,8 @@ class _PickingScreenState extends BaseState<PickingScreen>
                     );
                   }).toList();
                 }),
-          onTapNavigation: () { _onWillPop();},
+          onTapNavigation: () => _onWillPop(),
+          error: _isUnderWork? '${_orderItem.lockedName}が作業中' : '',
         ),
 //        appBar: AppBar(
 //          title: Text(''),
@@ -421,6 +396,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
+  /// Attach controller with the barcode scanner when the scanner is created
   void _onQRViewCreated(QRViewController controller) {
     this._controller = controller;
     controller.scannedDataStream.listen((scanData) {
@@ -432,45 +408,60 @@ class _PickingScreenState extends BaseState<PickingScreen>
     });
   }
 
+  /// Function for toggle the flush of the barcode scanner
   void _toggleFlush() {
     _controller?.toggleFlash();
     setState(() => _flashOn = !_flashOn);
   }
 
+  /// Function for pause the camera of the barcode scanner
   void _pauseCamera() {
     _controller?.pauseCamera();
   }
 
+  /// Function for resume the camera of the barcode scanner
   void _resumeCamera() {
     _controller?.resumeCamera();
   }
 
+  /// This is an async function to fetch product list from the server
+  /// It reads the imei from the SharedPreferences and try to send it to
+  /// server along with the 'orderNo' of the _orderItem using the api
+  /// 'GET_PICKING_LIST'.
+  /// Then it checks the response for valid/invalid response code and update
+  /// the state with new data
   _fetchData() async {
     if (loadingState == LoadingState.LOADING) return;
 
     setState(() => loadingState = LoadingState.LOADING);
 
-//    String imei = await PrefUtil.read(PrefUtil.IMEI);
-//    final requestBody = HashMap();
-//    requestBody['imei'] = imei;
-//    requestBody['orderNo'] = _orderItem.orderNo;
-//
-//    final response = await HttpUtil.postReq(AppConst.GET_PICKING_LIST, requestBody);
-//    print('code: ${response.statusCode}');
-//    if (response.statusCode != 200) {
-//      setState(() => loadingState = LoadingState.ERROR);
-//      return;
-//    }
-//
-//    print('body: ${response.body}');
-//    List jsonData = json.decode(response.body);
-//    List<ProductEntity> items = jsonData.map(
-//            (data) => ProductEntity.fromJson(data)
-//    ).toList();
-    List<ProductEntity> items = ProductEntity.dummyProducts();
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderNo'] = _orderItem.orderNo;
+
+    final response = await HttpUtil.get(HttpUtil.GET_PICKING_LIST, params: params);
+    if (response.statusCode != 200) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    if(code == HttpCode.NOT_FOUND) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
+    final List data = responseMap['data'];
+    List<ProductEntity> items = data.map(
+            (data) => ProductEntity.fromJson(data)
+    ).toList();
+//    List<ProductEntity> items = ProductEntity.dummyProducts();
 
     LoadingState newState = LoadingState.NO_DATA;
     if (_scanCompletedProducts.isNotEmpty || items.isNotEmpty) {
+      _scanCompletedProducts.clear();
+      _scannedProducts.clear();
       items.forEach((item) {
         if (item.itemCount == item.pickedItemCount)
           _scanCompletedProducts.add(item);
@@ -482,19 +473,26 @@ class _PickingScreenState extends BaseState<PickingScreen>
     }
 
     setState(() => loadingState = newState);
+    _checkPickingStatus();
   }
 
+  /// If user wants to use a fullscreen scanner this function provides that
+  /// A fullscreen function is popped up and this function waits for the
+  /// scan result of the scanner. If the scanner finds a barcode
+  /// this function calls '_checkJanCodeProduct' to check that code in server
   void _fullScreenScanner() async {
     final results = await Navigator.of(context).push(
         MaterialPageRoute<dynamic>(
             builder: (BuildContext context) => ScannerScreen(
               navigationIcon: AppIcons.loadIcon(
                   AppIcons.icBackToList,
-                  size: 64.0,
+                  size: 48.0,
                   color: Colors.white
               ),
               menu: PopupMenuButton(
-                child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
+                child: AppIcons.loadIcon(
+                    AppIcons.icSettings, size: 48.0, color: Colors.white
+                ),
                 onSelected: _select,
                 itemBuilder: (BuildContext context) {
                   return _choices.skip(1).map((Choice choice) {
@@ -518,6 +516,13 @@ class _PickingScreenState extends BaseState<PickingScreen>
     }
   }
 
+  /// This function checks the provided janCode in the server and if a valid
+  /// product is found it calls '_getProductPickingCount' function to popup
+  /// new product add dialog
+  /// The result of the api check can be
+  /// 1. No product found for the janCode
+  /// 2. The product is already picked
+  /// 3. New product
   _checkJanCodeProduct(janCode) async {
     if(!isOnline) {
       ToastUtil.show(
@@ -531,17 +536,16 @@ class _PickingScreenState extends BaseState<PickingScreen>
 
     CommonWidget.showLoader(context, cancelable: true);
     String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-    requestBody['orderNo'] = _orderItem.orderNo;
-    requestBody['janCode'] = janCode;
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderNo'] = _orderItem.orderNo;
+    params['janCode'] = janCode;
 
-    final response = await HttpUtil.postReq(AppConst.CHECK_PICKED_ITEM, requestBody);
-    print('code: ${response.statusCode}');
+    final response = await HttpUtil.get(HttpUtil.CHECK_PICKED_ITEM, params: params);
     Navigator.of(context).pop();
     if (response.statusCode != 200) {
       ToastUtil.show(
-          context, 'Please try again',
+          context, 'Cannot connect to server',
           icon: Icon(Icons.error, color: Colors.white,),
           fromTop: true, verticalMargin: 110, error: true
       );
@@ -549,33 +553,29 @@ class _PickingScreenState extends BaseState<PickingScreen>
       return;
     }
 
-    print('body: ${response.body}');
-    final pickedResponse = PickedItemCheckResponse.fromJson(
-        json.decode(response.body)
-    );
-    if(pickedResponse.resultCode == PickingCheckStatus.NOT_AVAILABLE) {
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    final msg = responseMap['msg'];
+    if(code != PickingCheckStatus.NOT_PICKED) {
       ToastUtil.show(
-          context, 'No product with $janCode',
+          context, msg,
           icon: Icon(Icons.error, color: Colors.white,),
           fromTop: true, verticalMargin: 110, error: true
       );
       _resumeCamera();
       return;
     }
-
-    if(pickedResponse.resultCode == PickingCheckStatus.PICKED) {
-      ToastUtil.show(
-          context, 'Product already picked with $janCode',
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
-      _resumeCamera();
-      return;
-    }
+    final data = responseMap['data'];
+    ProductEntity item = ProductEntity.fromJson(data);
 
     _getProductPickingCount(janCode);
   }
 
+  /// The function check the janCode locally to see if the product is available
+  /// in the picked or picking list.
+  /// 1. If it is not in there, show error of no product found
+  /// 2. If it is in picked list, show error of product already added
+  /// 3. If not 1 or 2 then show 'AddProductDialog'
   _getProductPickingCount(janCode) {
     if(_scanCompletedProducts.firstWhere(
             (element) => element.janCode.toString() == janCode,
@@ -602,35 +602,133 @@ class _PickingScreenState extends BaseState<PickingScreen>
     }).show();
   }
 
+  /// After 'AddProductDialog' this function is called to add the new product to
+  /// the server. If successfully added to the server, do the following
+  /// 1. If the picking count is less that itemCount add to the picking list
+  /// 2. If equal, add to the picked list and remove from the picking list
+  /// Finally, Update the state with the new data
   _updateProductPickingCount(ProductEntity product) async {
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-    requestBody['orderNo'] = _orderItem.orderNo;
-    requestBody['janCode'] = product.janCode;
-    requestBody['pickingCount'] = product.pickedItemCount;
 
-    final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_COUNT, requestBody);
-    print('code: ${response.statusCode}');
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderNo'] = _orderItem.orderNo;
+    params['janCode'] = product.janCode;
+    params['pickingCount'] = product.pickedItemCount;
+
+    final response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_COUNT, params);
     if (response.statusCode != 200) {
-      ToastUtil.show(context, 'Please try again');
+      ToastUtil.show(context, 'Server is not available');
       _resumeCamera();
       return;
     }
 
-    setState(() => loadingState = LoadingState.LOADING);
-    setState(() {
-      if(product.itemCount == product.pickedItemCount) {
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    final msg = responseMap['msg'];
+    if(code != HttpCode.OK) {
+      ToastUtil.show(
+          context, msg,
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
+      _resumeCamera();
+      return;
+    }
+//    final data = responseMap['data'];
+    if(product.itemCount == product.pickedItemCount) {
+      setState(() {
         _scannedProducts.remove(product);
         _scanCompletedProducts.add(product);
-      }
-      loadingState = LoadingState.OK;
-    });
+      });
+    }
 
     ToastUtil.show(context, 'Product picked');
     _resumeCamera();
+    _checkPickingStatus();
   }
 
+  /// After every picking action check if all items are picked
+  /// If picked, popup to go to packing or select another odder
+  _checkPickingStatus() {
+    if(_scannedProducts.isEmpty) {
+      _selectNextStep();
+    }
+  }
+
+  /// Select next step when all product's picking is complete.
+  /// Total three options
+  /// 1. Start packing -> Go to packing screen
+  /// 2. Check missing order -> Check missing order
+  /// 3. Start picking for another order -> Go back to order list screen
+  _selectNextStep() {
+    SelectNextStepDialog(
+        context: context,
+        title: locale.txtAllProductsPickingDone,
+        msg: locale.txtSelectNextStep,
+        warning: locale.txtProvideMissingInfo,
+        confirmBtnTxt: locale.txtProceedToShippingPreparation,
+        otherButtonText: locale.txtPickAnotherOrder,
+        onConfirm: () {
+          Navigator.of(context).pop();
+          ConfirmationDialog(
+              context,
+              locale.txtStartShippingPreparation,
+              locale.msgStartPicking,
+              locale.txtStart, () => _startPackingForResult()
+          ).show();
+        },
+        onReportMissing: () {
+          Navigator.of(context).pop();
+          _checkMissingInformation();
+        },
+        onOther: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
+    ).show();
+  }
+
+  /// Start packing when all items are picked.
+  /// First change the status of the order
+  /// Then Go to the packing screen and wait for the result
+  _startPackingForResult() async {
+    //update picking status as done
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderNo'] = _orderItem.orderNo;
+    params['status'] = PickingStatus.DONE;
+
+    var response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
+    if (response.statusCode != 200) {
+      ToastUtil.show(context, 'Failed to upate picking status');
+      return;
+    }
+
+    //update packing status as working
+    params['status'] = PackingStatus.WORKING;
+    response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
+    if (response.statusCode != 200) {
+      ToastUtil.show(context, 'Failed to upate packing status');
+      return;
+    }
+
+    _pauseCamera();
+    final results = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) =>
+            PackingScreen(
+              orderItem: _orderItem,
+              isUnderWork: _isUnderWork,
+            )
+    ));
+
+    if (results != null && results.containsKey('order_id')) {
+      Navigator.of(context).pop(results);
+    }
+  }
+
+  /// Dispose the controller when the screen is disposed
   @override
   void dispose() {
     _controller?.dispose();

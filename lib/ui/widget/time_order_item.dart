@@ -13,7 +13,7 @@ class TimeOrderItem extends StatelessWidget {
       {Key key, @required this.context, @required this.timeOrder}
   ): super(key: key);
 
-  Container _itemHeaderBuilder() {
+  _itemHeaderBuilder() {
 //    final dateTime = DateTime.parse(timeOrder.scheduledDeliveryDateTime);
     final deliveryTime = timeOrder.scheduledDeliveryDateTime.substring(
         timeOrder.scheduledDeliveryDateTime.lastIndexOf(" ")
@@ -54,7 +54,7 @@ class TimeOrderItem extends StatelessWidget {
     );
   }
 
-  Container _itemBodyBuilder() {
+  _itemBodyBuilder() {
     return Container(
       height: 56,
       width: MediaQuery.of(context).size.width - 16,
@@ -69,7 +69,7 @@ class TimeOrderItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Padding(padding: EdgeInsets.only(left: 16),),
+          Padding(padding: EdgeInsets.only(left: 20),),
           Text(
             "末完了",
             style: TextStyle(
@@ -144,9 +144,52 @@ class TimeOrderItem extends StatelessWidget {
     );
   }
 
+  Container _itemCompletedOrderBuilder() {
+    final deliveryTime = timeOrder.scheduledDeliveryDateTime.substring(
+        timeOrder.scheduledDeliveryDateTime.lastIndexOf(" ")
+    );
+
+    return Container(
+      height: 48,
+      width: MediaQuery.of(context).size.width,
+      margin: EdgeInsets.only(left: 8, right: 8, bottom: 8),
+      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+      decoration: BoxDecoration(
+          color: Colors.blueGrey,
+          borderRadius: BorderRadius.all(Radius.circular(10.0))
+      ),
+      child: Row(
+        children: <Widget>[
+          Text(
+            deliveryTime,
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 5, top: 4),
+            child: Text(
+              '発送分',
+              style: TextStyle(
+                  fontSize: 14, color: Colors.white
+              ),
+            ),
+          ),
+          Spacer(),
+          Text(
+            '対応完了',
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return timeOrder.incompleteOrderCount == 0? _itemCompletedOrderBuilder() : InkWell(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => OrderList(timeOrder: timeOrder,)
       )),

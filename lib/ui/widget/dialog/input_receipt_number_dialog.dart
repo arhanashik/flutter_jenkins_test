@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
+import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/input/pin_entry.dart';
-import 'package:o2o/util/common.dart';
-import 'package:o2o/ui/widget/button/simple_button.dart';
 
 class InputReceiptNumberDialog {
   final BuildContext context;
@@ -20,7 +19,7 @@ class InputReceiptNumberDialog {
         context: context,
         builder: (BuildContext context) {
           return Dialog(
-            shape: Common.roundRectBorder(5.0),
+            shape: CommonWidget.roundRectBorder(5.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,

@@ -5,8 +5,8 @@ import 'package:o2o/ui/widget/common/app_colors.dart';
 /// Email: md.hasnain@healthcare-tech.co.jp
 ///  
 /// Purpose of the class:
-/// 1. 
-/// 2. 
+/// 1. Custom appbar with custom navigation icon and custom menu icon
+/// 2. More control over the app bar
 /// 3. 
 
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -18,21 +18,26 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
     this.background = Colors.white,
     this.menu,
     this.onTapNavigation,
-  }) : preferredSize = Size.fromHeight(60.0);
+    this.error = '',
+    this.errorIcon = const Icon(Icons.warning, color: Colors.white,)
+  }) : preferredSize = Size.fromHeight(80.0);
   final String title;
   final Widget navigationIcon;
   final Color iconColor;
   final Color background;
   final Widget menu;
   final Function onTapNavigation;
+  final String error;
+  final Icon errorIcon;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        height: 50.0,
+        height: error.isEmpty? 50.0 : 84.0,
+        width: MediaQuery.of(context).size.width,
         color: background,
-        padding: EdgeInsets.symmetric(horizontal: 13.0),
+        padding: EdgeInsets.zero,
         alignment: Alignment.center,
         child:
 //        Stack(
@@ -48,29 +53,80 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
 //            )
 //          ],
 //        ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
           children: <Widget>[
-            InkWell(
-              child: navigationIcon,
-              onTap: () => onTapNavigation == null
-                  ? Navigator.of(context).pop() : onTapNavigation(),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 5.0),
-              child: Text(
-                title,
-                style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w700
-                ),
-                textAlign: TextAlign.center,
+            error.isEmpty? Container() : Container(
+              color: Colors.redAccent,
+              padding: EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  errorIcon,
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 5),),
+                  Text(
+                    error,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.w700
+                    ),
+                  )
+                ],
               ),
             ),
-            menu == null? Container(width: 64.0,) : menu,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(left: 16.0),
+                  child: InkWell(
+                    child: navigationIcon,
+                    onTap: () => onTapNavigation == null
+                        ? Navigator.of(context).pop() : onTapNavigation(),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 5.0),
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w700
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(right: 16.0),
+                  child: menu == null? Container(width: 50.0,) : menu,
+                ),
+              ],
+            ),
           ],
         ),
+//        Row(
+//          mainAxisSize: MainAxisSize.max,
+//          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//          children: <Widget>[
+//            InkWell(
+//              child: navigationIcon,
+//              onTap: () => onTapNavigation == null
+//                  ? Navigator.of(context).pop() : onTapNavigation(),
+//            ),
+//            Padding(
+//              padding: EdgeInsets.only(top: 5.0),
+//              child: Text(
+//                title,
+//                style: TextStyle(
+//                    fontSize: 16.0,
+//                    fontWeight: FontWeight.w700
+//                ),
+//                textAlign: TextAlign.center,
+//              ),
+//            ),
+//            menu == null? Container(width: 64.0,) : menu,
+//          ],
+//        ),
       ),
     );
   }

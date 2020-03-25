@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class OrderListItem extends StatelessWidget {
 

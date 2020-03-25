@@ -1,23 +1,18 @@
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:o2o/data/constant/const.dart';
-import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
-import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
-import 'package:o2o/ui/widget/dialog/full_screen_item_chooser_dialog.dart';
+import 'package:o2o/ui/screen/packing/step_4_qr_code_list_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
-import 'package:o2o/util/HttpUtil.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class Step4Screen extends StatefulWidget {
 
   Step4Screen(this.qrCodes, this.onPrevScreen, this.onNextScreen);
-  final HashSet<String> qrCodes;
+  final LinkedHashSet<String> qrCodes;
   final Function onPrevScreen;
   final Function onNextScreen;
 
@@ -29,17 +24,17 @@ class Step4Screen extends StatefulWidget {
 
 class _Step4ScreenState extends BaseState<Step4Screen> {
 
-  _Step4ScreenState(this._scannedQrCodes, this.onPrevScreen, this.onNextScreen);
-  final Function onPrevScreen;
-  final Function onNextScreen;
+  _Step4ScreenState(this._scannedQrCodes, this._onPrevScreen, this._onNextScreen);
+  final LinkedHashSet<String> _scannedQrCodes;
+  final Function _onPrevScreen;
+  final Function _onNextScreen;
 
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QRCodeScanner');
-  var qrText = "";
-  QRViewController controller;
-  bool flashOn = false;
-  final _scannedQrCodes;
+  final GlobalKey _qrKey = GlobalKey(debugLabel: 'QRCodeScanner');
+  var _qrText = "";
+  QRViewController _controller;
+  bool _flashOn = false;
 
-  Container _sectionTitleBuilder(title) {
+  _sectionTitleBuilder(title) {
     return Container(
       margin: EdgeInsets.only(left: 16,),
       decoration: BoxDecoration(
@@ -63,7 +58,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
         Container(
           height: 275,
           child: QRView(
-            key: qrKey,
+            key: _qrKey,
             onQRViewCreated: _onQRViewCreated,
           ),
         ),
@@ -75,7 +70,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
               borderRadius: BorderRadius.all(Radius.circular(16)),
             ),
             child: Icon(
-              flashOn ? Icons.flash_off : Icons.flash_on,
+              _flashOn ? Icons.flash_off : Icons.flash_on,
               color: Colors.lightBlue,
             ),
             padding: EdgeInsets.all(2),
@@ -92,7 +87,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
       locale.txtReturnToPreviousStep,
       locale.msgReturnToPreviousStep,
       locale.txtOk,
-      onPrevScreen,
+      _onPrevScreen,
     ).show();
   }
 
@@ -116,31 +111,13 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
           ),
           GradientButton(
             text: locale.txtGoToAddLabel,
-            onPressed: () => onNextScreen(_scannedQrCodes.toList()),
+            onPressed: () => _onNextScreen(_scannedQrCodes),
             showIcon: true,
+            enabled: _scannedQrCodes.isNotEmpty,
           ),
         ],
       ),
     );
-  }
-
-  _showScannedQrCodeList() async {
-    final List resultList = await Navigator.of(context).push(new MaterialPageRoute<List>(
-        builder: (BuildContext context) {
-          return FullScreenItemChooserDialog(items: _scannedQrCodes.toList(),);
-        },
-        fullscreenDialog: true
-    ));
-
-    if (resultList != null) {
-      setState(() => _scannedQrCodes.removeAll(resultList));
-
-      ToastUtil.show(
-          context,
-          '${resultList.join(',')} を削除しました。',
-        icon: Icon(Icons.delete,),
-      );
-    }
   }
 
   @override
@@ -164,7 +141,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
                 child: GradientButton(
                   text: locale.txtSeeList,
                   onPressed: () => _showScannedQrCodeList(),
-                  padding: 10.0,
+                  padding: EdgeInsets.all(10.0),
                 ),
               ),
             ],
@@ -178,27 +155,27 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   }
 
   void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
+    this._controller = controller;
     controller.scannedDataStream.listen((scanData) {
       setState(() {
-        qrText = scanData;
+        _qrText = scanData;
         _pauseCamera();
-        _checkQrProduct(qrText);
+        _checkQrProduct(_qrText);
       });
     });
   }
 
   void _toggleFlush() {
-    controller?.toggleFlash();
-    setState(() => flashOn = !flashOn);
+    _controller?.toggleFlash();
+    setState(() => _flashOn = !_flashOn);
   }
 
   void _pauseCamera() {
-    controller?.pauseCamera();
+    _controller?.pauseCamera();
   }
 
   void _resumeCamera() {
-    controller?.resumeCamera();
+    _controller?.resumeCamera();
   }
 
   _checkQrProduct(qrCode) async {
@@ -252,13 +229,32 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 //      return;
 //    }
 
-    setState(() => _scannedQrCodes.add(qrText));
+    setState(() => _scannedQrCodes.add(_qrText));
     ToastUtil.show(context, locale.txtScanned1QRCode, verticalMargin: 200,);
+  }
+
+  _showScannedQrCodeList() async {
+    final List resultList = await Navigator.of(context).push(
+        MaterialPageRoute<List>(builder: (BuildContext context) {
+          return Step4QrCodeListDialog(items: _scannedQrCodes.toList(),);
+        },
+            fullscreenDialog: true
+        ));
+
+    if (resultList != null) {
+      setState(() => _scannedQrCodes.removeAll(resultList));
+
+      ToastUtil.show(
+        context,
+        '${resultList.join(',')} を削除しました。',
+        icon: Icon(Icons.delete, color: Colors.white,),
+      );
+    }
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 

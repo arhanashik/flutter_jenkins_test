@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/constant/const.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
-import 'package:o2o/util/common.dart';
+import 'package:o2o/ui/widget/common/common_widget.dart';
+import 'package:o2o/util/helper/common.dart';
 
 class DetailsDialog {
   final BuildContext context;
@@ -16,7 +17,7 @@ class DetailsDialog {
         context: context,
         builder: (BuildContext context) {
           return Dialog(
-            shape: Common.roundRectBorder(5.0),
+            shape: CommonWidget.roundRectBorder(5.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,

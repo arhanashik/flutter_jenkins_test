@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:o2o/data/orderitem/order_item.dart';
+import 'package:o2o/data/product/packing_list.dart';
 import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/packing_product_item.dart';
+import 'package:o2o/util/helper/common.dart';
 
 class Step1Screen extends StatefulWidget {
 
-  Step1Screen(this.orderItem, this.scannedProducts, this.onNextScreen);
-  final OrderItem orderItem;
-  final List scannedProducts;
+  Step1Screen(this.packingList, this.onNextScreen);
+  final PackingList packingList;
   final Function onNextScreen;
 
   @override
-  _Step1ScreenState createState() => _Step1ScreenState(orderItem, scannedProducts, onNextScreen);
+  _Step1ScreenState createState() => _Step1ScreenState(
+      packingList, onNextScreen
+  );
 }
 
 class _Step1ScreenState extends BaseState<Step1Screen> {
 
-  _Step1ScreenState(this.orderItem, this.scannedProducts, this.onNextScreen);
-  final OrderItem orderItem;
-  final List scannedProducts;
-  final Function onNextScreen;
+  _Step1ScreenState(
+      this._packingList,
+      this._onNextScreen
+  );
+  final PackingList _packingList;
+  final Function _onNextScreen;
 
   Container _sectionTitleBuilder(title) {
     return Container(
@@ -42,36 +46,36 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
     );
   }
 
-  Widget _buildList() {
+  _buildList() {
+    final itemCount = _packingList.products.length;
     return ListView.separated(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
-      itemCount: scannedProducts.length + 2,
+      itemCount: itemCount + 2,
       itemBuilder: (BuildContext context, int index) {
-
-        if (index == scannedProducts.length) {
+        if (index == itemCount) {
           return Padding(
             padding: EdgeInsets.only(bottom: 40),
-            child: Row(
+            child: itemCount > 0? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 GradientButton(
                   text: locale.txtGoToReceiptNumberInsertion,
-                  onPressed: () => onNextScreen(),
+                  onPressed: () => _onNextScreen(),
                   showIcon: true,
                 )
               ],
-            ),
+            ) : Container(),
           );
         }
 
-        if (index == scannedProducts.length + 1) {
+        if (index == itemCount + 1) {
           return CommonWidget.buildProgressIndicator(loadingState);
         }
-
+        final item = _packingList.products[index];
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: PackingProductItem(product: scannedProducts[index],),
+          child: PackingProductItem(product: item),
         );
       },
       separatorBuilder: (BuildContext context, int index) {
@@ -81,16 +85,16 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
   }
 
   _buildFooter() {
-
-    int totalPrice = 0;
     int itemCount = 0;
-    scannedProducts.forEach((scannedProduct) {
+    _packingList.products.forEach((scannedProduct) {
       if(scannedProduct is ProductEntity) {
-        totalPrice += scannedProduct.price * scannedProduct.pickedItemCount;
-        itemCount += scannedProduct.pickedItemCount;
+        itemCount += scannedProduct.itemCount;
       }
     });
 
+    final deliveryDate = Common.convertToDateTime(
+        _packingList.appointedDeliveringTime
+    );
     return Container(
       height: 100,
       decoration: BoxDecoration(
@@ -120,7 +124,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
                     borderRadius: BorderRadius.all(Radius.circular(5))
                 ),
                 child: Text(
-                  '13:00',
+                  '${deliveryDate.hour}:${deliveryDate.minute}',
                   style: TextStyle(
                     color: AppColors.colorBlueDark,
                     fontSize: 16,
@@ -130,62 +134,6 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
               )
             ],
           ),
-//          Container(
-//            height: 80,
-//            decoration: BoxDecoration(
-//              color: Colors.white,
-//              borderRadius: BorderRadius.all(Radius.circular(5))
-//            ),
-//            padding: EdgeInsets.symmetric(horizontal: 10),
-//            child: Column(
-//              mainAxisAlignment: MainAxisAlignment.center,
-//              crossAxisAlignment: CrossAxisAlignment.start,
-//              children: <Widget>[
-//                RichText(
-//                    text: TextSpan(
-//                      style: TextStyle(
-//                        color: Colors.black,
-//                        fontSize: 14,
-//                        fontWeight: FontWeight.bold,
-//                      ),
-//                      children: [
-//                        TextSpan(
-//                            text: locale.txtShippingPlan
-//                        ),
-//                        TextSpan(
-//                            text: '    13:00',
-//                          style: TextStyle(color: Colors.lightBlue, fontSize: 16),
-//                        ),
-//                      ],
-//                    ),
-//                ),
-//                Container(
-//                  width: 160,
-//                  height: 1,
-//                  color: Colors.black12,
-//                  margin: EdgeInsets.symmetric(vertical: 5),
-//                ),
-//                RichText(
-//                  text: TextSpan(
-//                    style: TextStyle(
-//                        color: Colors.black,
-//                        fontSize: 14,
-//                    ),
-//                    children: [
-//                      TextSpan(
-//                          text: locale.txtOrderNumber,
-//                        style: TextStyle(fontWeight: FontWeight.bold),
-//                      ),
-//                      TextSpan(
-//                        text: '    ${orderItem.orderNo}',
-//                        style: TextStyle(fontSize: 12),
-//                      ),
-//                    ],
-//                  ),
-//                ),
-//              ],
-//            ),
-//          ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +164,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
                     borderRadius: BorderRadius.all(Radius.circular(5))
                 ),
                 child: Text(
-                  '¥$totalPrice',
+                  '¥${_packingList.totalPrice}',
                   style: TextStyle(
                       color: AppColors.colorRed,
                       fontSize: 16,
@@ -279,6 +227,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
             child: Stack(
               alignment: AlignmentDirectional.bottomCenter,
               children: <Widget>[
+                SizedBox(height: MediaQuery.of(context).size.height,),
                 _buildList(),
                 _buildFooter(),
               ],

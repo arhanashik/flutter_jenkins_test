@@ -103,7 +103,7 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
         menu: menu,
         onTapNavigation: onTapNavigation,
       ),
-      backgroundColor: Color.fromARGB(255, 230, 242, 255),
+      backgroundColor: AppColors.background,
       body: _bodyBuilder(),
     );
   }

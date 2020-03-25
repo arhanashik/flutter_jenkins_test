@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/loader/color_loader.dart';
 
 class CommonWidget {
 
@@ -9,6 +10,7 @@ class CommonWidget {
     @required double radius,
     Color textColor = AppColors.colorBlueDark,
     double fontSize = 24.0,
+    Color background = Colors.white,
   }) {
     return Container(
       width: radius * 2,
@@ -26,7 +28,7 @@ class CommonWidget {
         width: radius * 2 - 16,
         height: radius * 2 - 16,
         decoration: BoxDecoration(
-            color: AppColors.background,
+            color: background,
             borderRadius: BorderRadius.circular(radius - 8)
         ),
         child: Center(
@@ -218,18 +220,26 @@ class CommonWidget {
       barrierDismissible: cancelable,
       context:context,
       builder:(BuildContext context){
-        return AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              Container(
-                  margin: EdgeInsets.only(left: 16),
-                  child:Text("Please wait..." )
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: 64.0,
+              height: 64.0,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
               ),
-            ],
-          ),
+              child: ColorLoader(),
+            )
+          ],
         );
       },
     );
+  }
+
+  static roundRectBorder(double radius) {
+    return RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));
   }
 }

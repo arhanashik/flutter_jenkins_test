@@ -111,7 +111,7 @@ class _Step3ScreenState extends BaseState<Step3Screen> {
                 icon: Icon(
                   Icons.arrow_back_ios, color: Colors.black, size: 14,
                 ),
-                padding: 70,
+                padding: EdgeInsets.symmetric(horizontal: 70, vertical: 10.0),
               ),
             ],
           ),

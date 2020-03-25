@@ -20,7 +20,7 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
   Step5QrCodeListDialogState(this._items);
 
   List<String> _items = List();
-  HashSet<String> _resultList = HashSet();
+  LinkedHashSet<String> _resultList = LinkedHashSet();
 
   void _onItemChecked(bool checked, item) {
     if (checked == true) {
@@ -46,7 +46,8 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
   }
 
   _confirmBefore() {
-    String msg = locale.msgDeleteSelectedQrCodes + '\n\n' +
+    bool isPrimaryQrCodeDelete = _resultList.contains(_items[0]);
+    String msg = (isPrimaryQrCodeDelete? locale.msgDeletePrimaryQrCodes : locale.msgDeleteQrCodes) + '\n\n' +
         locale.txtQrCodeNumber + '\n' + _resultList.join('\n');
     ConfirmationDialog(
         context,

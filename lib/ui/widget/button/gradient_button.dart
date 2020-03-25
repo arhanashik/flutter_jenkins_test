@@ -10,14 +10,15 @@ class GradientButton extends StatelessWidget {
     this.fontSize = 14.0,
     this.fontWeight = FontWeight.w600,
     this.onPressed,
-    this.padding = 16.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
     this.gradient = AppColors.btnGradient,
     this.borderRadius = 18.0,
     this.enabled = true,
     this.showIcon = false,
     this.icon = const Icon(
       Icons.play_circle_filled, color: Colors.white, size: 18,
-    )
+    ),
+    this.iconPadding = const EdgeInsets.only(right: 10.0),
   });
 
   final String text;
@@ -26,18 +27,19 @@ class GradientButton extends StatelessWidget {
   final double fontSize;
   final FontWeight fontWeight;
   final Function onPressed;
-  final double padding;
+  final EdgeInsets padding;
   final List<Color> gradient;
   final double borderRadius;
   final bool enabled;
   final bool showIcon;
   final Icon icon;
+  final EdgeInsets iconPadding;
 
   @override
   Widget build(BuildContext context) {
 
-    double calculatedPadding = showIcon? padding - 5.0 : padding;
-    double paddingVertical = showIcon? 10.0 : 11.0;
+//    double calculatedPadding = showIcon? padding - 5.0 : padding;
+//    double paddingVertical = showIcon? 5.0 : 11.0;
 
     return RaisedButton(
       onPressed: enabled? () =>  onPressed() : null,
@@ -54,16 +56,12 @@ class GradientButton extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(borderRadius),),
           gradient: LinearGradient(colors: enabled? gradient : AppColors.disabledGradient,),
         ),
-        padding: EdgeInsets.symmetric(
-            horizontal: calculatedPadding, vertical: paddingVertical
-        ),
+        padding: padding,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            showIcon ? Padding(
-              padding: EdgeInsets.only(right: 5.0),
-              child: icon,
-            ) : Container(),
+            showIcon? Padding(padding: iconPadding, child: icon,) : Container(),
             Text(
                 text,
                 style: TextStyle(

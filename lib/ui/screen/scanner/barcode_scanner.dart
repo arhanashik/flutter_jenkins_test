@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/home/history/search_history.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
+import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class BarcodeScannerScreen extends StatefulWidget {
@@ -12,8 +14,7 @@ class BarcodeScannerScreen extends StatefulWidget {
   _BarcodeScannerScreenState createState() => _BarcodeScannerScreenState();
 }
 
-class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
-  O2OLocalizations locale;
+class _BarcodeScannerScreenState extends BaseState<BarcodeScannerScreen> {
 
   final GlobalKey _barKey = GlobalKey(debugLabel: 'BARCODESCANNER');
   var _barcode = "";
@@ -80,25 +81,33 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    locale = O2OLocalizations.of(context);
+    super.build(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(''),
-        backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Colors.white),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: () => _searchBarcode(),
+      appBar: TopBar (
+        title: '',
+        navigationIcon: AppIcons.loadIcon(
+            AppIcons.icBackToList, size: 48.0, color: Colors.white
+        ),
+        iconColor: Colors.white,
+        background: Colors.transparent,
+        menu: InkWell(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.search, color: Colors.white,),
+              Text(
+                '荷物番号で検索',
+                style: TextStyle(color: Colors.white, fontSize: 12.0),
+              )
+            ],
           ),
-        ],
+          onTap: () => _searchBarcode(),
+        ),
+        onTapNavigation: () => Navigator.pop(context),
       ),
-      backgroundColor: Color.fromARGB(255, 230, 242, 255),
+      backgroundColor: AppColors.background,
       body: _bodyBuilder(),
     );
   }

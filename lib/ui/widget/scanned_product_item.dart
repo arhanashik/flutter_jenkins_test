@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/product/product_entity.dart';
+import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/details_dialog.dart';
 import 'package:o2o/ui/widget/progressbar/circular_progress_bar.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class ScannedProductItem extends StatelessWidget {
   final ProductEntity scannedProduct;
   final Function onPressed;
+  final Function onChangeQuantity;
 
   ScannedProductItem({
     Key key,
     @required this.scannedProduct,
     this.onPressed,
+    this.onChangeQuantity
   }) : super(key: key);
 
   _showProductDetails(BuildContext context) {
@@ -40,10 +43,21 @@ class ScannedProductItem extends StatelessWidget {
       ),
       subtitle: Padding(
         padding: EdgeInsets.only(top: 10),
-        child: Text(
-          '${locale.txtJanCode}: ${scannedProduct.janCode}'
-              '\n${locale.txtCategoryName}: ${scannedProduct.category}',
-          style: TextStyle(color: Colors.black, fontSize: 14),
+        child: Column(
+          children: <Widget>[
+            Text(
+              '${locale.txtJanCode}: ${scannedProduct.janCode}'
+                  '\n${locale.txtCategoryName}: ${scannedProduct.category}',
+              style: TextStyle(color: Colors.black, fontSize: 14),
+            ),
+            scannedProduct.pickedItemCount < scannedProduct.itemCount? GradientButton(
+              text: '数量変更',
+              onPressed: () => onChangeQuantity(),
+              showIcon: true,
+              icon: Icon(Icons.edit, color: Colors.white,),
+              borderRadius: 24.0,
+            ) : Container()
+          ],
         ),
       ),
       trailing: Container(

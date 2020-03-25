@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:o2o/data/timeorder/time_order.dart';
 import 'package:o2o/ui/screen/home/history/order_list_history.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class TimeOrderHistoryItem extends StatelessWidget {
 

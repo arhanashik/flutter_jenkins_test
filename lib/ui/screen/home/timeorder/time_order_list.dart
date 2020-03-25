@@ -12,15 +12,17 @@ import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/error/error.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
+import 'package:o2o/ui/widget/common/loader/color_loader.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/time_order_item.dart';
-import 'package:o2o/util/HttpUtil.dart';
+import 'package:o2o/util/helper/common.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 
 /// Created by mdhasnain on 28 Jan, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
 ///
 /// Purpose of the class:
-/// 1. Shows the list of orders
+/// 1. Show the list of orders by time
 /// 2.
 /// 3.
 
@@ -30,54 +32,20 @@ class TimeOrderListScreen extends StatefulWidget {
 }
 
 class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
-  List timeOrders = List();
-  String nextPage = "https://swapi.co/api/people";
+  /// List of timeOrders and timeOrderHeaders data
+  final _timeOrders = List();
 
-  _fetchData() async {
-    if (loadingState == LoadingState.LOADING) return;
+  /// Scroll position detector for the list view.
+  /// It is used for load more feature in list view
+  /// Right now in time order list it is not being used
+  /// N.b. Not in use now
+  ScrollController _scrollController;
 
-    setState(() => loadingState = LoadingState.LOADING);
-
-    /*String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-
-    final response = await HttpUtil.postReq(AppConst.GET_TIME_ORDER, requestBody);
-    print('code: ${response.statusCode}');
-    if (response.statusCode != 200) {
-      setState(() => loadingState = LoadingState.ERROR);
-      return;
-    }
-
-    List jsonData = json.decode(response.body);
-    List<TimeOrderListItem> items = jsonData.map(
-            (data) => TimeOrderListItem.fromJson(data)
-    ).toList();*/
-    List<TimeOrderListItem> items = TimeOrderListItem.dummyTimeOrderList();
-
-    LoadingState newState = LoadingState.NO_DATA;
-    if (timeOrders.isNotEmpty || items.isNotEmpty) {
-      for (int i = 0; i < items.length; i++) {
-        final item = items[i];
-        String rawDate = item.date;
-        final dateTime = DateTime.parse(rawDate);
-        timeOrders.add(TimeOrderHeading(
-            dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday],
-        ));
-        timeOrders.addAll(item.timeOrderList);
-      }
-
-      newState = LoadingState.OK;
-    }
-
-    setState(() => loadingState = newState);
-  }
-
-  ScrollController scrollController;
-
+  /// Listener for the scrollController.
+  /// Each time the list makes a scroll we listen that here
   _scrollListener() {
-    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
-        !scrollController.position.outOfRange) {
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
 //      _fetchData();
     }
 //    if(scrollController.position.pixels == scrollController.position.maxScrollExtent) {
@@ -85,7 +53,8 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
 //    }
   }
 
-  Container _sectionTitleBuilder() {
+  /// App bar custom title builder
+  _sectionTitleBuilder() {
     return Container(
       height: 60,
       color: Colors.white,
@@ -99,7 +68,7 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
             child: Text(
               locale.homeNavigation1Title,
               style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black),
             ),
@@ -109,8 +78,31 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
     );
   }
 
-  Widget _bodyBuilder() {
+  /// The list view of the time order items.
+  /// This list contains two types of widgets.
+  /// If the item is a 'TimeOrderHeading' widget is returned
+  /// If not the na 'TimeOrderItem' widget returned.
+  _buildTimeOrderList() {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+        final currentItem = _timeOrders[index];
+        if (currentItem is TimeOrderHeading) {
+          return CommonWidget.sectionDateBuilder(
+              currentItem.month, currentItem.day, currentItem.dayStr);
+        }
+        return TimeOrderItem(context: context, timeOrder: _timeOrders[index]);
+        },
+        childCount: _timeOrders.length,
+      ),
+    );
+  }
 
+  /// This the body widget of the 'TimeOrderListScreen'
+  /// There are several checks inside it based on 'loadingState'
+  /// 1. If the there is error on api response the error screen is showed
+  /// 2. If the api returns no data then no data screen is showed
+  /// 3. Finally if we get data then a List is showed with a PullToRefresh widget
+  _bodyBuilder() {
     return loadingState == LoadingState.ERROR
         ? ErrorScreen(
         errorMessage: locale.errorMsgCannotGetData,
@@ -122,35 +114,44 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
       errorMessage: locale.errorMsgNoData,
       btnText: locale.refreshOrderList,
       onClickBtn: () => _fetchData(),
-
-    ) : ListView.builder(
-      scrollDirection: Axis.vertical,
-      shrinkWrap: true,
-      itemCount: timeOrders.length + 1,
-      itemBuilder: (BuildContext context, int index) {
-        if (index == timeOrders.length) {
-          return CommonWidget.buildProgressIndicator(loadingState);
-        } else {
-          final currentItem = timeOrders[index];
-          if (currentItem is TimeOrderHeading) {
-            return CommonWidget.sectionDateBuilder(
-                currentItem.month, currentItem.day, currentItem.dayStr);
-          }
-          return TimeOrderItem(context: context, timeOrder: timeOrders[index]);
-        }
-      },
-      controller: scrollController,
+    ) : loadingState == LoadingState.LOADING
+        ? ColorLoader() : RefreshIndicator(
+      child: CustomScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        slivers: <Widget>[
+          _buildTimeOrderList(),
+          SliverFillRemaining(
+            hasScrollBody: false,
+            fillOverscroll: true,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                child: Text(
+                  '短時間配送支援アプリ　　B版\nココカラファイン荻窪西店　01',
+                  style: TextStyle(color: Colors.black, fontSize: 16.0),
+                  textAlign: TextAlign.center,
+                ),
+                padding: EdgeInsets.all(16.0),
+              ),
+            ),
+          ),
+        ],
+      ),
+      onRefresh: () => _fetchData(),
     );
   }
 
+  /// 1. Initialize the list view scroll controller
+  /// 2. Fetching the time order list for the first time
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController();
-    scrollController.addListener(_scrollListener);
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
     _fetchData();
   }
 
+  /// Main building block of the screen
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -164,9 +165,60 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
     );
   }
 
+  /// This is an async function to fetch time order list from the server
+  /// It reads the imei from the SharedPreferences and try to send it to
+  /// server using the api 'GET_TIME_ORDER'.
+  /// Then it checks the response for valid/invalid response code and update
+  /// the state with new data
+  _fetchData() async {
+    if (loadingState == LoadingState.LOADING) return;
+
+    setState(() => loadingState = LoadingState.LOADING);
+
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+
+    final response = await HttpUtil.get(HttpUtil.GET_TIME_ORDER, params: params);
+    if (response.statusCode != 200) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    if(code == HttpCode.NOT_FOUND) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
+    final List data = responseMap['data'];
+    List<TimeOrderListItem> items = data.map(
+            (data) => TimeOrderListItem.fromJson(data)
+    ).toList();
+//    List<TimeOrderListItem> items = TimeOrderListItem.dummyTimeOrderList();
+
+    LoadingState newState = LoadingState.NO_DATA;
+    if (_timeOrders.isNotEmpty || items.isNotEmpty) {
+      _timeOrders.clear();
+      for (int i = 0; i < items.length; i++) {
+        final item = items[i];
+        final dateTime = Common.convertToDateTime(item.date);
+        _timeOrders.add(TimeOrderHeading(
+          dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday-1],
+        ));
+        _timeOrders.addAll(item.timeOrderSummaryList);
+      }
+
+      newState = LoadingState.OK;
+    }
+
+    setState(() => loadingState = newState);
+  }
+
+  /// This is where we dispose our list scroll controller
   @override
   void dispose() {
-    scrollController?.dispose();
+    _scrollController?.dispose();
     super.dispose();
   }
 }

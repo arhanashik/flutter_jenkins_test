@@ -37,9 +37,21 @@ class TimeOrder {
   static dummyTimeOrderList() {
     return [
       TimeOrder(
-        scheduledDeliveryDateTime: "2020-02-12 11:20",
+        scheduledDeliveryDateTime: "2020-02-12 11:00",
         orderCount: 3,
         incompleteOrderCount: 2,
+        totalProductCount: 5,
+      ),
+      TimeOrder(
+        scheduledDeliveryDateTime: "2020-02-12 12:00",
+        orderCount: 3,
+        incompleteOrderCount: 1,
+        totalProductCount: 4,
+      ),
+      TimeOrder(
+        scheduledDeliveryDateTime: "2020-02-12 11:20",
+        orderCount: 3,
+        incompleteOrderCount: 0,
         totalProductCount: 5,
       ),
     ];

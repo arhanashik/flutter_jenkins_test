@@ -86,7 +86,7 @@ class FullScreenMissingInformationCheckerDialogState extends BaseState<FullScree
                   text: locale.txtReturn,
                   onPressed: () => setState(() => confirmation = false),
                   gradient: AppColors.darkGradient,
-                  padding: 36,
+                  padding: EdgeInsets.symmetric(horizontal: 36.0, vertical: 10.0),
                   enabled: _resultList.isNotEmpty,
                 ),
                 visible: confirmation,

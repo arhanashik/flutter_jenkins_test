@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:o2o/data/loadingstate/LoadingState.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 /// Created by mdhasnain on 01 Feb, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp

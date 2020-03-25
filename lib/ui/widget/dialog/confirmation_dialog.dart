@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class ConfirmationDialog {
   final BuildContext context;
@@ -62,7 +62,10 @@ class ConfirmationDialog {
                         if(closeOnConfirm) Navigator.of(context).pop();
                         onConfirm();
                       },
-                      padding: confirmBtnTxt.length > 4? 16.0 : 36.0,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: confirmBtnTxt.length > 4? 16.0 : 36.0,
+                        vertical: 10.0
+                      ),
                       showIcon: true,
                     ),
                   ],

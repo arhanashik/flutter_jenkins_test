@@ -3,7 +3,7 @@ import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/details_dialog.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class PackingProductItem extends StatelessWidget {
   final ProductEntity product;
@@ -66,7 +66,7 @@ class PackingProductItem extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                 ),
                 child: Text(
-                  'x ${product.pickedItemCount}',
+                  'x ${product.itemCount}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 14,

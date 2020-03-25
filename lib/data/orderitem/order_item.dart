@@ -1,4 +1,5 @@
-import 'package:o2o/data/constant/const.dart';
+
+import 'package:o2o/util/lib/remote/http_util.dart';
 
 class OrderItem {
   final int orderNo;
@@ -7,7 +8,7 @@ class OrderItem {
   int pickingStatus;
   final String lockedName;
   final String workCompletionTime;
-  final String deliveryTime;
+  String deliveryTime;
   final String cancellationTime;
 
   OrderItem._({
@@ -31,6 +32,12 @@ class OrderItem {
     this.deliveryTime,
     this.cancellationTime,
   });
+
+  isUnderWork(_myDeviceName) {
+    return this.lockedName != null
+        && this.lockedName.isNotEmpty
+        && this.lockedName != _myDeviceName;
+  }
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return new OrderItem._(
@@ -73,16 +80,6 @@ class OrderItem {
         productCount: 3,
         totalPrice: 2000,
         pickingStatus: PickingStatus.NOT_STARTED,
-        lockedName: '0123',
-        workCompletionTime: '12:45',
-        deliveryTime: '11:00',
-        cancellationTime: '12:45',
-      ),
-      OrderItem(
-        orderNo: 324353532,
-        productCount: 3,
-        totalPrice: 2000,
-        pickingStatus: PickingStatus.DONE,
         lockedName: '',
         workCompletionTime: '12:45',
         deliveryTime: '11:00',
@@ -102,8 +99,18 @@ class OrderItem {
         orderNo: 324353532,
         productCount: 3,
         totalPrice: 2000,
+        pickingStatus: PickingStatus.DONE,
+        lockedName: '',
+        workCompletionTime: '12:45',
+        deliveryTime: '11:00',
+        cancellationTime: '12:45',
+      ),
+      OrderItem(
+        orderNo: 324353532,
+        productCount: 3,
+        totalPrice: 2000,
         pickingStatus: PickingStatus.NOT_STARTED,
-        lockedName: '0123',
+        lockedName: '',
         workCompletionTime: '12:45',
         deliveryTime: '11:00',
         cancellationTime: '12:45',

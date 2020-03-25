@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/packing/step_5_qr_code_list_dialog.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
@@ -8,26 +9,42 @@ import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
+import 'package:o2o/util/helper/common.dart';
 
 class Step5Screen extends StatefulWidget {
 
-  Step5Screen(this.qrCodes, this.onPrevScreen, this.onCompletion);
-  final HashSet<String> qrCodes;
-  final Function onPrevScreen;
-  final Function onCompletion;
+  Step5Screen(
+      this._orderItem,
+      this._qrCodes,
+      this._onPrevScreen,
+      this._onCompletion
+  );
+  final OrderItem _orderItem;
+  final LinkedHashSet<String> _qrCodes;
+  final Function _onPrevScreen;
+  final Function _onCompletion;
 
   @override
   _Step5ScreenState createState() => _Step5ScreenState(
-      qrCodes, onPrevScreen, onCompletion
+      _orderItem, _qrCodes, _onPrevScreen, _onCompletion
   );
 }
 
 class _Step5ScreenState extends BaseState<Step5Screen> {
 
-  _Step5ScreenState(this.qrCodes, this.onPrevScreen, this.onCompletion);
-  final HashSet<String> qrCodes;
-  final Function onPrevScreen;
-  final Function onCompletion;
+  _Step5ScreenState(
+      this._orderItem,
+      this._qrCodes,
+      this._onPrevScreen,
+      this._onCompletion
+  );
+  final OrderItem _orderItem;
+  final LinkedHashSet<String> _qrCodes;
+  final Function _onPrevScreen;
+  final Function _onCompletion;
+
+  bool _primaryQrCodeChanged = false;
+  bool _qrCodeChanged = false;
 
 //  _buildLabelExample() {
 //    return Column (
@@ -195,21 +212,66 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
 //  }
 
   _buildInstruction() {
+    String primaryQrCode = _qrCodes.isEmpty? '12121212' : _qrCodes.toList()[0];
+    String primaryQrCodeLast4Digit = primaryQrCode.substring(primaryQrCode.length-4);
+
+    final deliveryDate = Common.convertToDateTime(_orderItem.deliveryTime);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Row(
           children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 3),
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-              ),
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              margin: EdgeInsets.only(top: 10),
-              child: Text('1', style: TextStyle(
+            AppImages.loadSizedImage(AppImages.icDigit1Url, width: 36.0, height: 36.0),
+            Padding(
+              padding: EdgeInsets.only(left: 10,),
+              child: Text('の箇所に', style: TextStyle(
+                  color: Colors.black, fontSize: 14,
+              ),),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text('${deliveryDate.hour}:${deliveryDate.minute}',
+                style: TextStyle(
                   color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
               ),),
+            ),
+            Text('を記入してください。', style: TextStyle(
+                color: Colors.black, fontSize: 14,
+            ),),
+          ],
+        ),
+        Padding(padding: EdgeInsets.symmetric(vertical: 5),),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            AppImages.loadSizedImage(_primaryQrCodeChanged? AppImages.icDigit2RedUrl : AppImages.icDigit2Url, width: 36.0, height: 36.0),
+            Padding(
+              padding: EdgeInsets.only(left: 10,),
+              child: Text('の箇所に', style: TextStyle(
+                  color: Colors.black, fontSize: 14,
+              ),),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                primaryQrCodeLast4Digit,
+                style: TextStyle(
+                  color: _primaryQrCodeChanged? Colors.redAccent : Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
+                ),
+              ),
+            ),
+            Text('を記入してください。', style: TextStyle(
+                color: Colors.black, fontSize: 14,
+            ),),
+          ],
+        ),
+        Padding(padding: EdgeInsets.symmetric(vertical: 5),),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            AppImages.loadSizedImage(
+                _primaryQrCodeChanged || _qrCodeChanged? AppImages.icDigit3RedUrl : AppImages.icDigit3Url, width: 36.0, height: 36.0
             ),
             Padding(
               padding: EdgeInsets.only(left: 10,),
@@ -219,8 +281,10 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Text('13:00', style: TextStyle(
-                  color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
+              child: Text('${locale.txtQuantity}/${_orderItem.productCount}',
+                style: TextStyle(color: _primaryQrCodeChanged || _qrCodeChanged
+                      ? Colors.redAccent : Colors.blue,
+                  fontSize: 18, fontWeight: FontWeight.bold
               ),),
             ),
             Text('を記入してください。', style: TextStyle(
@@ -228,122 +292,30 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
             ),),
           ],
         ),
+        Padding(padding: EdgeInsets.symmetric(vertical: 8.0),),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 3),
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-              ),
-              margin: EdgeInsets.only(top: 10),
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              child: Text('2', style: TextStyle(
-                  color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
-              ),),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 10,),
-              child: Text('の箇所に', style: TextStyle(
-                  color: Colors.black, fontSize: 14,
-              ),),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Text('4444', style: TextStyle(
-                  color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
-              ),),
-            ),
-            Text('を記入してください。', style: TextStyle(
-                color: Colors.black, fontSize: 14,
+            Text('＊荷物が1つの場合、', style: TextStyle(
+              color: Colors.black, fontSize: 12,
+            ),),
+            AppImages.icDigit3,
+            Text(' には1/2と記入してください。', style: TextStyle(
+              color: Colors.black, fontSize: 12,
             ),),
           ],
         ),
+        Padding(padding: EdgeInsets.symmetric(vertical: 2.5),),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 3),
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-              ),
-              margin: EdgeInsets.only(top: 10),
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              child: Text('3', style: TextStyle(
-                  color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
-              ),),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 10,),
-              child: Text('の箇所に', style: TextStyle(
-                  color: Colors.black, fontSize: 14,
-              ),),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Text('1${locale.txtQuantity}/3', style: TextStyle(
-                  color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
-              ),),
-            ),
-            Text('を記入してください。', style: TextStyle(
-                color: Colors.black, fontSize: 14,
+            Text('＊荷物が2つの場合、', style: TextStyle(
+              color: Colors.black, fontSize: 12,
             ),),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(top: 16),
-              child: Text('＊荷物が1つの場合、', style: TextStyle(
-                color: Colors.black, fontSize: 12,
-              ),),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 3),
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-              ),
-              margin: EdgeInsets.only(top: 16),
-              padding: EdgeInsets.symmetric(vertical: 1, horizontal: 3),
-              child: Text('3', style: TextStyle(
-                  color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold
-              ),),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 16),
-              child: Text(' には1/2と記入してください。', style: TextStyle(
-                color: Colors.black, fontSize: 12,
-              ),),
-            ),
-          ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(top: 5),
-              child: Text('＊荷物が2つの場合、', style: TextStyle(
-                color: Colors.black, fontSize: 12,
-              ),),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 3),
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-              ),
-              margin: EdgeInsets.only(top: 5),
-              padding: EdgeInsets.symmetric(vertical: 1, horizontal: 3),
-              child: Text('3', style: TextStyle(
-                  color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold
-              ),),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 5),
-              child: Text(' には2/2と記入してください。', style: TextStyle(
-                color: Colors.black, fontSize: 12,
-              ),),
-            ),
+            AppImages.icDigit3,
+            Text(' には2/2と記入してください。', style: TextStyle(
+              color: Colors.black, fontSize: 12,
+            ),),
           ],
         ),
         Padding(
@@ -358,6 +330,12 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
             color: Colors.black, fontSize: 12,
           ),),
         ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.keyboard_arrow_down, size: 64.0, color: Colors.grey,)
+          ],
+        )
       ],
     );
   }
@@ -377,21 +355,21 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
     );
   }
 
-  Container _sectionTitleBuilder(title) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(width: 3.0, color: Colors.lightBlue)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(left: 10),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-      ),
-    );
-  }
+//  Container _sectionTitleBuilder(title) {
+//    return Container(
+//      decoration: BoxDecoration(
+//        border: Border(left: BorderSide(width: 3.0, color: Colors.lightBlue)),
+//      ),
+//      child: Padding(
+//        padding: EdgeInsets.only(left: 10),
+//        child: Text(
+//          title,
+//          style: TextStyle(
+//              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+//        ),
+//      ),
+//    );
+//  }
 
   _buildMessage() {
     return Container(
@@ -399,12 +377,11 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
       color: Colors.black12,
       alignment: Alignment.center,
       child: Container(
-        height: 80,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
-        margin: EdgeInsets.symmetric(horizontal: 16),
+        margin: EdgeInsets.all(16.0),
         alignment: Alignment.center,
         child: RichText(
           textAlign: TextAlign.center,
@@ -421,30 +398,6 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
     );
   }
 
-  _showQrCodeList() async {
-    final List resultList = await Navigator.of(context).push(MaterialPageRoute<List>(
-        builder: (BuildContext context) {
-          return Step5QrCodeListDialog(items: qrCodes.toList(),);
-        },
-        fullscreenDialog: true
-    ));
-
-    if (resultList != null) {
-      if(resultList.length == qrCodes.length) {
-        onPrevScreen();
-        return;
-      }
-
-      setState(() => qrCodes.removeAll(resultList));
-
-      ToastUtil.show(
-        context,
-        '${resultList.join(',')} を削除しました。',
-        icon: Icon(Icons.delete,),
-      );
-    }
-  }
-
   _buildBody() {
     return ListView(
       children: <Widget>[
@@ -452,6 +405,21 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
 //          padding: EdgeInsets.all(10),
 //          child: _buildLabelExample(),
 //        ),
+        Visibility(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              locale.warningUpdateLabelInfo,
+              style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w700
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          visible: _primaryQrCodeChanged || _qrCodeChanged,
+        ),
         InkWell(
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -465,9 +433,9 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Text('読み取った荷札QRコードを確認する', style: TextStyle(
-                  color: Colors.black, fontSize: 14,
+                  color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500
                 ),),
-                Icon(Icons.arrow_forward_ios)
+                Icon(Icons.arrow_forward_ios, size: 18.0,)
               ],
             ),
           ),
@@ -475,7 +443,9 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
         ),
         Container(
           alignment: Alignment.center,
-          child: AppImages.imgQrCodeLabelOk,
+          child: _primaryQrCodeChanged? AppImages.imgQrCodeLabelErrorStep2
+              : _qrCodeChanged? AppImages.imgQrCodeLabelErrorStep3
+              : AppImages.imgQrCodeLabelOk,
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
@@ -530,7 +500,7 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
         children: <Widget>[
           GradientButton(
             text: locale.txtGoBack,
-            onPressed: () => onPrevScreen(),
+            onPressed: () => _onPrevScreen(),
             gradient: AppColors.btnGradientLight,
             txtColor: Colors.black,
             showIcon: true,
@@ -542,7 +512,7 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
             text: locale.txtCompleteShipping,
             onPressed: () => _completeShipping(),
             showIcon: true,
-            padding: 24.0,
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           ),
         ],
       ),
@@ -560,7 +530,7 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
 //          Navigator.popUntil(context, (route) {
 //            return popCount++ == 2;
 //          });
-            onCompletion();
+            _onCompletion();
         }
     ).show();
   }
@@ -582,5 +552,35 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
         ],
       ),
     );
+  }
+
+  _showQrCodeList() async {
+    final List resultList = await Navigator.of(context).push(MaterialPageRoute<List>(
+        builder: (BuildContext context) {
+          return Step5QrCodeListDialog(items: _qrCodes.toList(),);
+        },
+        fullscreenDialog: true
+    ));
+
+    if (resultList != null) {
+      if(resultList.length == _qrCodes.length) {
+        _onPrevScreen();
+        return;
+      }
+
+      setState(() {
+        String primaryQrCode = _qrCodes.toList()[0];
+        _primaryQrCodeChanged = resultList.contains(primaryQrCode);
+        _qrCodeChanged = !_primaryQrCodeChanged;
+        _qrCodes.removeAll(resultList);
+      });
+
+      ToastUtil.show(
+        context,
+        '${resultList.join(',')} を削除しました。',
+        icon: Icon(Icons.delete, color: Colors.white,),
+        error: true
+      );
+    }
   }
 }

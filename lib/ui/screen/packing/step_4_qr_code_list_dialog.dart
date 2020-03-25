@@ -7,21 +7,20 @@ import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 
-class FullScreenItemChooserDialog extends StatefulWidget {
-  FullScreenItemChooserDialog({this.items});
-
+class Step4QrCodeListDialog extends StatefulWidget {
+  Step4QrCodeListDialog({this.items});
   final List<String> items;
 
   @override
-  FullScreenItemChooserDialogState createState() => new FullScreenItemChooserDialogState(items);
+  createState() => _Step4QrCodeListDialogState(items);
 }
 
-class FullScreenItemChooserDialogState extends BaseState<FullScreenItemChooserDialog> {
+class _Step4QrCodeListDialogState extends BaseState<Step4QrCodeListDialog> {
 
-  FullScreenItemChooserDialogState(this._items);
+  _Step4QrCodeListDialogState(this._items);
 
   List<String> _items = List();
-  HashSet<String> _resultList = HashSet();
+  final _resultList = LinkedHashSet();
 
   void _onItemChecked(bool checked, item) {
     if (checked == true) {

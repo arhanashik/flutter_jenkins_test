@@ -37,11 +37,11 @@ class OrderHistoryDetailsScreen extends StatefulWidget {
 
 class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScreen> {
 
-  _OrderHistoryDetailsScreenState(this.title, this.orderItem, this.historyType);
+  _OrderHistoryDetailsScreenState(this._title, this._orderItem, this._historyType);
 
-  final String title;
-  final OrderItem orderItem;
-  final HistoryType historyType;
+  final String _title;
+  final OrderItem _orderItem;
+  final HistoryType _historyType;
 
   String _receiptNumber = '1234';
   List _products = List();
@@ -58,28 +58,46 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
 
   _sectionTitleBuilder(title) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: AppColors.blueGradient),
-      ),
+      color: AppColors.background,
       margin: EdgeInsets.only(top: 16),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-      child: Container(
-        padding: EdgeInsets.only(left: 16),
-        decoration: BoxDecoration(
-          border: Border(left: BorderSide(width: 3.0, color: Colors.white)),
-        ),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+      padding: EdgeInsets.symmetric(vertical: 10),
+      alignment: Alignment.center,
+      child: Text(
+        title,
+        style: TextStyle(
+            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
       ),
+    );
+  }
+
+  _sectionLeftBorderTextBuilder(text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          width: 3.0,
+          height: 18.0,
+          margin: EdgeInsets.only(right: 10.0),
+          decoration: BoxDecoration(
+            color: AppColors.colorBlue,
+            borderRadius: BorderRadius.all(Radius.circular(3)),
+          ),
+        ),
+        Text(
+          text,
+          style: TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 
   _textValuePair(text, value) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       child: Row(
         children: <Widget>[
           Text(
@@ -96,24 +114,60 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
     );
   }
 
-  _textButtonPair(text, btnTxt, onPress, btnVisibility) {
+  _textButtonPair(
+      text,
+      btnTxt,
+      onPress,
+      btnVisibility, {
+        showIcon = false,
+        icon = const Icon(Icons.add, color: Colors.white,),
+  }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+      height: 48.0,
       child: Row(
         children: <Widget>[
           Text(
             text,
-            style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              height: 1.5,
+            ),
           ),
           Spacer(),
           Visibility(
             child: GradientButton(
               text: btnTxt,
               onPressed: () => onPress(),
+              showIcon: showIcon,
+              icon: icon,
+              borderRadius: 25.0,
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
             ),
             visible: btnVisibility,
           ),
+        ],
+      ),
+    );
+  }
+
+  _deliveryInfoBuilder() {
+    return SliverList(
+      delegate: SliverChildListDelegate(
+        [
+          Divider(),
+          Padding(padding: EdgeInsets.only(top: 16),),
+          _textValuePair('発送準備完了時間', '12:45'),
+          _textValuePair('対応デバイス名', 'xxxx'),
+          _textValuePair('発送予定時間', '1３:00'),
+//          _textValuePair(
+//              _historyType == HistoryType.COMPLETE
+//                  ? locale.txtShippingTime : locale.txtShippingPlanTime, '13:00'
+//          ),
+          _textValuePair(locale.txtNumberOfPieces, _orderItem.productCount.toString()),
+          _textValuePair(locale.txtReceiptNumber, _receiptNumber),
         ],
       ),
     );
@@ -123,14 +177,13 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
     return SliverList(
       delegate: SliverChildListDelegate(
         [
-          _textValuePair(locale.txtOrderNumber, orderItem.orderNo.toString()),
-          _textValuePair(locale.txtPickingCompletionTime, '12:45'),
-          _textValuePair(locale.txtUsedDeviceName, '01'),
-          _textValuePair(
-              historyType == HistoryType.COMPLETE
-                  ? locale.txtShippingTime : locale.txtShippingPlanTime, '13:00'
+          Padding(padding: EdgeInsets.only(top: 16.0),),
+          _textValuePair(locale.txtOrderNumber, _orderItem.orderNo.toString()),
+          Padding(
+            padding: EdgeInsets.only(left: 16.0, top: 16.0,),
+            child: _sectionLeftBorderTextBuilder(locale.txtProductList,),
           ),
-          _textValuePair(locale.txtNumberOfPieces, orderItem.productCount.toString()),
+          Divider(thickness: 1.0,),
         ],
       ),
     );
@@ -157,25 +210,34 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
     return SliverList(
       delegate: SliverChildListDelegate(
         [
-          _textButtonPair(
-              '${locale.txtReceiptNumber}\n$_receiptNumber',
-              locale.txtModifyReceiptNumber, () => _updateReceiptNumber(),
-              historyType != HistoryType.MISSING
-          ),
-          Divider(height: 3,),
-          _textButtonPair(
-              '${locale.txtBaggageManagementNumber}\n4444',
-              locale.txtAddQrCode,
-              () => _addNewQrCode(),
-              historyType == HistoryType.PLANNING
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              children: <Widget>[
+                _sectionLeftBorderTextBuilder(
+                  '${locale.txtDeliveryNumber}\n4444',
+                ),
+                Spacer(),
+                Visibility(
+                  child: GradientButton(
+                    text: locale.txtAddQrCode,
+                    onPressed: () => _addNewQrCode(),
+                    showIcon: true,
+                    icon: const Icon(Icons.add, color: Colors.white,),
+                    borderRadius: 25.0,
+                    padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                  ),
+                  visible: _historyType != HistoryType.MISSING,
+                )
+              ],
+            )
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 3),
-            child: Text(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: _sectionLeftBorderTextBuilder(
               locale.txtQRScannedLabeledCount,
-              style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -204,12 +266,16 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
             (BuildContext context, int index) {
           return Container(
             height: 32,
-            margin: EdgeInsets.symmetric(horizontal: 24,),
+            margin: EdgeInsets.symmetric(horizontal: 16,),
             child: Row(
               children: <Widget>[
                 Text(
                   _qrCodes[index],
-                  style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500
+                  ),
                 ),
                 Spacer(),
                 Visibility(
@@ -217,7 +283,7 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
                     icon: Icon(Icons.delete),
                     onPressed: () => _deleteQrCode(_qrCodes[index], index == 0),
                   ),
-                  visible: historyType == HistoryType.PLANNING,
+                  visible: _historyType == HistoryType.PLANNING,
                 ),
               ],
             ),
@@ -244,7 +310,7 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
   _addNewQrCode() async {
     final resultList = await Navigator.of(context).push(new MaterialPageRoute<List<String>>(
         builder: (BuildContext context) {
-          return FullScreenAddQrCodeDialog(orderItem: orderItem, qrCodes: _qrCodes,);
+          return FullScreenAddQrCodeDialog(orderItem: _orderItem, qrCodes: _qrCodes,);
         },
         fullscreenDialog: true
     ));
@@ -270,18 +336,28 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
     return CustomScrollView(
       slivers: <Widget>[
         SliverToBoxAdapter(
+          child: Visibility(
+            child: _sectionTitleBuilder(locale.txtShippingPreparationInfo),
+            visible: _historyType != HistoryType.MISSING,
+          ),
+        ),
+        _historyType == HistoryType.MISSING? SliverPadding(
+          padding: EdgeInsets.only(top:  0.0),
+        ) : _shippingInfoBuilder(),
+        _historyType == HistoryType.MISSING? SliverPadding(
+          padding: EdgeInsets.only(top:  0.0),
+        ) : _qrCodeListBuilder(),
+        _historyType == HistoryType.MISSING? SliverPadding(
+          padding: EdgeInsets.only(top:  0.0),
+        ) : _deliveryInfoBuilder(),
+        SliverToBoxAdapter(
           child: _sectionTitleBuilder(locale.txtOrderInfo),
         ),
         _orderInfoBuilder(),
-        SliverToBoxAdapter(
+        /*SliverToBoxAdapter(
           child: _sectionTitleBuilder(locale.txtPickingInfo),
-        ),
+        ),*/
         _pickingListBuilder(),
-        SliverToBoxAdapter(
-          child: _sectionTitleBuilder(locale.txtShippingPreparationInfo),
-        ),
-        _shippingInfoBuilder(),
-        _qrCodeListBuilder(),
         SliverPadding(padding: EdgeInsets.only(bottom: 16),)
       ],
     );
@@ -298,22 +374,22 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
     super.build(context);
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 230, 242, 255),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(locale.txtHistoryDetails),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(32.0),
+          preferredSize: Size.fromHeight(38.0),
           child: Container(
             width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: AppColors.blueGradient),
             ),
             alignment: Alignment.center,
             child: Text(
-              title,
+              _title,
               style: TextStyle(
-                  color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold
+                  color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold
               ),
             ),
           ),

@@ -41,6 +41,7 @@ class O2OLocalizations {
       'txt_cancel': 'キャンセル',
       'txt_start_picking': 'ピッキング作業を開始します。',
       'msg_start_picking': 'この注文のステータスを「作業中」に変更して作業を開始しますか？',
+      'warning_other_device_is_picking': 'この注文は他の方が作業中です。\n発送準備を開始しますか？',
       'msg_scan_barcode': 'バーコードをカメラで読み取ってください。',
       'msg_scan_barcode_extended': 'バーコードをカメラで読み取ってください。\n読み取りが成功しまと、\n対象の商品情報が表示されます。',
       'txt_settings': '設定',
@@ -103,6 +104,8 @@ class O2OLocalizations {
       'txt_confirm': '確認',
       'txt_delete_selected_qr_codes': '選択したQRコードを削除する',
       'msg_delete_selected_qrcodes': '以下のQRコードを削除します。\nよろしですか？',
+      'msg_delete_primary_qrcodes': '以下のQRコードを削除すると\n出荷番号個口数が変更になるので\n配送ラベルの修正が必要になります。\n\nよろしですか？',
+      'msg_delete_qrcodes': '以下のQRコードを削除すると\n個口数が変更になるので\n配送ラベルの修正が必要になります。\n\nよろしですか？',
       'txt_qrcode_number': 'QRコードナンバー',
       'txt_return_to_previous_step': '一つ前の作業に戻ります',
       'msg_return_to_previous_step': '現在行っている作業の状態は\n保存されません。\n前の作業に戻ってよろしですか？',
@@ -165,6 +168,7 @@ class O2OLocalizations {
       'hint_search_by_barcode': 'JANコードを入力して対応履歴を検索',
       'hint_search_by_qrcode': '荷物番号を入力して対応履歴を検索',
       'txt_work_finishing_time': '作業完了時刻',
+      'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを記載していた場合、赤字の部分を修正して下さい。',
     },
     'ja': {
       'title': 'O2O',
@@ -190,6 +194,7 @@ class O2OLocalizations {
       'txt_cancel': 'キャンセル',
       'txt_start_picking': 'ピッキング作業を開始します。',
       'msg_start_picking': 'この注文のステータスを「作業中」に変更して作業を開始しますか？',
+      'warning_other_device_is_picking': 'この注文は他の方が作業中です。\n発送準備を開始しますか？',
       'msg_scan_barcode': 'バーコードをカメラで読み取ってください。',
       'msg_scan_barcode_extended': 'バーコードをカメラで読み取ってください。\n読み取りが成功しまと、\n対象の商品情報が表示されます。',
       'txt_settings': '設定',
@@ -313,6 +318,7 @@ class O2OLocalizations {
       'hint_search_by_barcode': 'JANコードを入力して対応履歴を検索',
       'hint_search_by_qrcode': '荷物番号を入力して対応履歴を検索',
       'txt_work_finishing_time': '作業完了時刻',
+      'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを記載していた場合、赤字の部分を修正して下さい。',
     },
   };
 
@@ -343,6 +349,7 @@ class O2OLocalizations {
   String get txtCancel => _getLocalizedValue('txt_cancel');
   String get txtStartPicking => _getLocalizedValue('txt_start_picking');
   String get msgStartPicking => _getLocalizedValue('msg_start_picking');
+  String get warningOtherDeviceIsPicking => _getLocalizedValue('warning_other_device_is_picking');
   String get msgScanBarcode => _getLocalizedValue('msg_scan_barcode');
   String get msgScanBarcodeExtended => _getLocalizedValue('msg_scan_barcode_extended');
   String get txtSettings => _getLocalizedValue('txt_settings');
@@ -403,6 +410,8 @@ class O2OLocalizations {
   String get txtConfirm => _getLocalizedValue('txt_confirm');
   String get txtDeleteSelectedQrCodes => _getLocalizedValue('txt_delete_selected_qr_codes');
   String get msgDeleteSelectedQrCodes => _getLocalizedValue('msg_delete_selected_qrcodes');
+  String get msgDeletePrimaryQrCodes => _getLocalizedValue('msg_delete_primary_qrcodes');
+  String get msgDeleteQrCodes => _getLocalizedValue('msg_delete_qrcodes');
   String get txtQrCodeNumber => _getLocalizedValue('txt_qrcode_number');
   String get txtReturnToPreviousStep => _getLocalizedValue('txt_return_to_previous_step');
   String get msgReturnToPreviousStep => _getLocalizedValue('msg_return_to_previous_step');
@@ -459,4 +468,5 @@ class O2OLocalizations {
   String get hintSearchByBarcode => _getLocalizedValue('hint_search_by_barcode');
   String get hintSearchByQrCode => _getLocalizedValue('hint_search_by_qrcode');
   String get txtWorkFinishingTime => _getLocalizedValue('txt_work_finishing_time');
+  String get warningUpdateLabelInfo => _getLocalizedValue('warning_update_label_info');
 }

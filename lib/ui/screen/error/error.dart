@@ -4,7 +4,7 @@ import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
-import 'package:o2o/util/DeviceUtil.dart';
+import 'package:o2o/util/helper/device_util.dart';
 
 class ErrorScreen extends StatefulWidget {
   ErrorScreen({
@@ -37,7 +37,7 @@ class _ErrorScreenState extends BaseState<ErrorScreen> {
   final Function onClickBtn;
   final bool showHelpTxt;
 
-  String _imei = '';
+  String _deviceName = '';
 
   _buildMessage() {
     return Container(
@@ -84,10 +84,8 @@ class _ErrorScreenState extends BaseState<ErrorScreen> {
           ),
           onTap: () => _makePhoneCall('67890'),
         ),
-        _imei.isEmpty? Container() : Text(
-          locale.txtContactUsPart4.replaceAll(
-              '-imei-', _imei.substring(_imei.length - 4)
-          ),
+        _deviceName.isEmpty? Container() : Text(
+          locale.txtContactUsPart4.replaceAll('-imei-', _deviceName),
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 16, color: Colors.black, height: 1.6),
         ),
@@ -135,9 +133,9 @@ class _ErrorScreenState extends BaseState<ErrorScreen> {
   }
 
   _readIMEI() async {
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String deviceName = await PrefUtil.read(PrefUtil.DEVICE_NAME);
 
-    setState(() => _imei = imei);
+    setState(() => _deviceName = deviceName);
   }
 
   _makePhoneCall(String phoneNum) {

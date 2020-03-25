@@ -11,13 +11,13 @@ class ProductEntity {
   int price;
 
   ProductEntity._({
-      this.title,
-      this.janCode,
-      this.category,
-      this.itemCount,
-      this.pickedItemCount,
-      this.imageUrl,
-      this.price = 0
+    this.title,
+    this.janCode,
+    this.category,
+    this.itemCount,
+    this.pickedItemCount,
+    this.imageUrl,
+    this.price = 0,
   });
 
   ProductEntity(
@@ -27,7 +27,9 @@ class ProductEntity {
       this.itemCount,
       this.pickedItemCount,
       this.imageUrl,
-      {this.price = 0}
+      {
+        this.price = 0,
+      }
   );
 
   factory ProductEntity.fromJson(Map<String, dynamic> json) {

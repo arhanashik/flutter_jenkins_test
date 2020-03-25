@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:o2o/data/constant/const.dart';
 import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/data/timeorder/time_order.dart';
@@ -19,7 +18,7 @@ import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/time_order_history_item.dart';
-import 'package:o2o/util/HttpUtil.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 
 /// Created by mdhasnain on 04 Jan, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -81,7 +80,7 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     final requestBody = HashMap();
     requestBody['imei'] = imei;
 
-    final response = await HttpUtil.postReq(AppConst.GET_TIME_ORDER_HISTORY, requestBody);
+    final response = await HttpUtil.post(HttpUtil.GET_TIME_ORDER_HISTORY, requestBody);
     print('code: ${response.statusCode}');
 //    if (response.statusCode != 200) {
 //      setState(() => loadingState = LoadingState.ERROR);
@@ -197,7 +196,9 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
               Text(
                 locale.homeNavigation2Title,
                 style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black
                 ),
               ),
             ],
@@ -206,17 +207,32 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            IconButton(
-              icon: _choices[0].icon,
-              onPressed: () {
-                _select(_choices[0]);
-              },
+            InkWell(
+              child: Column(
+                children: <Widget>[
+                  _choices[0].icon,
+                  Padding(padding: EdgeInsets.only(top: 3),),
+                  Text(
+                    'バーコード読取',
+                    style: TextStyle(color: AppColors.colorBlueDark, fontSize: 10.0),
+                  )
+                ],
+              ),
+              onTap: () => _select(_choices[0]),
             ),
-            IconButton(
-              icon: _choices[1].icon,
-              onPressed: () {
-                _select(_choices[1]);
-              },
+            Padding(padding: EdgeInsets.only(left: 8),),
+            InkWell(
+              child: Column(
+                children: <Widget>[
+                  _choices[1].icon,
+                  Padding(padding: EdgeInsets.only(top: 3),),
+                  Text(
+                    'QR読取',
+                    style: TextStyle(color: AppColors.colorBlueDark, fontSize: 10.0),
+                  )
+                ],
+              ),
+              onTap: () => _select(_choices[1]),
             ),
           ],
         )
@@ -248,7 +264,7 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
           fontWeight: FontWeight.w800,
           onPressed: () => _scrollToPage(2),
           gradient: _currentPage == 2? AppColors.btnGradient : AppColors.lightGradient,
-          padding: 32.0,
+          padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 10.0),
         ),
       ],
     );

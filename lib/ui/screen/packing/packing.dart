@@ -1,12 +1,12 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:o2o/data/choice/choice.dart';
-import 'package:o2o/data/constant/const.dart';
 import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/data/pref/pref.dart';
-import 'package:o2o/data/product/product_entity.dart';
+import 'package:o2o/data/product/packing_list.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/packing/step_1.dart';
 import 'package:o2o/ui/screen/packing/step_2.dart';
@@ -16,21 +16,27 @@ import 'package:o2o/ui/screen/packing/step_5.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
+import 'package:o2o/ui/widget/common/loader/color_loader.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_missing_information_checker_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_order_list_dialog.dart';
-import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
-import 'package:o2o/util/HttpUtil.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 
 class PackingScreen extends StatefulWidget {
+  PackingScreen({
+    Key key,
+    @required this.orderItem,
+    @required this.isUnderWork
+  }) : super(key: key);
   final OrderItem orderItem;
-
-  PackingScreen({Key key, this.orderItem}) : super(key: key);
+  final bool isUnderWork;
 
   @override
-  _PackingScreenState createState() => _PackingScreenState(orderItem: orderItem);
+  _PackingScreenState createState() => _PackingScreenState(
+      orderItem, isUnderWork
+  );
 }
 
 enum Step {
@@ -38,14 +44,15 @@ enum Step {
 }
 
 class _PackingScreenState extends BaseState<PackingScreen> {
-  _PackingScreenState({this.orderItem});
+  _PackingScreenState(this._orderItem, this._isUnderWork);
+  final OrderItem _orderItem;
+  final bool _isUnderWork;
+  String _receiptNumber;
+  String _myIMEI = '';
 
-  final OrderItem orderItem;
-  String url = "https://swapi.co/api/people";
+  PackingList _packingList;
 
-  List _scannedProducts = List();
-
-  final _scannedQrCodes = HashSet<String>();
+  final _scannedQrCodes = LinkedHashSet<String>();
 
   List<Choice> _choices = List();
   Choice _selectedChoice;
@@ -58,7 +65,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     else if(_selectedChoice == _choices[2]) {
       Navigator.of(context).push(new MaterialPageRoute<List>(
           builder: (BuildContext context) {
-            return FullScreenOrderListDialog(items: _scannedProducts,);
+            return FullScreenOrderListDialog(items: _packingList.products,);
           },
           fullscreenDialog: true
       ));
@@ -79,8 +86,8 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 
   _initStepScreens() {
     _stepScreens = [
-      Step1Screen(orderItem, _scannedProducts,
-        () => setState(() => _currentStep = Step.STEP_2)
+      _packingList == null? ColorLoader() : Step1Screen(
+          _packingList, () => setState(() => _currentStep = Step.STEP_2)
       ),
       Step2Screen(
         () => setState(() => _currentStep = Step.STEP_1),
@@ -98,9 +105,11 @@ class _PackingScreenState extends BaseState<PackingScreen> {
             _scannedQrCodes.addAll(qrCodes);
             _currentStep = Step.STEP_5;
           });
+          print('ll ${qrCodes.length}, gg ${_scannedQrCodes.length}');
         }
       ),
       Step5Screen(
+        _orderItem,
         _scannedQrCodes,
         () => setState(() => _currentStep = Step.STEP_4),
         () => _completePacking(),
@@ -289,13 +298,16 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 
   _getStepView(Step step) {
     int stepIndex = Step.values.indexOf(step);
+    if(stepIndex == 0 && _packingList == null) {
+      return ColorLoader();
+    }
     return _stepScreens[stepIndex];
   }
 
   _checkMissingInformation() async {
     final resultList = await Navigator.of(context).push(new MaterialPageRoute<List>(
         builder: (BuildContext context) {
-          return FullScreenMissingInformationCheckerDialog(items: _scannedProducts,);
+          return FullScreenMissingInformationCheckerDialog(items: _packingList.products,);
         },
         fullscreenDialog: true
     ));
@@ -345,8 +357,8 @@ class _PackingScreenState extends BaseState<PackingScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchOrderList();
     _initStepScreens();
+    _fetchData();
   }
 
   @override
@@ -379,7 +391,8 @@ class _PackingScreenState extends BaseState<PackingScreen> {
                   );
                 }).toList();
               }),
-          onTapNavigation: () { _onWillPop();},
+          onTapNavigation: () => _onWillPop(),
+          error: _isUnderWork? '${_orderItem.lockedName}が作業中' : '',
         ),
         backgroundColor: Color.fromARGB(255, 230, 242, 255),
         body: _bodyBuilder(),
@@ -387,27 +400,45 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     );
   }
 
-  _fetchOrderList() {
-    _scannedProducts.addAll(ProductEntity.dummyProducts());
-    setState(() => loadingState = LoadingState.OK);
+  _fetchData() async {
+    setState(() => loadingState = LoadingState.LOADING);
+    
+    _myIMEI = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = _myIMEI;
+    params['orderNo'] = _orderItem.orderNo;
+    final response = await HttpUtil.get(HttpUtil.GET_PACKING_LIST, params: params);
+    if (response.statusCode != 200) {
+      setState(() => loadingState = LoadingState.ERROR);
+      ToastUtil.show(context, 'Cannot connect to server');
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    if(code != HttpCode.OK) {
+      setState(() => loadingState = LoadingState.ERROR);
+      ToastUtil.show(context, 'Failed to get the data');
+      return;
+    }
+    final data = responseMap['data'];
+    final item = PackingList.fromJson(data);
+    //final PackingList item = PackingList.dummyPackingList();
+
+    setState(() {
+      if(item != null) {
+        _packingList = item;
+        _stepScreens[0] = Step1Screen(
+            _packingList, () => setState(() => _currentStep = Step.STEP_2)
+        );
+        _orderItem.deliveryTime = _packingList.appointedDeliveringTime;
+        loadingState = LoadingState.OK;
+      }
+    });
   }
 
-  _updateReceiptNumber(String receiptNo) async {
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-    requestBody['orderNo'] = orderItem.orderNo;
-    requestBody['receiptNo'] = receiptNo;
-
-//    CommonWidget.showLoader(context, cancelable: false);
-//    final response = await HttpUtil.postReq(AppConst.UPDATE_RECEIPT_NUMBER, requestBody);
-//    print('code: ${response.statusCode}');
-//    Navigator.pop(context);
-//    if (response.statusCode != 200) {
-//      SnackbarUtil.show(context, 'Failed to upate receipt number');
-//      return;
-//    }
-
+  _updateReceiptNumber(String receiptNo) {
+    _receiptNumber = receiptNo;
     setState(() => _currentStep = Step.STEP_3);
   }
 
@@ -421,13 +452,13 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     }
 
 //    CommonWidget.showLoader(context, cancelable: true);
-//    String imei = await PrefUtil.read(PrefUtil.IMEI);
-//    final requestBody = HashMap();
-//    requestBody['imei'] = imei;
-//    requestBody['orderNo'] = orderItem.orderNo;
-//    requestBody['status'] = PickingStatus.WORKING;
+    final params = HashMap();
+    params['imei'] = _myIMEI;
+    params['orderNo'] = _orderItem.orderNo;
+    params['receiptNo'] = _receiptNumber;
+    params['status'] = PackingStatus.DONE;
 //
-//    final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, requestBody);
+//    final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, params);
 //    print('code: ${response.statusCode}');
 //    Navigator.of(context).pop();
 //    if (response.statusCode != 200) {
@@ -438,6 +469,6 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 //      return;
 //    }
 
-    Navigator.of(context).pop({'order_id': orderItem.orderNo});
+    Navigator.of(context).pop({'order_id': _orderItem.orderNo});
   }
 }

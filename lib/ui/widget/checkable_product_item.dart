@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:o2o/data/constant/const.dart';
 import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
-import 'package:o2o/util/localization/o2o_localizations.dart';
+import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class CheckableProductItem extends StatelessWidget {
   final ProductEntity scannedProduct;
