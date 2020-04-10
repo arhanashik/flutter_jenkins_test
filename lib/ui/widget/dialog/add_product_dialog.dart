@@ -2,27 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class AddProductDialog {
 
-  AddProductDialog(this.context, this.product, this.onInsertAndNext);
-
+  AddProductDialog(this.context, this.product, this.onInsertAndNext) {
+    pickCount = product.pickedItemCount;
+  }
   final BuildContext context;
   final ProductEntity product;
   final Function onInsertAndNext;
+  int pickCount;
 
-  Padding _loadImg(String url, double padding) {
+  _loadImg(String url, double padding) {
     return Padding(
       padding: EdgeInsets.all(padding),
-      child: Image.asset(
-        url, height: 80, width: 80,
-      ),
+      child: AppImages.loadSizedImage(url, height: 80.0, width: 80.0, isAsset: false),
     );
   }
 
-  Row _buildCounter(StateSetter setDialogState) {
+  _buildCounter(StateSetter setDialogState) {
     return Row(
       children: <Widget>[
         GestureDetector(
@@ -40,10 +41,8 @@ class AddProductDialog {
             alignment: Alignment.center,
           ),
           onTap: () {
-            if(product.pickedItemCount > 0) {
-              setDialogState(() {
-                product.pickedItemCount--;
-              });
+            if(pickCount > 0) {
+              setDialogState(() => pickCount--);
             }
           },
         ),
@@ -58,7 +57,7 @@ class AddProductDialog {
               )
           ),
           child: Text(
-            product.pickedItemCount.toString(),
+            pickCount.toString(),
             style: TextStyle(
               fontSize: 20,
               color: AppColors.colorBlueDark,
@@ -80,10 +79,8 @@ class AddProductDialog {
             alignment: Alignment.center,
           ),
           onTap: () {
-            if(product.pickedItemCount < product.itemCount) {
-              setDialogState(() {
-                product.pickedItemCount++;
-              });
+            if(pickCount < product.itemCount) {
+              setDialogState(() => pickCount++);
             }
           },
         ),
@@ -110,7 +107,7 @@ class AddProductDialog {
     );
   }
 
-  Row _buildActionButtons() {
+   _buildActionButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -122,7 +119,7 @@ class AddProductDialog {
         ),
         GradientButton(
           text: O2OLocalizations.of(context).txtSubmitAndNext,
-          onPressed: () => onInsertAndNext(),
+          onPressed: () => onInsertAndNext(pickCount - product.pickedItemCount),
           showIcon: true,
           padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
         ),
@@ -147,7 +144,7 @@ class AddProductDialog {
                     ),
                     Row(
                       children: <Widget>[
-                        _loadImg('assets/images/img_temp.jpeg', 10.0),
+                        _loadImg(product.imageUrl, 10.0),
                         Flexible(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

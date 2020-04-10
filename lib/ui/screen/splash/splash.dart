@@ -94,7 +94,7 @@ class _SplashScreenState extends BaseState<SplashScreen> {
       setState(() => loadingState = LoadingState.ERROR);
       SnackbarUtil.show(
         context,
-        'Server is not available. Please try again.',
+        locale.errorServerIsNotAvailable,
         icon: Icon(Icons.error, color: Colors.white,),
         background: Colors.redAccent,
         durationInSec: 5,
@@ -118,17 +118,17 @@ class _SplashScreenState extends BaseState<SplashScreen> {
     final String deviceName = responseMap['data']['deviceName'];
     final String storeName = responseMap['data']['storeName'];
     print('deviceName: $deviceName, storeName: $storeName');
-    if(deviceName.isEmpty || storeName.isEmpty) {
-      setState(() => loadingState = LoadingState.ERROR);
-      SnackbarUtil.show(
-        context,
-        '端末の情報は取得することができません。',
-        icon: Icon(Icons.error, color: Colors.white,),
-        background: Colors.redAccent,
-        durationInSec: 5,
-      );
-      return;
-    }
+//    if(deviceName.isEmpty || storeName.isEmpty) {
+//      setState(() => loadingState = LoadingState.ERROR);
+//      SnackbarUtil.show(
+//        context,
+//        '端末の情報は取得することができません。',
+//        icon: Icon(Icons.error, color: Colors.white,),
+//        background: Colors.redAccent,
+//        durationInSec: 5,
+//      );
+//      return;
+//    }
     await PrefUtil.save(PrefUtil.DEVICE_NAME, deviceName);
     await PrefUtil.save(PrefUtil.STORE_NAME, storeName);
 

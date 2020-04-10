@@ -1,33 +1,56 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:o2o/data/loadingstate/LoadingState.dart';
+import 'package:o2o/data/orderitem/order_item.dart';
+import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/screen/packing/step_4_qr_code_list_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class Step4Screen extends StatefulWidget {
 
-  Step4Screen(this.qrCodes, this.onPrevScreen, this.onNextScreen);
+  Step4Screen(
+      this.orderItem,
+      this.qrCodes,
+      this.isUnderWork,
+      this.onPrevScreen,
+      this.onNextScreen
+  );
+  final OrderItem orderItem;
   final LinkedHashSet<String> qrCodes;
+  final bool isUnderWork;
   final Function onPrevScreen;
   final Function onNextScreen;
 
   @override
   _Step4ScreenState createState() => _Step4ScreenState(
-      qrCodes, onPrevScreen, onNextScreen
+      orderItem, qrCodes, isUnderWork, onPrevScreen, onNextScreen
   );
 }
 
 class _Step4ScreenState extends BaseState<Step4Screen> {
 
-  _Step4ScreenState(this._scannedQrCodes, this._onPrevScreen, this._onNextScreen);
+  _Step4ScreenState(
+      this._orderItem,
+      this._scannedQrCodes,
+      this._isUnderWork,
+      this._onPrevScreen,
+      this._onNextScreen
+  );
+  final OrderItem _orderItem;
   final LinkedHashSet<String> _scannedQrCodes;
+  final bool _isUnderWork;
   final Function _onPrevScreen;
   final Function _onNextScreen;
+  String _myIMEI;
 
   final GlobalKey _qrKey = GlobalKey(debugLabel: 'QRCodeScanner');
   var _qrText = "";
@@ -56,7 +79,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
       alignment: Alignment.bottomRight,
       children: <Widget>[
         Container(
-          height: 275,
+          height: _isUnderWork? 246 : 275,
           child: QRView(
             key: _qrKey,
             onQRViewCreated: _onQRViewCreated,
@@ -121,6 +144,12 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    setState(() {_scannedQrCodes.add('11111');});
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
 
@@ -179,9 +208,9 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   }
 
   _checkQrProduct(qrCode) async {
-    if(!isOnline) {
+    if(_scannedQrCodes.contains(qrCode)) {
       ToastUtil.show(
-          context, 'Connect to internet first',
+          context, '読み取り済みQRコード',
           icon: Icon(Icons.error, color: Colors.white,),
           verticalMargin: 200, error: true
       );
@@ -189,45 +218,59 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
       return;
     }
 
-//    CommonWidget.showLoader(context, cancelable: true);
-//    String imei = await PrefUtil.read(PrefUtil.IMEI);
-//    final requestBody = HashMap();
-//    requestBody['imei'] = imei;
-//    requestBody['qrCode'] = qrCode;
-//
-//    final response = await HttpUtil.postReq(AppConst.CHECK_PACKING_QR_CODE, requestBody);
-//    print('code: ${response.statusCode}');
-//    Navigator.of(context).pop();
-//    _resumeCamera();
-//
-//    if (response.statusCode != 200) {
-//      ToastUtil.show(
-//          context, 'Please try again',
-//          icon: Icon(Icons.error, color: Colors.white,),
-//          verticalMargin: 200, error: true
-//      );
-//      return;
-//    }
+    if(!isOnline) {
+      ToastUtil.show(
+          context, locale.errorInternetIsNotAvailable,
+          icon: Icon(Icons.error, color: Colors.white,),
+          verticalMargin: 200, error: true
+      );
+      _resumeCamera();
+      return;
+    }
 
-//    print('body: ${response.body}');
-//    final responseCode = json.decode(response.body);
-//    if(responseCode['resultCode'] == PackingQrCodeStatus.NOT_ISSUED) {
-//      ToastUtil.show(
-//          context, 'No Product from HTKK $qrCode',
-//          icon: Icon(Icons.error, color: Colors.white,),
-//          verticalMargin: 200, error: true
-//      );
-//      return;
-//    }
-//
-//    if(responseCode['resultCode'] == PackingQrCodeStatus.REGISTERED) {
-//      ToastUtil.show(
-//          context, 'Product already registered with $qrCode',
-//          icon: Icon(Icons.error, color: Colors.white,),
-//          verticalMargin: 200, error: true
-//      );
-//      return;
-//    }
+    setState(() => loadingState = LoadingState.LOADING);
+    CommonWidget.showLoader(context, cancelable: true);
+    if(_myIMEI == null) _myIMEI = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = _myIMEI;
+    params['orderId'] = _orderItem.orderId;
+    params['qrCode'] = qrCode;
+
+    final response = await HttpUtil.get(HttpUtil.CHECK_PACKING_QR_CODE, params: params);
+    Navigator.of(context).pop();
+    _resumeCamera();
+
+    if (response.statusCode != 200) {
+      setState(() => loadingState = LoadingState.ERROR);
+      ToastUtil.show(
+          context, locale.errorServerIsNotAvailable,
+          icon: Icon(Icons.error, color: Colors.white,),
+          verticalMargin: 200, error: true
+      );
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    final msg = responseMap['msg'];
+    if(code == PackingQrCodeStatus.NOT_ISSUED) {
+      setState(() => loadingState = LoadingState.ERROR);
+      ToastUtil.show(
+          context, msg,
+          icon: Icon(Icons.error, color: Colors.white,),
+          verticalMargin: 200, error: true
+      );
+      return;
+    }
+
+    if(code == PackingQrCodeStatus.REGISTERED) {
+      ToastUtil.show(
+          context, msg,
+          icon: Icon(Icons.error, color: Colors.white,),
+          verticalMargin: 200, error: true
+      );
+      //return;
+    }
 
     setState(() => _scannedQrCodes.add(_qrText));
     ToastUtil.show(context, locale.txtScanned1QRCode, verticalMargin: 200,);

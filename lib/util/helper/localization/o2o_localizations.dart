@@ -169,6 +169,12 @@ class O2OLocalizations {
       'hint_search_by_qrcode': '荷物番号を入力して対応履歴を検索',
       'txt_work_finishing_time': '作業完了時刻',
       'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを記載していた場合、赤字の部分を修正して下さい。',
+      'txt_pull_to_refresh': '引きて更新',
+      'txt_release_to_refresh': '解放して更新',
+      'txt_refreshing': '更新しています',
+      'txt_refresh_completed': '更新を完了',
+      'error_server_is_not_available': 'サーバーが利用できません。もう一度やり直してください',
+      'error_internet_is_not_available': 'インターネットは利用できません',
     },
     'ja': {
       'title': 'O2O',
@@ -319,6 +325,12 @@ class O2OLocalizations {
       'hint_search_by_qrcode': '荷物番号を入力して対応履歴を検索',
       'txt_work_finishing_time': '作業完了時刻',
       'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを記載していた場合、赤字の部分を修正して下さい。',
+      'txt_pull_to_refresh': '引きて更新',
+      'txt_release_to_refresh': '解放して更新',
+      'txt_refreshing': '更新しています',
+      'txt_refresh_completed': '更新を完了',
+      'error_server_is_not_available': 'サーバーが利用できません。もう一度やり直してください',
+      'error_internet_is_not_available': 'インターネットは利用できません',
     },
   };
 
@@ -469,4 +481,10 @@ class O2OLocalizations {
   String get hintSearchByQrCode => _getLocalizedValue('hint_search_by_qrcode');
   String get txtWorkFinishingTime => _getLocalizedValue('txt_work_finishing_time');
   String get warningUpdateLabelInfo => _getLocalizedValue('warning_update_label_info');
+  String get txtPullToRefresh => _getLocalizedValue('txt_pull_to_refresh');
+  String get txtReleaseToRefresh => _getLocalizedValue('txt_release_to_refresh');
+  String get txtRefreshing => _getLocalizedValue('txt_refreshing');
+  String get txtRefreshCompleted => _getLocalizedValue('txt_refresh_completed');
+  String get errorServerIsNotAvailable => _getLocalizedValue('error_server_is_not_available');
+  String get errorInternetIsNotAvailable => _getLocalizedValue('error_internet_is_not_available');
 }

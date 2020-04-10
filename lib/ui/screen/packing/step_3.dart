@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 
 class Step3Screen extends StatefulWidget {
@@ -85,7 +86,7 @@ class _Step3ScreenState extends BaseState<Step3Screen> {
               ),
             ),
           ),
-          Image.asset('assets/images/img_label_instruction.png'),
+          AppImages.imgLabelInstruction,
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Row(

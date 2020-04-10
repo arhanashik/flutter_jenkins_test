@@ -44,18 +44,25 @@ class ScannedProductItem extends StatelessWidget {
       subtitle: Padding(
         padding: EdgeInsets.only(top: 10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
               '${locale.txtJanCode}: ${scannedProduct.janCode}'
                   '\n${locale.txtCategoryName}: ${scannedProduct.category}',
               style: TextStyle(color: Colors.black, fontSize: 14),
             ),
-            scannedProduct.pickedItemCount < scannedProduct.itemCount? GradientButton(
-              text: '数量変更',
-              onPressed: () => onChangeQuantity(),
-              showIcon: true,
-              icon: Icon(Icons.edit, color: Colors.white,),
-              borderRadius: 24.0,
+            scannedProduct.pickedItemCount < scannedProduct.itemCount? Container(
+              height: 28.0,
+              width: 100.0,
+              child: GradientButton(
+                text: '数量変更',
+                fontSize: 12.0,
+                onPressed: () => onChangeQuantity(),
+                showIcon: true,
+                icon: Icon(Icons.edit, color: Colors.white, size: 16.0,),
+                borderRadius: 16.0,
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5.0),
+              ),
             ) : Container()
           ],
         ),

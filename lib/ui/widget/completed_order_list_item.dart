@@ -27,7 +27,7 @@ class CompletedOrderListItem extends StatelessWidget {
             children: <Widget>[
               Text(locale.txtOrderNumber, style: TextStyle(fontSize: 14,),),
               Padding(padding: EdgeInsets.only(left: 16),),
-              Text(orderItem.orderNo.toString(), style: TextStyle(fontSize: 14,),),
+              Text(orderItem.orderId.toString(), style: TextStyle(fontSize: 14,),),
             ],
           ),
           Row(

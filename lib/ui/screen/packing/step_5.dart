@@ -46,171 +46,6 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
   bool _primaryQrCodeChanged = false;
   bool _qrCodeChanged = false;
 
-//  _buildLabelExample() {
-//    return Column (
-//      children: <Widget>[
-//        Row(
-//          crossAxisAlignment: CrossAxisAlignment.start,
-//          children: <Widget>[
-//            Container(
-//              decoration: BoxDecoration(
-//                border: Border.all(color: Colors.grey)
-//              ),
-//              padding: EdgeInsets.all(16),
-//              child: SvgPicture.asset(
-//                  'assets/images/qr.svg',
-//                width: 100.0,
-//                height: 100.0,
-//                color: Colors.black54,
-//              ),
-//            ),
-//            Column(
-//              crossAxisAlignment: CrossAxisAlignment.start,
-//              children: <Widget>[
-//                Container(
-//                  width: MediaQuery.of(context).size.width - 154,
-//                  decoration: BoxDecoration(
-//                      border: Border.all(color: Colors.grey)
-//                  ),
-//                  padding: EdgeInsets.all(5),
-//                  child: Row(
-//                    crossAxisAlignment: CrossAxisAlignment.start,
-//                    children: <Widget>[
-//                      Text(locale.txtShippingPlanTime, style: TextStyle(
-//                        color: Colors.black54, fontSize: 12,
-//                      ),),
-//                      Container(
-//                        decoration: BoxDecoration(
-//                          border: Border.all(color: Colors.blue, width: 3),
-//                          borderRadius: BorderRadius.all(Radius.circular(5)),
-//                        ),
-//                        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-//                        margin: EdgeInsets.only(left: 10),
-//                        child: Text('1', style: TextStyle(
-//                          color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
-//                        ),),
-//                      ),
-//                    ],
-//                  ),
-//                ),
-//                Container(
-//                  width: MediaQuery.of(context).size.width - 154,
-//                  child: Row(
-//                    crossAxisAlignment: CrossAxisAlignment.start,
-//                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                    children: <Widget>[
-//                      Container(
-//                        width: MediaQuery.of(context).size.width - 154 - 80,
-//                        height: 85,
-//                        decoration: BoxDecoration(
-//                            border: Border.all(color: Colors.grey)
-//                        ),
-//                        padding: EdgeInsets.all(5),
-//                        child: Row(
-//                          crossAxisAlignment: CrossAxisAlignment.start,
-//                          children: <Widget>[
-//                            Text(locale.txtDeliveryNumber, style: TextStyle(
-//                              color: Colors.black54, fontSize: 12,
-//                            ),),
-//                            Container(
-//                              decoration: BoxDecoration(
-//                                border: Border.all(color: Colors.blue, width: 3),
-//                                borderRadius: BorderRadius.all(Radius.circular(5)),
-//                              ),
-//                              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-//                              margin: EdgeInsets.only(top: 16),
-//                              child: Text('2', style: TextStyle(
-//                                  color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
-//                              ),),
-//                            ),
-//                          ],
-//                        ),
-//                      ),
-//                      Container(
-//                        width: 80,
-//                        height: 85,
-//                        decoration: BoxDecoration(
-//                            border: Border.all(color: Colors.grey)
-//                        ),
-//                        padding: EdgeInsets.all(5),
-//                        child: Column(
-//                          crossAxisAlignment: CrossAxisAlignment.center,
-//                          children: <Widget>[
-//                            Text('${locale.txtQuantity}/${locale.txtNumberOfPieces}',
-//                              style: TextStyle(
-//                                color: Colors.black54, fontSize: 12,
-//                              ),
-//                              textAlign: TextAlign.center,
-//                            ),
-//                            Container(
-//                              decoration: BoxDecoration(
-//                                border: Border.all(color: Colors.blue, width: 3),
-//                                borderRadius: BorderRadius.all(Radius.circular(5)),
-//                              ),
-//                              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-//                              margin: EdgeInsets.only(top: 10),
-//                              child: Text('3', style: TextStyle(
-//                                  color: Colors.blue, fontSize: 18, fontWeight: FontWeight.bold
-//                              ),),
-//                            ),
-//                          ],
-//                        ),
-//                      ),
-//                    ],
-//                  ),
-//                )
-//              ],
-//            )
-//          ],
-//        ),
-//        Container(
-//          decoration: BoxDecoration(
-//              border: Border.all(color: Colors.grey)
-//          ),
-//          padding: EdgeInsets.all(5),
-//          child: Row(
-//            crossAxisAlignment: CrossAxisAlignment.start,
-//            children: <Widget>[
-//              Text(locale.txtBaggageNumber, style: TextStyle(
-//                color: Colors.black54, fontSize: 12,
-//              ),),
-//              Container(
-//                margin: EdgeInsets.only(left: 24, top: 10, bottom: 15),
-//                child: Text('1111-2222-3333',
-//                  style: TextStyle(
-//                      color: Colors.black, fontSize: 18,
-//                  ),
-//                ),
-//              ),
-//            ],
-//          ),
-//        ),
-//        Container(
-//          decoration: BoxDecoration(
-//              border: Border.all(color: Colors.grey)
-//          ),
-//          padding: EdgeInsets.all(5),
-//          child: Row(
-//            crossAxisAlignment: CrossAxisAlignment.start,
-//            children: <Widget>[
-//              Text(locale.txtComment, style: TextStyle(
-//                color: Colors.black54, fontSize: 12,
-//              ),),
-//              Container(
-//                margin: EdgeInsets.only(left: 24, top: 10, bottom: 15),
-//                child: Text('',
-//                  style: TextStyle(
-//                    color: Colors.black, fontSize: 18,
-//                  ),
-//                ),
-//              ),
-//            ],
-//          ),
-//        ),
-//      ],
-//    );
-//  }
-
   _buildInstruction() {
     String primaryQrCode = _qrCodes.isEmpty? '12121212' : _qrCodes.toList()[0];
     String primaryQrCodeLast4Digit = primaryQrCode.substring(primaryQrCode.length-4);
@@ -281,7 +116,7 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Text('${locale.txtQuantity}/${_orderItem.productCount}',
+              child: Text('${locale.txtQuantity}/${_qrCodes.length}',
                 style: TextStyle(color: _primaryQrCodeChanged || _qrCodeChanged
                       ? Colors.redAccent : Colors.blue,
                   fontSize: 18, fontWeight: FontWeight.bold
@@ -512,7 +347,6 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
             text: locale.txtCompleteShipping,
             onPressed: () => _completeShipping(),
             showIcon: true,
-            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           ),
         ],
       ),

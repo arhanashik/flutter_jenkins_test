@@ -63,9 +63,10 @@ class InputDialog {
                   child: GradientButton(
                     text: btnTxt,
                     onPressed: () => onBtnTap(insertedCode),
+                    borderRadius: 24.0,
                   ),
                 ),
-                Padding(padding: EdgeInsets.only(bottom: 10),)
+                Padding(padding: EdgeInsets.only(bottom: 16),)
               ],
             ),
           );

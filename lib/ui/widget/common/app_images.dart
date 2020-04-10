@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 
 class AppImages {
 
-  static Image loadImage(imageUrl, {isAsset = true, placeholder = NO_IMAGE_URL}) {
+  static Image loadImage(String imageUrl, {isAsset = true, placeholder = NO_IMAGE_URL}) {
     return isAsset? Image.asset(imageUrl.isEmpty? placeholder : imageUrl, fit: BoxFit.fill,)
         : Image.network(
-      imageUrl.isEmpty? placeholder : imageUrl, fit: BoxFit.fill,
+      imageUrl.isEmpty || !imageUrl.startsWith("http")
+          ? placeholder : imageUrl, fit: BoxFit.fill,
     );
   }
 
   static Image loadSizedImage(
-      imageUrl,
+      String imageUrl,
       {width = 24.0, height = 24.0, isAsset = true, placeholder = NO_IMAGE_URL}) {
     if(isAsset) {
       return Image.asset(
@@ -19,7 +20,7 @@ class AppImages {
     }
 
     return Image.network(
-      imageUrl.isEmpty? placeholder : imageUrl,
+      imageUrl.isEmpty || !imageUrl.startsWith("http")? placeholder : imageUrl,
       fit: BoxFit.fill,
       width: width,
       height: height,

@@ -22,10 +22,10 @@ class PackingList {
   });
 
   PackingList({
-    this.orderId,
-    this.totalPrice,
-    this.appointedDeliveringTime,
-    this.products
+    this.orderId = 0,
+    this.totalPrice = 0,
+    this.appointedDeliveringTime = "2020-03-28 00:00:00",
+    this.products,
   });
 
   factory PackingList.fromJson(Map<String, dynamic> json) {

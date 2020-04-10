@@ -19,6 +19,7 @@ import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/order_list_item.dart';
 import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 /// Created by mdhasnain on 29 Jan, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -40,6 +41,8 @@ class _OrderListState extends BaseState<OrderList> {
 
   _OrderListState(this._timeOrder);
   final TimeOrder _timeOrder;
+
+  final _refreshController = RefreshController(initialRefresh: true);
   
   /// Two different list to separate the picking and picking completed orders
   final _completedOrderItems = List();
@@ -106,15 +109,15 @@ class _OrderListState extends BaseState<OrderList> {
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.white30,
-        border: Border.all(width: 1.0, color: Colors.grey),
+        color: Colors.white70,
+        border: Border.all(width: 1.0, color: Colors.grey.shade300),
         borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       alignment: Alignment.center,
       child: Text(
-        locale.txtOrderRequiredDeliveryPreparation,
-        style: TextStyle(fontSize: 16, color: Colors.black),
+        '現在対応が必要な注文はありません。',
+        style: TextStyle(fontSize: 14, color: Colors.black),
       ),
     );
   }
@@ -208,7 +211,14 @@ class _OrderListState extends BaseState<OrderList> {
           onClickBtn: () => _fetchData(),
 
         ) : loadingState == LoadingState.LOADING
-            ? ColorLoader() : RefreshIndicator(
+            ? ColorLoader() : SmartRefresher(
+          enablePullDown: true,
+          header: ClassicHeader(
+            idleText: locale.txtPullToRefresh,
+            refreshingText: locale.txtRefreshing,
+            completeText: locale.txtRefreshCompleted,
+            releaseText: locale.txtReleaseToRefresh,
+          ),
           child: CustomScrollView(
             physics: AlwaysScrollableScrollPhysics(),
             slivers: <Widget>[
@@ -232,6 +242,7 @@ class _OrderListState extends BaseState<OrderList> {
               _pickingList(),
             ],
           ),
+          controller: _refreshController,
           onRefresh: () => _fetchData(),
         );
   }
@@ -240,7 +251,7 @@ class _OrderListState extends BaseState<OrderList> {
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    //_fetchData();
   }
 
   /// Main building block of the screen
@@ -260,23 +271,6 @@ class _OrderListState extends BaseState<OrderList> {
             color: AppColors.colorBlue
         ),
       ),
-//      appBar: AppBar(
-//        leading: Container(
-//          alignment: Alignment.center,
-//          padding: EdgeInsets.only(left: 13.0),
-//          child: CommonWidget.labeledButton(
-//              AppIcons.loadIcon(AppIcons.icList, size: 17.0, color: AppColors.colorBlue),
-//              "時間帯別一覧へ",
-//                  () => Navigator.of(context).pop()
-//          ),
-//        ),
-//        title: Text(locale.txtOrderList),
-//        centerTitle: true,
-//        bottom: PreferredSize(
-//          preferredSize: Size.fromHeight(36.0),
-//          child: CommonWidget.sectionTimeBuilder(deliveryHour, deliveryMin),
-//        ),
-//      ),
       backgroundColor: AppColors.background,
       body: _bodyBuilder(),
     );
@@ -289,9 +283,9 @@ class _OrderListState extends BaseState<OrderList> {
   /// Then it checks the response for valid/invalid response code and update
   /// the state with new data
   _fetchData() async {
-    if (loadingState == LoadingState.LOADING) return;
+    //if (loadingState == LoadingState.LOADING) return;
 
-    setState(() => loadingState = LoadingState.LOADING);
+    //setState(() => loadingState = LoadingState.LOADING);
 
     _myDeviceName = await PrefUtil.read(PrefUtil.DEVICE_NAME);
 
@@ -301,6 +295,7 @@ class _OrderListState extends BaseState<OrderList> {
     params['deliveryDateTime'] = _timeOrder.scheduledDeliveryDateTime;
 
     final response = await HttpUtil.get(HttpUtil.GET_ORDER_LIST, params: params);
+    _refreshController.refreshCompleted();
     if (response.statusCode != 200) {
       setState(() => loadingState = LoadingState.ERROR);
       return;
@@ -312,40 +307,44 @@ class _OrderListState extends BaseState<OrderList> {
       setState(() => loadingState = LoadingState.ERROR);
       return;
     }
-    final List data = responseMap['data'];
-    List<OrderItem> items = data.map(
-            (data) => OrderItem.fromJson(data)
-    ).toList();
-//    List<OrderItem> items = OrderItem.dummyOrderItems();
 
     LoadingState newState = LoadingState.NO_DATA;
-    if (_orderItems.isNotEmpty || items.isNotEmpty) {
-      _completedOrderItems.clear();
-      _orderItems.clear();
-      items.forEach((item) {
-        if(item.pickingStatus == PickingStatus.DONE) _completedOrderItems.add(item);
-        else _orderItems.add(item);
-      });
+    if((responseMap['data'] is List)) {
+      final List data = responseMap['data'];
+      List<OrderItem> items = data.map((data) => OrderItem.fromJson(data))
+          .toList();
+//    List<OrderItem> items = OrderItem.dummyOrderItems();
 
-      newState = LoadingState.OK;
+      if (_orderItems.isNotEmpty || items.isNotEmpty) {
+        _completedOrderItems.clear();
+        _orderItems.clear();
+        items.forEach((item) {
+          if(item.pickingStatus == PickingStatus.DONE) _completedOrderItems.add(item);
+          else _orderItems.add(item);
+        });
+
+        newState = LoadingState.OK;
+      }
     }
 
     setState(() => loadingState = newState);
   }
 
   /// After confirming picking task of an order item, this function launches
-  /// the 'PickingScreen' for picking task and waits for a result
+  /// the 'PickingScreen' for picking task and waits for the result of
+  /// completing picking and packing.
+  /// If we get the result from the packing we reload the data of this page
   _startPickingTaskForResult(OrderItem orderItem, bool isUnderWork) async {
     final params = HashMap();
     params['imei'] = _myIMEI;
-    params['orderNo'] = orderItem.orderNo;
+    params['orderId'] = orderItem.orderId;
     params['status'] = PickingStatus.WORKING;
 
     CommonWidget.showLoader(context,);
     final response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
     if (response.statusCode != 200) {
       Navigator.pop(context);
-      SnackbarUtil.show(context, 'Failed to upate picking status');
+      SnackbarUtil.show(context, locale.errorServerIsNotAvailable,);
       return;
     }
 
@@ -365,17 +364,16 @@ class _OrderListState extends BaseState<OrderList> {
     ));
 
     if (results != null && results.containsKey('order_id')) {
-      final item = _orderItems.firstWhere(
-              (element) => element is OrderItem
-                  && element.orderNo == results['order_id']
-      );
-      setState(() {
-        _orderItems.remove(item);
-        _completedOrderItems.add(item);
-      });
+      _fetchData();
       String msg = locale.txtOrderNumber + ' : '
           + '${results['order_id']} の発送準備を完了しました。';
       SnackbarUtil.show(context, msg, durationInSec: 3);
     }
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
   }
 }

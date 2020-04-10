@@ -15,8 +15,10 @@ import 'package:http/http.dart';
 
 abstract class HttpUtil {
 
-  static const _BASE_URL = 'http://192.168.100.122:8080/api/v1';
-//  static const _BASE_URL = 'http://192.168.4.166:8080/api/v1';
+  static const _HOME_PC = 'http://192.168.100.122:8080';
+  static const _SAI_HOME_PC = 'http://192.168.11.2:8080';
+  static const _SAI_OFFICE_PC = 'http://192.168.4.166:8080';
+  static const _BASE_URL = '$_HOME_PC/api/v1';
 
   static const LOGIN = '$_BASE_URL/login';
   static const REGISTER_IMEI = '$_BASE_URL/timeorder/list';
@@ -35,6 +37,7 @@ abstract class HttpUtil {
   static const GET_PACKING_LIST = '$_BASE_URL/packing/list';
   static const UPDATE_RECEIPT_NUMBER = '$_BASE_URL/packing/receipt_no/update';
   static const CHECK_PACKING_QR_CODE = '$_BASE_URL/packing/qr_code/judge';
+  static const UPDATE_PACKING_QR_CODE = '$_BASE_URL/packing/qrCode/update';
 
   static const HEADER = {
     "Content-type": "application/json",
@@ -45,14 +48,9 @@ abstract class HttpUtil {
 
   static get(String url, {Map params, header = HEADER}) async {
     try {
-      if(params != null && params.isNotEmpty) {
-        url = url + '?';
-        params.forEach((key, value) {
-          url += '$key=$value&';
-        });
-      }
+      url = _constructQueryUrl(url, params);
 //      final uri = Uri.http(url, '', data);
-      print('request:: $url');
+      print('request:: (get) $url');
       final response = await client.get(
           url, headers: header
       ).timeout(TIMEOUT_DURATION);
@@ -72,9 +70,10 @@ abstract class HttpUtil {
 
   static post(String url, Map params, {header = HEADER}) async {
     try {
-      print('request:: $url');
+      final body = jsonEncode(params);
+      print('request:: (post) $url, body: $body');
       final response = await client.post(
-          url, headers: header, body: jsonEncode(params)
+          url, headers: header, body: body
       ).timeout(TIMEOUT_DURATION);
       print('response:: code: ${response.statusCode}, body: ${response.body}');
       return response;
@@ -92,6 +91,18 @@ abstract class HttpUtil {
 
   static closeConnection() {
     client.close();
+  }
+
+  static _constructQueryUrl(String url, Map params) {
+    if(params == null || params.isEmpty) return url;
+    
+    String query = '';
+    params.forEach((key, value) {
+      query += '$key=$value&';
+    });
+    query = query.substring(0, query.length - 1);
+
+    return '$url?$query';
   }
 }
 
@@ -119,6 +130,7 @@ class PickingCheckStatus {
   static const NOT_PICKED = 200;
   static const PICKED = 1;
   static const NOT_AVAILABLE = 2;
+  static const OVER_REGISTRATION_QUANTITY = 1005;
 }
 
 class PackingStatus {
@@ -128,7 +140,7 @@ class PackingStatus {
 }
 
 class PackingQrCodeStatus {
-  static const SUCCESS = 0;
-  static const REGISTERED = 1;
-  static const NOT_ISSUED = 2;
+  static const SUCCESS = 200;
+  static const REGISTERED = 1003;
+  static const NOT_ISSUED = 1004;
 }

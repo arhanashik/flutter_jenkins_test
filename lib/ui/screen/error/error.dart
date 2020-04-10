@@ -38,6 +38,7 @@ class _ErrorScreenState extends BaseState<ErrorScreen> {
   final bool showHelpTxt;
 
   String _deviceName = '';
+  String _storeName = '';
 
   _buildMessage() {
     return Container(
@@ -96,7 +97,7 @@ class _ErrorScreenState extends BaseState<ErrorScreen> {
   @override
   void initState() {
     super.initState();
-    _readIMEI();
+    _readDeviceInfo();
   }
 
   @override
@@ -132,10 +133,14 @@ class _ErrorScreenState extends BaseState<ErrorScreen> {
     );
   }
 
-  _readIMEI() async {
+  _readDeviceInfo() async {
     String deviceName = await PrefUtil.read(PrefUtil.DEVICE_NAME);
+    String storeName = await PrefUtil.read(PrefUtil.STORE_NAME);
 
-    setState(() => _deviceName = deviceName);
+    setState(() { 
+      _deviceName = deviceName;
+      _storeName = storeName;
+    });
   }
 
   _makePhoneCall(String phoneNum) {

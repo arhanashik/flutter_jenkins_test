@@ -86,7 +86,7 @@ class _AddQrCodeStep2State extends BaseState<AddQrCodeStep2> {
           ListView(
             children: <Widget>[
               _msgBuilder(),
-              _textBuilder('${locale.txtOrderNumber}: ${_orderItem.orderNo}', Colors.black, FontWeight.w500),
+              _textBuilder('${locale.txtOrderNumber}: ${_orderItem.orderId}', Colors.black, FontWeight.w500),
               _textBuilder('①${locale.txtShippingPlanTime}: 13:00', Colors.blue, FontWeight.bold),
               _textBuilder('②${locale.txtBaggageManagementNumber}: 4444', Colors.blue, FontWeight.bold),
               _textBuilder('③${locale.txtNumberOfPieces}: ${_orderItem.productCount}', Colors.blue, FontWeight.bold),

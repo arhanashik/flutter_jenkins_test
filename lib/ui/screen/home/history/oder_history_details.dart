@@ -178,7 +178,7 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
       delegate: SliverChildListDelegate(
         [
           Padding(padding: EdgeInsets.only(top: 16.0),),
-          _textValuePair(locale.txtOrderNumber, _orderItem.orderNo.toString()),
+          _textValuePair(locale.txtOrderNumber, _orderItem.orderId.toString()),
           Padding(
             padding: EdgeInsets.only(left: 16.0, top: 16.0,),
             child: _sectionLeftBorderTextBuilder(locale.txtProductList,),

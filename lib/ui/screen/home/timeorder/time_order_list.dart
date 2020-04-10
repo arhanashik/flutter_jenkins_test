@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:o2o/data/constant/const.dart';
 import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/data/pref/pref.dart';
@@ -17,6 +18,7 @@ import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/time_order_item.dart';
 import 'package:o2o/util/helper/common.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 /// Created by mdhasnain on 28 Jan, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -33,7 +35,13 @@ class TimeOrderListScreen extends StatefulWidget {
 
 class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
   /// List of timeOrders and timeOrderHeaders data
-  final _timeOrders = List();
+//  final _timeOrders = List();
+  final Map<TimeOrderHeading, List> _timeOrders = HashMap();
+
+  final _refreshController = RefreshController(initialRefresh: true);
+
+  String _deviceName = '';
+  String _storeName = '';
 
   /// Scroll position detector for the list view.
   /// It is used for load more feature in list view
@@ -78,23 +86,61 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
     );
   }
 
-  /// The list view of the time order items.
-  /// This list contains two types of widgets.
-  /// If the item is a 'TimeOrderHeading' widget is returned
-  /// If not the na 'TimeOrderItem' widget returned.
-  _buildTimeOrderList() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        final currentItem = _timeOrders[index];
-        if (currentItem is TimeOrderHeading) {
-          return CommonWidget.sectionDateBuilder(
-              currentItem.month, currentItem.day, currentItem.dayStr);
-        }
-        return TimeOrderItem(context: context, timeOrder: _timeOrders[index]);
+  /// Builds the 'SliverStickyHeader' which consists of a 'TimeOrderHeading'
+  /// and the 'TimeOrderItem' list under that header
+  _buildPinnedHeaderList(TimeOrderHeading heading, List slivers) {
+    return SliverStickyHeader(
+      header: CommonWidget.sectionDateBuilder(
+          heading.month, heading.day, heading.dayStr
+      ),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final currentItem = slivers[index];
+          return TimeOrderItem(context: context, timeOrder: currentItem);
         },
-        childCount: _timeOrders.length,
+          childCount: slivers.length,
+        ),
       ),
     );
+  }
+
+  /// The list view of the time order items.
+  /// This list contains two types of widgets.
+  /// If the item is a 'TimeOrderHeading', it is set as a pinned header
+  /// If not, the list of 'TimeOrderItem' is set under the header
+  _buildTimeOrderList() {
+    final List<Widget> slivers = List();
+    _timeOrders.forEach((key, value) {
+      slivers.add(_buildPinnedHeaderList(key, value));
+    });
+    slivers.add(SliverFillRemaining(
+      hasScrollBody: false,
+      fillOverscroll: true,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          child: Text(
+            '短時間配送支援アプリ　　B版\nココカラファイン$_storeName　$_deviceName',
+            style: TextStyle(color: Colors.black, fontSize: 16.0),
+            textAlign: TextAlign.center,
+          ),
+          padding: EdgeInsets.all(16.0),
+        ),
+      ),
+    ));
+    return slivers;
+//    return SliverList(
+//      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+//        final currentItem = _timeOrders[index];
+//        if (currentItem is TimeOrderHeading) {
+//          return CommonWidget.sectionDateBuilder(
+//              currentItem.month, currentItem.day, currentItem.dayStr);
+//        }
+//        return TimeOrderItem(context: context, timeOrder: currentItem);
+//        },
+//        childCount: _timeOrders.length,
+//      ),
+//    );
   }
 
   /// This the body widget of the 'TimeOrderListScreen'
@@ -115,28 +161,19 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
       btnText: locale.refreshOrderList,
       onClickBtn: () => _fetchData(),
     ) : loadingState == LoadingState.LOADING
-        ? ColorLoader() : RefreshIndicator(
+        ? ColorLoader() : SmartRefresher(
+      enablePullDown: true,
+      header: ClassicHeader(
+        idleText: locale.txtPullToRefresh,
+        refreshingText: locale.txtRefreshing,
+        completeText: locale.txtRefreshCompleted,
+        releaseText: locale.txtReleaseToRefresh,
+      ),
       child: CustomScrollView(
         physics: AlwaysScrollableScrollPhysics(),
-        slivers: <Widget>[
-          _buildTimeOrderList(),
-          SliverFillRemaining(
-            hasScrollBody: false,
-            fillOverscroll: true,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                child: Text(
-                  '短時間配送支援アプリ　　B版\nココカラファイン荻窪西店　01',
-                  style: TextStyle(color: Colors.black, fontSize: 16.0),
-                  textAlign: TextAlign.center,
-                ),
-                padding: EdgeInsets.all(16.0),
-              ),
-            ),
-          ),
-        ],
+        slivers: _buildTimeOrderList(),
       ),
+      controller: _refreshController,
       onRefresh: () => _fetchData(),
     );
   }
@@ -146,9 +183,10 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
   @override
   void initState() {
     super.initState();
+    _readDeviceInfo();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
-    _fetchData();
+    //_fetchData();
   }
 
   /// Main building block of the screen
@@ -171,15 +209,16 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
   /// Then it checks the response for valid/invalid response code and update
   /// the state with new data
   _fetchData() async {
-    if (loadingState == LoadingState.LOADING) return;
+    //if (loadingState == LoadingState.LOADING) return;
 
-    setState(() => loadingState = LoadingState.LOADING);
+    //setState(() => loadingState = LoadingState.LOADING);
 
     String imei = await PrefUtil.read(PrefUtil.IMEI);
     final params = HashMap();
     params['imei'] = imei;
 
     final response = await HttpUtil.get(HttpUtil.GET_TIME_ORDER, params: params);
+    _refreshController.refreshCompleted();
     if (response.statusCode != 200) {
       setState(() => loadingState = LoadingState.ERROR);
       return;
@@ -198,15 +237,19 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
 //    List<TimeOrderListItem> items = TimeOrderListItem.dummyTimeOrderList();
 
     LoadingState newState = LoadingState.NO_DATA;
-    if (_timeOrders.isNotEmpty || items.isNotEmpty) {
+    if (items.isNotEmpty) {
       _timeOrders.clear();
       for (int i = 0; i < items.length; i++) {
         final item = items[i];
         final dateTime = Common.convertToDateTime(item.date);
-        _timeOrders.add(TimeOrderHeading(
+        final header = TimeOrderHeading(
           dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday-1],
-        ));
-        _timeOrders.addAll(item.timeOrderSummaryList);
+        );
+        _timeOrders[header] = item.timeOrderSummaryList;
+//        _timeOrders.add(TimeOrderHeading(
+//          dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday-1],
+//        ));
+//        _timeOrders.addAll(item.timeOrderSummaryList);
       }
 
       newState = LoadingState.OK;
@@ -215,10 +258,21 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
     setState(() => loadingState = newState);
   }
 
+  _readDeviceInfo() async {
+    String deviceName = await PrefUtil.read(PrefUtil.DEVICE_NAME);
+    String storeName = await PrefUtil.read(PrefUtil.STORE_NAME);
+
+    setState(() {
+      _deviceName = deviceName;
+      _storeName = storeName;
+    });
+  }
+
   /// This is where we dispose our list scroll controller
   @override
   void dispose() {
     _scrollController?.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 }

@@ -119,8 +119,8 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
     controller.scannedDataStream.listen((scanData) {
       _pauseCamera();
       setState(() => _qrCode = scanData);
-//      _exitScannerWithResult();
-      _searchQrCode();
+      _exitScannerWithResult();
+//      _searchQrCode();
     });
   }
 

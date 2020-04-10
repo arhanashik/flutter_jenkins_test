@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class OrderListItem extends StatelessWidget {
@@ -28,44 +29,30 @@ class OrderListItem extends StatelessWidget {
             children: <Widget>[
               Text(locale.txtOrderNumber, style: TextStyle(fontSize: 14,),),
               Padding(padding: EdgeInsets.only(left: 16),),
-              Text(orderItem.orderNo.toString(), style: TextStyle(fontSize: 16,),),
+              Text(orderItem.orderId.toString(), style: TextStyle(fontSize: 16,),),
             ],
           ),
           Row(
             children: <Widget>[
               Container(
-                color: Colors.black,
+                color: Colors.black26,
                 height: 1,
-                width: MediaQuery.of(context).size.width - 100,
+                width: MediaQuery.of(context).size.width - 94,
               ),
               Spacer(),
-              Icon(Icons.keyboard_arrow_right, color: Colors.lightBlue,),
+              AppIcons.loadIcon(
+                  AppIcons.icArrowRight,
+                  size: 18.0,
+                  color: AppColors.colorBlue
+              ),
             ],
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(locale.txtProductCount, style: TextStyle(fontSize: 14,),),
-//              Padding(
-//                padding: EdgeInsets.only(left: 16),
-//                child: Text(
-//                  orderItem.pickingCount.toString(),
-//                  style: TextStyle(
-//                      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red
-//                  ),
-//                ),
-//              ),
-//              Padding(
-//                padding: EdgeInsets.only(left: 10),
-//                child: Text(
-//                  "/",
-//                  style: TextStyle(
-//                      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black
-//                  ),
-//                ),
-//              ),
               Padding(
-                padding: EdgeInsets.only(left: 10),
+                padding: EdgeInsets.only(left: 16),
                 child: Text(
                   orderItem.productCount.toString(),
                   style: TextStyle(
@@ -76,11 +63,11 @@ class OrderListItem extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(left: 5),
+                padding: EdgeInsets.only(left: 2, top: 2),
                 child: Text(
                   locale.txtPiece,
                   style: TextStyle(
-                      fontSize: 14, color: Colors.black
+                      fontSize: 12, color: Colors.black
                   ),
                 ),
               ),

@@ -146,19 +146,23 @@ class CommonWidget {
       color: AppColors.color48C1E5,
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
       margin: EdgeInsets.only(bottom: 10),
+      alignment: Alignment.bottomLeft,
       child: Row(
         children: <Widget>[
-          _boldTextBuilder(month.toString(), 20),
+          _boldTextBuilder(month.toString(), 22),
           Padding(
-            padding: EdgeInsets.only(right: 5),
+            padding: EdgeInsets.only(right: 5, top: 3),
             child: _boldTextBuilder('月', 12),
           ),
-          _boldTextBuilder(day.toString(), 20),
+          _boldTextBuilder(day.toString(), 22),
           Padding(
-            padding: EdgeInsets.only(right: 5),
+            padding: EdgeInsets.only(right: 5, top: 3),
             child: _boldTextBuilder('日', 12),
           ),
-          _boldTextBuilder('($dayStr)', 16),
+          Padding(
+            padding: EdgeInsets.only(bottom: 4),
+            child: _boldTextBuilder('($dayStr)', 18),
+          ),
         ],
       ),
     );

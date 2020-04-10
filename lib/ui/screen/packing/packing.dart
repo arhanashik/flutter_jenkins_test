@@ -16,7 +16,6 @@ import 'package:o2o/ui/screen/packing/step_5.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
-import 'package:o2o/ui/widget/common/loader/color_loader.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_missing_information_checker_dialog.dart';
@@ -24,6 +23,21 @@ import 'package:o2o/ui/widget/dialog/full_screen_order_list_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 
+/// Created by mdhasnain on 15 Feb, 2020
+/// Email: md.hasnain@healthcare-tech.co.jp
+///
+/// Purpose of the class:
+/// 1. Show the 5 packing steps. They are
+///   Step 1: Show the packing product list, delivery time, product count
+///      and price
+///   Step 2: Get the receipt number input
+///   Step 3: Show the instruction of packing
+///   Step 4: Show the QR code scanner to get the qr code of the products
+///   Step 5: Show the info of the order, qr code list and complete the packing
+/// 2. Scan product with barcode scanner
+/// 3. Add new product after checking the barcode on server
+/// 4. Check the missing product status
+///
 class PackingScreen extends StatefulWidget {
   PackingScreen({
     Key key,
@@ -48,7 +62,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
   final OrderItem _orderItem;
   final bool _isUnderWork;
   String _receiptNumber;
-  String _myIMEI = '';
+  bool _orderCompleted = false;
 
   PackingList _packingList;
 
@@ -86,9 +100,10 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 
   _initStepScreens() {
     _stepScreens = [
-      _packingList == null? ColorLoader() : Step1Screen(
-          _packingList, () => setState(() => _currentStep = Step.STEP_2)
-      ),
+      Step1Screen(_orderItem, (packingList) => setState(() {
+        _packingList = packingList;
+        _currentStep = Step.STEP_2;
+      }),),
       Step2Screen(
         () => setState(() => _currentStep = Step.STEP_1),
         (pin) => _updateReceiptNumber(pin)
@@ -98,7 +113,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         () => setState(() => _currentStep = Step.STEP_4)
       ),
       Step4Screen(
-        _scannedQrCodes,
+        _orderItem, _scannedQrCodes, _isUnderWork,
         () => setState(() => _currentStep = Step.STEP_3),
         (qrCodes) {
           setState(() {
@@ -111,8 +126,11 @@ class _PackingScreenState extends BaseState<PackingScreen> {
       Step5Screen(
         _orderItem,
         _scannedQrCodes,
-        () => setState(() => _currentStep = Step.STEP_4),
-        () => _completePacking(),
+        () => setState(() {
+          _orderCompleted = false;
+          _currentStep = Step.STEP_4;
+        }),
+        () => _updatePackingInfo(),
       )
     ];
   }
@@ -145,7 +163,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
   _singleStepLabelBuilder(Step step, String label) {
     int thisStepIndex = Step.values.indexOf(step);
     int currentStepIndex = Step.values.indexOf(_currentStep);
-    bool thisStepActive = thisStepIndex <= currentStepIndex;
+    bool thisStepActive = thisStepIndex == currentStepIndex;
 
     Color labelColor = thisStepActive? Colors.lightBlue : Colors.black26;
     double paddingLeft = step == Step.STEP_1? 0 : 8;
@@ -298,9 +316,6 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 
   _getStepView(Step step) {
     int stepIndex = Step.values.indexOf(step);
-    if(stepIndex == 0 && _packingList == null) {
-      return ColorLoader();
-    }
     return _stepScreens[stepIndex];
   }
 
@@ -358,7 +373,6 @@ class _PackingScreenState extends BaseState<PackingScreen> {
   void initState() {
     super.initState();
     _initStepScreens();
-    _fetchData();
   }
 
   @override
@@ -400,49 +414,31 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     );
   }
 
-  _fetchData() async {
-    setState(() => loadingState = LoadingState.LOADING);
-    
-    _myIMEI = await PrefUtil.read(PrefUtil.IMEI);
-    final params = HashMap();
-    params['imei'] = _myIMEI;
-    params['orderNo'] = _orderItem.orderNo;
-    final response = await HttpUtil.get(HttpUtil.GET_PACKING_LIST, params: params);
-    if (response.statusCode != 200) {
-      setState(() => loadingState = LoadingState.ERROR);
-      ToastUtil.show(context, 'Cannot connect to server');
-      return;
-    }
 
-    final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
-    if(code != HttpCode.OK) {
-      setState(() => loadingState = LoadingState.ERROR);
-      ToastUtil.show(context, 'Failed to get the data');
-      return;
-    }
-    final data = responseMap['data'];
-    final item = PackingList.fromJson(data);
-    //final PackingList item = PackingList.dummyPackingList();
 
-    setState(() {
-      if(item != null) {
-        _packingList = item;
-        _stepScreens[0] = Step1Screen(
-            _packingList, () => setState(() => _currentStep = Step.STEP_2)
-        );
-        _orderItem.deliveryTime = _packingList.appointedDeliveringTime;
-        loadingState = LoadingState.OK;
-      }
-    });
-  }
-
-  _updateReceiptNumber(String receiptNo) {
+  _updateReceiptNumber(String receiptNo) async {
     _receiptNumber = receiptNo;
+//    CommonWidget.showLoader(context, cancelable: true);
+//    String imei = await PrefUtil.read(PrefUtil.IMEI);
+//    final params = HashMap();
+//    params['imei'] = imei;
+//    params['orderId'] = _orderItem.orderId;
+//    params['receiptNo'] = _receiptNumber;
+//
+//    final response = await HttpUtil.post(HttpUtil.UPDATE_RECEIPT_NUMBER, params);
+//    Navigator.of(context).pop();
+//    final data = _validateResponse(response, 'Failed to update receipt number');
+//    if(data == null) {
+//      setState(() => loadingState = LoadingState.ERROR);
+//      return;
+//    }
     setState(() => _currentStep = Step.STEP_3);
   }
 
-  _completePacking() async {
+  /// Register packing information(qr codes, imei, orderId..etc) to server
+  /// After that call _completeOrder() to update packing status and complete
+  /// the order
+  _updatePackingInfo() async {
     if(!isOnline) {
       ToastUtil.show(
           context, 'Connect to internet first',
@@ -451,24 +447,67 @@ class _PackingScreenState extends BaseState<PackingScreen> {
       return;
     }
 
-//    CommonWidget.showLoader(context, cancelable: true);
-    final params = HashMap();
-    params['imei'] = _myIMEI;
-    params['orderNo'] = _orderItem.orderNo;
-    params['receiptNo'] = _receiptNumber;
-    params['status'] = PackingStatus.DONE;
-//
-//    final response = await HttpUtil.postReq(AppConst.UPDATE_PICKING_STATUS, params);
-//    print('code: ${response.statusCode}');
-//    Navigator.of(context).pop();
-//    if (response.statusCode != 200) {
-//      ToastUtil.show(
-//          context, 'Failed to upate picking status',
-//          icon: Icon(Icons.error, color: Colors.white,), error: true
-//      );
-//      return;
-//    }
+    if(_orderCompleted) _completeOrder();
 
-    Navigator.of(context).pop({'order_id': _orderItem.orderNo});
+    CommonWidget.showLoader(context, cancelable: true);
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final qrCodes = _scannedQrCodes.toList();
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderId'] = _orderItem.orderId;
+    params['receiptNo'] = _receiptNumber;
+    params['primaryQrCode'] = "${qrCodes[0]}";
+    params['otherQrCode'] = qrCodes.length > 1? qrCodes.sublist(1) : List();
+    //params['status'] = PackingStatus.DONE;
+
+    final response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_QR_CODE, params);
+    Navigator.of(context).pop();
+    final data = _validateResponse(response, 'Qrコード一覧は登録する事ができません');
+    if(data == null) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
+
+    _orderCompleted = true;
+    _completeOrder();
+  }
+
+  /// Update the packing status as DONE.
+  /// If successfully updated, close packing screen and return to order list
+  _completeOrder() async {
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderId'] = _orderItem.orderId;
+    params['status'] = PackingStatus.DONE;
+
+    final response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
+    Navigator.of(context).pop();
+    final data = _validateResponse(response, 'パッキングstatusは更新する事ができません');
+    if(data == null) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
+
+    Navigator.of(context).pop({'order_id': _orderItem.orderId});
+  }
+
+  _validateResponse(response, String errorMsg) {
+    if (response.statusCode != HttpCode.OK) {
+      ToastUtil.show(
+          context, locale.errorServerIsNotAvailable,
+          icon: Icon(Icons.error, color: Colors.white,), error: true
+      );
+      return null;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    if(code != HttpCode.OK) {
+      ToastUtil.show(context, errorMsg);
+      return null;
+    }
+
+    return responseMap['data'];
   }
 }

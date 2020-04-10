@@ -349,15 +349,15 @@ class _SearchHistoryState extends BaseState<SearchHistory> {
     if(_searchQuery.isEmpty) return;
 
     _filteredTimeOrders.addAll(_timeOrders.where(
-            (element) => element is OrderItem && element.orderNo.toString().contains(_searchQuery)
+            (element) => element is OrderItem && element.orderId.toString().contains(_searchQuery)
     ));
 
     _filteredShippingCompletedList.addAll(_shippingCompletedList.where(
-            (element) => element is OrderItem && element.orderNo.toString().contains(_searchQuery)
+            (element) => element is OrderItem && element.orderId.toString().contains(_searchQuery)
     ));
 
     _filteredMissingList.addAll(_missingList.where(
-            (element) => element is OrderItem && element.orderNo.toString().contains(_searchQuery)
+            (element) => element is OrderItem && element.orderId.toString().contains(_searchQuery)
     ));
   }
 }

@@ -37,6 +37,8 @@ dependencies:
   flutter_svg: ^0.17.1
   url_launcher: ^5.4.2
   connectivity: ^0.4.8+1
+  pull_to_refresh: ^1.5.7
+  flutter_sticky_header: "^0.4.2"
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +63,7 @@ flutter:
     - assets/icon/ic_bar_code.png
     - assets/icon/ic_qr_code.png
     - assets/icon/ic_arrow_export.png
+    - assets/icon/ic_arrow_right.png
     - assets/icon/ic_back_to_time_order_list.png
     - assets/icon/ic_back.png
     - assets/icon/ic_settings.png

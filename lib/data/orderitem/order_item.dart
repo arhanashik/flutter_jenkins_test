@@ -2,7 +2,7 @@
 import 'package:o2o/util/lib/remote/http_util.dart';
 
 class OrderItem {
-  final int orderNo;
+  final int orderId;
   final int productCount;
   final int totalPrice;
   int pickingStatus;
@@ -12,7 +12,7 @@ class OrderItem {
   final String cancellationTime;
 
   OrderItem._({
-    this.orderNo,
+    this.orderId,
     this.productCount,
     this.totalPrice,
     this.pickingStatus,
@@ -23,7 +23,7 @@ class OrderItem {
   });
 
   OrderItem({
-    this.orderNo,
+    this.orderId,
     this.productCount,
     this.totalPrice,
     this.pickingStatus,
@@ -41,32 +41,32 @@ class OrderItem {
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return new OrderItem._(
-      orderNo: json['orderNo'],
+      orderId: json['orderId'],
       productCount: json['productCount'],
       totalPrice: json['totalPrice'],
       pickingStatus: json['pickingStatus'],
       lockedName: json['lockedName'],
       workCompletionTime: json['workCompletionTime'],
-      deliveryTime: json['deliveryTime'],
+      deliveryTime: json['appointedDeliveringTime'],
       cancellationTime: json['cancellationTime'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'orderNo': orderNo,
+    'orderId': orderId,
     'productCount': productCount,
     'totalPrice': totalPrice,
     'pickingStatus': pickingStatus,
     'lockedName': lockedName,
     'workCompletionTime': workCompletionTime,
-    'deliveryTime': deliveryTime,
+    'appointedDeliveringTime': deliveryTime,
     'cancellationTime': cancellationTime,
   };
 
   static dummyOrderItems() {
     return [
       OrderItem(
-        orderNo: 134534534563463534,
+        orderId: 134534534563463534,
         productCount: 5,
         totalPrice: 1000,
         pickingStatus: PickingStatus.WORKING,
@@ -76,7 +76,7 @@ class OrderItem {
         cancellationTime: '12:50',
       ),
       OrderItem(
-        orderNo: 324353532,
+        orderId: 324353532,
         productCount: 3,
         totalPrice: 2000,
         pickingStatus: PickingStatus.NOT_STARTED,
@@ -86,7 +86,7 @@ class OrderItem {
         cancellationTime: '12:45',
       ),
       OrderItem(
-        orderNo: 324353532,
+        orderId: 324353532,
         productCount: 3,
         totalPrice: 2000,
         pickingStatus: PickingStatus.DONE,
@@ -96,7 +96,7 @@ class OrderItem {
         cancellationTime: '12:45',
       ),
       OrderItem(
-        orderNo: 324353532,
+        orderId: 324353532,
         productCount: 3,
         totalPrice: 2000,
         pickingStatus: PickingStatus.DONE,
@@ -106,7 +106,7 @@ class OrderItem {
         cancellationTime: '12:45',
       ),
       OrderItem(
-        orderNo: 324353532,
+        orderId: 324353532,
         productCount: 3,
         totalPrice: 2000,
         pickingStatus: PickingStatus.NOT_STARTED,
