@@ -85,6 +85,8 @@ class O2OLocalizations {
       'txt_qr_scanned_labeled_count': '読み取った荷札QRコード',
       'txt_see_list': '一覧を見る',
       'txt_scanned_1_qr_code': '一つのQRコードをスキャンしました。',
+      'txt_already_scanned_qr_code': '読み取り済みのQRコードです。',
+      'txt_scanned_qr_code_not_available': '有効なQRコードではありません。',
       'txt_shipping_plan_time': '発送予定時間',
       'txt_shipping_number': '出荷番号',
       'txt_delivery_number': '配送番号',
@@ -168,7 +170,7 @@ class O2OLocalizations {
       'hint_search_by_barcode': 'JANコードを入力して対応履歴を検索',
       'hint_search_by_qrcode': '荷物番号を入力して対応履歴を検索',
       'txt_work_finishing_time': '作業完了時刻',
-      'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを記載していた場合、赤字の部分を修正して下さい。',
+      'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを\n記載していた場合、赤字の部分を修正して下さい。',
       'txt_pull_to_refresh': '引きて更新',
       'txt_release_to_refresh': '解放して更新',
       'txt_refreshing': '更新しています',
@@ -244,6 +246,8 @@ class O2OLocalizations {
       'txt_qr_scanned_labeled_count': '読み取った荷札QRコード',
       'txt_see_list': '一覧を見る',
       'txt_scanned_1_qr_code': '一つのQRコードをスキャンしました。',
+      'txt_already_scanned_qr_code': '読み取り済みのQRコードです。',
+      'txt_scanned_qr_code_not_available': '有効なQRコードではありません。',
       'txt_shipping_plan_time': '発送予定時間',
       'txt_shipping_number': '出荷番号',
       'txt_delivery_number': '配送番号',
@@ -324,7 +328,7 @@ class O2OLocalizations {
       'hint_search_by_barcode': 'JANコードを入力して対応履歴を検索',
       'hint_search_by_qrcode': '荷物番号を入力して対応履歴を検索',
       'txt_work_finishing_time': '作業完了時刻',
-      'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを記載していた場合、赤字の部分を修正して下さい。',
+      'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを\n記載していた場合、赤字の部分を修正して下さい。',
       'txt_pull_to_refresh': '引きて更新',
       'txt_release_to_refresh': '解放して更新',
       'txt_refreshing': '更新しています',
@@ -405,6 +409,8 @@ class O2OLocalizations {
   String get txtQRScannedLabeledCount => _getLocalizedValue('txt_qr_scanned_labeled_count');
   String get txtSeeList => _getLocalizedValue('txt_see_list');
   String get txtScanned1QRCode => _getLocalizedValue('txt_scanned_1_qr_code');
+  String get txtAlreadyScannedQRCode => _getLocalizedValue('txt_already_scanned_qr_code');
+  String get txtScannedQRCodeIsNotAvailable => _getLocalizedValue('txt_scanned_qr_code_not_available');
   String get txtShippingPlanTime => _getLocalizedValue('txt_shipping_plan_time');
   String get txtShippingNumber => _getLocalizedValue('txt_shipping_number');
   String get txtDeliveryNumber => _getLocalizedValue('txt_delivery_number');

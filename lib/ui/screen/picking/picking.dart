@@ -150,16 +150,27 @@ class _PickingScreenState extends BaseState<PickingScreen>
   _sectionTitleBuilder(title) {
     return Container(
       margin: EdgeInsets.only(left: 16, top: 16),
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(width: 3.0, color: Colors.lightBlue)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(left: 16),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 4.0,
+            height: 24.0,
+            decoration: BoxDecoration(
+              color: AppColors.colorBlue,
+              borderRadius: BorderRadius.all(Radius.circular(2.0)),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              title, style: TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -223,7 +234,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
         SliverToBoxAdapter(
           child: Visibility(
               child: Padding(
-                padding: EdgeInsets.only(bottom: 10),
+                padding: EdgeInsets.symmetric(vertical: 5.0),
                 child: _sectionTitleBuilder(locale.txtScannedProduct),
               ),
             visible: _scannedProducts.isNotEmpty,
@@ -234,12 +245,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
             (BuildContext context, int index) {
               final item = _scannedProducts[index];
               return Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey,),
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                ),
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                padding: EdgeInsets.symmetric(horizontal: 10),
                 child: ScannedProductItem(
                   scannedProduct: item,
                   onPressed: () => _selectNextStep(),
@@ -254,7 +260,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
         SliverToBoxAdapter(
           child: Visibility(
             child: Padding(
-              padding: EdgeInsets.only(top: 16, bottom: 10),
+              padding: EdgeInsets.symmetric(vertical: 5.0),
               child: _sectionTitleBuilder(locale.txtScanCompletedProduct),
             ),
             visible: _scanCompletedProducts.isNotEmpty,
@@ -268,11 +274,9 @@ class _PickingScreenState extends BaseState<PickingScreen>
               return Container(
                 decoration: BoxDecoration(
                   color: AppColors.colorF1F1F1,
-                  border: Border.all(color: Colors.grey,),
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                 ),
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                padding: EdgeInsets.symmetric(horizontal: 10),
                 child: ScannedProductItem(
                   scannedProduct: _scanCompletedProducts[index],
                   onPressed: () => _checkPickingStatus(),
@@ -435,24 +439,24 @@ class _PickingScreenState extends BaseState<PickingScreen>
     params['imei'] = imei;
     params['orderId'] = _orderItem.orderId;
 
-//    final response = await HttpUtil.get(HttpUtil.GET_PICKING_LIST, params: params);
-//    _refreshController.refreshCompleted();
-//    if (response.statusCode != HttpCode.OK) {
-//      setState(() => loadingState = LoadingState.ERROR);
-//      return;
-//    }
-//
-//    final responseMap = json.decode(response.body);
-//    final code = responseMap['code'];
-//    if(code == HttpCode.NOT_FOUND) {
-//      setState(() => loadingState = LoadingState.ERROR);
-//      return;
-//    }
-//    final List data = responseMap['data'];
-//    List<ProductEntity> items = data.map(
-//            (data) => ProductEntity.fromJson(data)
-//    ).toList();
-    List<ProductEntity> items = ProductEntity.dummyProducts();
+    final response = await HttpUtil.get(HttpUtil.GET_PICKING_LIST, params: params);
+    _refreshController.refreshCompleted();
+    if (response.statusCode != HttpCode.OK) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    if(code == HttpCode.NOT_FOUND) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
+    final List data = responseMap['data'];
+    List<ProductEntity> items = data.map(
+            (data) => ProductEntity.fromJson(data)
+    ).toList();
+//    List<ProductEntity> items = ProductEntity.dummyProducts();
 
     LoadingState newState = LoadingState.NO_DATA;
     if (_scanCompletedProducts.isNotEmpty || items.isNotEmpty) {
@@ -523,7 +527,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
   _checkJanCodeProduct(janCode) async {
     if(!isOnline) {
       ToastUtil.show(
-          context, 'Connect to internet first',
+          context, locale.errorInternetIsNotAvailable,
           icon: Icon(Icons.error, color: Colors.white,),
           fromTop: true, verticalMargin: 110, error: true
       );
@@ -553,9 +557,18 @@ class _PickingScreenState extends BaseState<PickingScreen>
     final responseMap = json.decode(response.body);
     final code = responseMap['code'];
     final msg = responseMap['msg'];
-    if(code != PickingCheckStatus.NOT_PICKED) {
+    if(code == PickingCheckStatus.NOT_AVAILABLE) {
       ToastUtil.show(
-          context, msg,
+          context, '注文の商品と異なる商品です。',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
+      _resumeCamera();
+      return;
+    }
+    if(code == PickingCheckStatus.PICKED) {
+      ToastUtil.show(
+          context, '読み取り済みのバーコードです。',
           icon: Icon(Icons.error, color: Colors.white,),
           fromTop: true, verticalMargin: 110, error: true
       );
@@ -622,9 +635,19 @@ class _PickingScreenState extends BaseState<PickingScreen>
     final responseMap = json.decode(response.body);
     final code = responseMap['code'];
     final msg = responseMap['msg'];
+    if(code == PickingCheckStatus.OVER_REGISTRATION_QUANTITY) {
+      ToastUtil.show(
+          context, '読み取り済みバーコードです。',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
+      _resumeCamera();
+      _fetchData();
+      return;
+    }
     if(code != HttpCode.OK) {
       ToastUtil.show(
-          context, msg,
+          context, '読み取り済みバーコードです。',
           icon: Icon(Icons.error, color: Colors.white,),
           fromTop: true, verticalMargin: 110, error: true
       );
@@ -640,7 +663,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
 //      });
 //    }
 
-    ToastUtil.show(context, 'Product picked');
+//    ToastUtil.show(context, 'Product picked');
     _resumeCamera();
     _checkPickingStatus();
     _fetchData();
@@ -685,19 +708,19 @@ class _PickingScreenState extends BaseState<PickingScreen>
   /// This function uses 'UPDATE_PICKING_STATUS' api to update the picking
   /// status as done and show the confirmation dialog to start packing
   _completePickingAndConfirmationForPacking() async {
-    CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
-    params['status'] = PickingStatus.DONE;
-
-    var response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
-    Navigator.of(context).pop();
-    if (response.statusCode != HttpCode.OK) {
-      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
-      return;
-    }
+//    CommonWidget.showLoader(context, cancelable: true);
+//    String imei = await PrefUtil.read(PrefUtil.IMEI);
+//    final params = HashMap();
+//    params['imei'] = imei;
+//    params['orderId'] = _orderItem.orderId;
+//    params['status'] = PickingStatus.DONE;
+//
+//    var response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
+//    Navigator.of(context).pop();
+//    if (response.statusCode != HttpCode.OK) {
+//      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
+//      return;
+//    }
 
     ConfirmationDialog(
         context,
@@ -711,19 +734,19 @@ class _PickingScreenState extends BaseState<PickingScreen>
   /// First change the packing status of the order as working
   /// Then Go to the packing screen and wait for the result
   _startPackingForResult() async {
-    CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
-    //update packing status as working
-    params['status'] = PackingStatus.WORKING;
-    var response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
-    Navigator.of(context).pop();
-    if (response.statusCode != 200) {
-      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
-      return;
-    }
+//    CommonWidget.showLoader(context, cancelable: true);
+//    String imei = await PrefUtil.read(PrefUtil.IMEI);
+//    final params = HashMap();
+//    params['imei'] = imei;
+//    params['orderId'] = _orderItem.orderId;
+//    //update packing status as working
+//    params['status'] = PackingStatus.WORKING;
+//    var response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
+//    Navigator.of(context).pop();
+//    if (response.statusCode != 200) {
+//      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
+//      return;
+//    }
 
     _pauseCamera();
     final results = await Navigator.of(context).push(MaterialPageRoute(

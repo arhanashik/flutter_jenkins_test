@@ -146,7 +146,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   @override
   void initState() {
     super.initState();
-    setState(() {_scannedQrCodes.add('11111');});
+    setState(() {_scannedQrCodes.addAll(['11111', '222222']);});
   }
 
   @override
@@ -209,7 +209,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   _checkQrProduct(qrCode) async {
     if(_scannedQrCodes.contains(qrCode)) {
       ToastUtil.show(
-          context, '読み取り済みQRコード',
+          context, locale.txtAlreadyScannedQRCode,
           icon: Icon(Icons.error, color: Colors.white,),
           verticalMargin: 200, error: true
       );
@@ -239,7 +239,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
     Navigator.of(context).pop();
     _resumeCamera();
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != HttpCode.OK) {
       setState(() => loadingState = LoadingState.ERROR);
       ToastUtil.show(
           context, locale.errorServerIsNotAvailable,
@@ -255,7 +255,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
     if(code == PackingQrCodeStatus.NOT_ISSUED) {
       setState(() => loadingState = LoadingState.ERROR);
       ToastUtil.show(
-          context, msg,
+          context, locale.txtScannedQRCodeIsNotAvailable,
           icon: Icon(Icons.error, color: Colors.white,),
           verticalMargin: 200, error: true
       );
@@ -264,7 +264,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
     if(code == PackingQrCodeStatus.REGISTERED) {
       ToastUtil.show(
-          context, msg,
+          context, locale.txtAlreadyScannedQRCode,
           icon: Icon(Icons.error, color: Colors.white,),
           verticalMargin: 200, error: true
       );

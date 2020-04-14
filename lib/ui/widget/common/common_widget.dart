@@ -256,4 +256,20 @@ class CommonWidget {
       color: Colors.black12,
     );
   }
+
+  static textSpanBuilder(
+      String text, {
+        Color color = Colors.black,
+        bool bold = false,
+        double fontSize = 12.0,
+      }) {
+    return TextSpan(
+      text: text,
+      style: TextStyle(
+        color: color,
+        fontWeight: bold? FontWeight.bold: FontWeight.normal,
+        fontSize: fontSize,
+      ),
+    );
+  }
 }

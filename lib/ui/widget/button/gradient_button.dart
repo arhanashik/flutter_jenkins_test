@@ -10,7 +10,8 @@ class GradientButton extends StatelessWidget {
     this.fontSize = 14.0,
     this.fontWeight = FontWeight.w600,
     this.onPressed,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0,),
+    this.height = 36.0,
     this.gradient = AppColors.btnGradient,
     this.borderRadius = 18.0,
     this.enabled = true,
@@ -28,6 +29,7 @@ class GradientButton extends StatelessWidget {
   final FontWeight fontWeight;
   final Function onPressed;
   final EdgeInsets padding;
+  final double height;
   final List<Color> gradient;
   final double borderRadius;
   final bool enabled;
@@ -37,9 +39,6 @@ class GradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-//    double calculatedPadding = showIcon? padding - 5.0 : padding;
-//    double paddingVertical = showIcon? 5.0 : 11.0;
 
     return RaisedButton(
       onPressed: enabled? () =>  onPressed() : null,
@@ -52,6 +51,7 @@ class GradientButton extends StatelessWidget {
       disabledTextColor: Colors.white70,
       elevation: 0.0,
       child: Container(
+        height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(borderRadius),),
           gradient: LinearGradient(colors: enabled? gradient : AppColors.disabledGradient,),

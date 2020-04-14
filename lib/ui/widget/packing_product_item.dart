@@ -3,6 +3,7 @@ import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/details_dialog.dart';
+import 'package:o2o/util/helper/common.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class PackingProductItem extends StatelessWidget {
@@ -56,6 +57,7 @@ class PackingProductItem extends StatelessWidget {
   _buildPriceView(O2OLocalizations locale, int price) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(right: 8,),
@@ -67,10 +69,10 @@ class PackingProductItem extends StatelessWidget {
           ),
         ),
         Text(
-          '¥$price',
+          Common.formatPrice(price),
           style: TextStyle(
               color: AppColors.colorAccent,
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold
           ),
         )
@@ -99,7 +101,7 @@ class PackingProductItem extends StatelessWidget {
             '$itemCount',
             style: TextStyle(
               color: AppColors.colorAccent,
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           )

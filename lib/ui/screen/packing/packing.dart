@@ -215,20 +215,6 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     );
   }
 
-  _textSpanBuilder(
-      String text, {
-        Color color = Colors.black,
-        bool bold = false,
-  }) {
-    return TextSpan(
-        text: text,
-        style: TextStyle(
-            color: color,
-          fontWeight: bold? FontWeight.bold: FontWeight.normal,
-        ),
-    );
-  }
-
   _richTextMsgBuilder() {
     RichText richTextMsg;
     switch(_currentStep) {
@@ -236,13 +222,18 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: TextStyle(fontSize: 14, color: Colors.black),
-            children: [
-              _textSpanBuilder('レジに商品を通して、', color: AppColors.colorBlueDark, bold: true),
-              _textSpanBuilder('\n商品価格を',),
-              _textSpanBuilder('EC価格', color: AppColors.colorBlueDark, bold: true),
-              _textSpanBuilder('に修正して\n登録してください。',),
-            ]
+              style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
+              children: [
+                CommonWidget.textSpanBuilder(
+                    'レジに商品を通して、', color: AppColors.colorBlueDark,
+                    bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('\n商品価格を',),
+                CommonWidget.textSpanBuilder(
+                    ' EC価格 ', color: AppColors.colorBlueDark, bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('に修正して\n登録してください。',),
+              ]
           ),
         );
         break;
@@ -250,11 +241,13 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 14, color: Colors.black),
+              style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
-                _textSpanBuilder('出てきだレシートを記載されている\n４桁の',),
-                _textSpanBuilder('レシート番号', color: AppColors.colorBlueDark, bold: true),
-                _textSpanBuilder('を\n入力してください。',),
+                CommonWidget.textSpanBuilder('出てきだレシートを記載されている\n４桁の',),
+                CommonWidget.textSpanBuilder(
+                    ' レシート番号 ', color: AppColors.colorBlueDark, bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('を\n入力してください。',),
               ]
           ),
         );
@@ -263,14 +256,13 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 14.0, color: Colors.black),
+              style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
-                _textSpanBuilder('商品を袋に詰め、', ),
-                _textSpanBuilder('荷札QRコードの印刷された\nラベル',
-                    color: AppColors.colorBlueDark,
-                    bold: true,
+                CommonWidget.textSpanBuilder('商品を袋に詰め、', ),
+                CommonWidget.textSpanBuilder('荷札QRコードの印刷された\nラベル',
+                    color: AppColors.colorBlueDark, bold: true, fontSize: 14.0
                 ),
-                _textSpanBuilder('を必要な枚数準備してください。',),
+                CommonWidget.textSpanBuilder('を必要な枚数準備してください。',),
               ]
           ),
         );
@@ -279,10 +271,12 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 14, color: Colors.black),
+              style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
-                _textSpanBuilder('荷札QRコード', color: AppColors.colorBlue, bold: true),
-                _textSpanBuilder('を\nカメラで読み取って下さい。',),
+                CommonWidget.textSpanBuilder(
+                    '荷札QRコード ', color: AppColors.colorBlue, bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('を\nカメラで読み取って下さい。',),
               ]
           ),
         );
@@ -291,12 +285,13 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
-                _textSpanBuilder('QRコードを読み取ったラベルに\n',),
-                _textSpanBuilder('「①発送予定時間」、「②出荷番号記」、\n「③個数/個口数」',
-                    color: AppColors.colorBlue, bold: true),
-                _textSpanBuilder('を記入してください。',),
+                CommonWidget.textSpanBuilder('QRコードを読み取ったラベルに\n',),
+                CommonWidget.textSpanBuilder('「①発送予定時間」、「②出荷番号記」、\n「③個数/個口数」',
+                    color: AppColors.colorBlue, bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('を記入してください。',),
               ]
           ),
         );
@@ -308,7 +303,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 
   _msgBuilder() {
     return Container(
-      height: 64,
+      height: 68,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(5)),

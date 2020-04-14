@@ -39,6 +39,7 @@ dependencies:
   connectivity: ^0.4.8+1
   pull_to_refresh: ^1.5.7
   flutter_sticky_header: "^0.4.2"
+  intl: ^0.16.1 #Formatter lib for date, number etc. https://pub.dev/packages/intl
 
 dev_dependencies:
   flutter_test:

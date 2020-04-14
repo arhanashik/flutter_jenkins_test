@@ -64,7 +64,7 @@ class ConfirmationDialog {
                       },
                       padding: EdgeInsets.symmetric(
                         horizontal: confirmBtnTxt.length > 4? 16.0 : 36.0,
-                        vertical: 10.0
+                        vertical: 5.0
                       ),
                       showIcon: true,
                     ),

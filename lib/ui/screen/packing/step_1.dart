@@ -99,8 +99,9 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
   }
 
   _buildFooter() {
+    if(_packingList.products == null) return Container();
     int itemCount = 0;
-    _packingList.products?.forEach((scannedProduct) {
+    _packingList.products.forEach((scannedProduct) {
       if(scannedProduct is ProductEntity) {
         itemCount += scannedProduct.itemCount;
       }
@@ -116,22 +117,25 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Text(
-                  locale.txtShippingPlanTime,
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                padding: EdgeInsets.only(bottom: 2,),
+                child: RichText(
+                  text: TextSpan(
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      children: [TextSpan(text: locale.txtShippingPlanTime,),]
+                  ),
                 ),
               ),
               Container(
                 width: 100,
                 height: 36,
-                margin: EdgeInsets.only(top: 4,),
+                margin: EdgeInsets.only(top: 2,),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -153,7 +157,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(bottom: 4),
+                padding: EdgeInsets.only(bottom: 2,),
                 child: RichText(
                   text: TextSpan(
                       style: TextStyle(color: Colors.white, fontSize: 14),
@@ -170,18 +174,17 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
               Container(
                 width: 100,
                 height: 36,
-                margin: EdgeInsets.only(top: 4,),
+                margin: EdgeInsets.only(top: 2,),
                 alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 16,),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(5))
                 ),
                 child: Text(
-                  '¥${_packingList.totalPrice}',
+                  Common.formatPrice(_packingList.totalPrice),
                   style: TextStyle(
                       color: AppColors.colorAccent,
-                      fontSize: 16,
+                      fontSize: _packingList.totalPrice.toString().length>6? 12 : 16,
                       fontWeight: FontWeight.bold
                   ),
                 ),
@@ -193,18 +196,19 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Text(
-                  locale.txtTotalProductCount,
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                padding: EdgeInsets.only(bottom: 2,),
+                child: RichText(
+                  text: TextSpan(
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      children: [TextSpan(text: locale.txtTotalProductCount,),]
+                  ),
                 ),
               ),
               Container(
                 width: 100,
                 height: 36,
-                margin: EdgeInsets.only(top: 4,),
+                margin: EdgeInsets.only(top: 2,),
                 alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 16,),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(5))

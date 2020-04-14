@@ -121,7 +121,6 @@ class AddProductDialog {
           text: O2OLocalizations.of(context).txtSubmitAndNext,
           onPressed: () => onInsertAndNext(pickCount - product.pickedItemCount),
           showIcon: true,
-          padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
         ),
       ],
     );

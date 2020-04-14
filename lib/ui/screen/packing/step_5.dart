@@ -7,6 +7,7 @@ import 'package:o2o/ui/screen/packing/step_5_qr_code_list_dialog.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
+import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/helper/common.dart';
@@ -135,7 +136,7 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
               color: Colors.black, fontSize: 12,
             ),),
             AppImages.icDigit3,
-            Text(' には1/2と記入してください。', style: TextStyle(
+            Text(' には1/1と記入してください。', style: TextStyle(
               color: Colors.black, fontSize: 12,
             ),),
           ],
@@ -144,11 +145,11 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text('＊荷物が2つの場合、', style: TextStyle(
+            Text('＊荷物が2つの場合の', style: TextStyle(
               color: Colors.black, fontSize: 12,
             ),),
             AppImages.icDigit3,
-            Text(' には2/2と記入してください。', style: TextStyle(
+            Text(' の個数の記入例は以下です。', style: TextStyle(
               color: Colors.black, fontSize: 12,
             ),),
           ],
@@ -172,21 +173,6 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
           ],
         )
       ],
-    );
-  }
-
-  TextSpan _textSpanBuilder(
-      String text, {
-        Color color = Colors.black,
-        bool bold = false
-      }) {
-    return TextSpan(
-      text: text,
-      style: TextStyle(
-        color: color,
-        fontSize: 14,
-        fontWeight: bold? FontWeight.bold: FontWeight.normal,
-      ),
     );
   }
 
@@ -216,16 +202,19 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
-        margin: EdgeInsets.all(16.0),
+        margin: EdgeInsets.all(13.0),
         alignment: Alignment.center,
         child: RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 18, color: Colors.black),
+              style: TextStyle(color: Colors.black, height: 1.4),
               children: [
-                _textSpanBuilder('ラベルは記入が終わりましたら、\n',),
-                _textSpanBuilder('ラベルを袋に貼り付け', color: Colors.lightBlue, bold: true),
-                _textSpanBuilder('てください。',),
+                CommonWidget.textSpanBuilder('ラベルは記入が終わりましたら、\n',),
+                CommonWidget.textSpanBuilder(
+                    'ラベルを袋に貼り付け ', color: AppColors.colorBlueDark,
+                    bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('てください。',),
               ]
           ),
         ),
@@ -242,18 +231,18 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
 //        ),
         Visibility(
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(left: 16.0, top: 16.0, right: 16.0),
             child: Text(
               locale.warningUpdateLabelInfo,
               style: TextStyle(
-                  color: Colors.redAccent,
+                  color: AppColors.colorAccent,
                   fontSize: 12.0,
-                  fontWeight: FontWeight.w700
+                  fontWeight: FontWeight.bold
               ),
               textAlign: TextAlign.center,
             ),
           ),
-          visible: _primaryQrCodeChanged || _qrCodeChanged,
+          visible: _qrCodeChanged || _primaryQrCodeChanged,
         ),
         InkWell(
           child: Container(
