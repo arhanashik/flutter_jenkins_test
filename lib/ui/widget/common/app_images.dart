@@ -36,6 +36,7 @@ class AppImages {
   static const icDigit2RedUrl = '${_imageDir}ic_digit_2_red.png';
   static const icDigit3Url = '${_imageDir}ic_digit_3.png';
   static const icDigit3RedUrl = '${_imageDir}ic_digit_3_red.png';
+  static const icBackToTimeOrderListUrl = '${_imageDir}ic_back_to_time_order_list.png';
 
   static Image imgLabelInstruction = loadImage('${_imageDir}img_label_instruction.png');
   static Image imgTagInstruction = loadImage('${_imageDir}img_tag_instruction.png');
@@ -47,4 +48,5 @@ class AppImages {
   static Image icDigit2Red = loadSizedImage(icDigit2RedUrl);
   static Image icDigit3 = loadSizedImage(icDigit3Url);
   static Image icDigit3Red = loadSizedImage(icDigit3RedUrl);
+  static Image icBackToTimeOrderList = loadSizedImage(icBackToTimeOrderListUrl);
 }

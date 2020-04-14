@@ -19,8 +19,9 @@ class AppColors {
   static const color48C1E5 = const Color(0xFF48C1E5);
   static const colorF5F7FA = const Color(0xFFF5F7FA);
   static const colorF1F1F1 = const Color(0xFFF1F1F1);
+  static const colorCCCCCC = const Color(0xFFCCCCCC);
 
-  static const colorRed = const Color(0xFFFF6591);
+  static const colorAccent = const Color(0xFFFF6591);
 
   static const List<Color> splashGradient = const <Color>[
     colorBlue2, colorGreenLight,

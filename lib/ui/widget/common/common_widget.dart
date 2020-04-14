@@ -144,25 +144,21 @@ class CommonWidget {
     return Container(
       height: 36,
       color: AppColors.color48C1E5,
-      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       margin: EdgeInsets.only(bottom: 10),
-      alignment: Alignment.bottomLeft,
       child: Row(
         children: <Widget>[
           _boldTextBuilder(month.toString(), 22),
           Padding(
-            padding: EdgeInsets.only(right: 5, top: 3),
+            padding: EdgeInsets.only(right: 5, top: 8),
             child: _boldTextBuilder('月', 12),
           ),
           _boldTextBuilder(day.toString(), 22),
           Padding(
-            padding: EdgeInsets.only(right: 5, top: 3),
+            padding: EdgeInsets.only(right: 5, top: 8),
             child: _boldTextBuilder('日', 12),
           ),
-          Padding(
-            padding: EdgeInsets.only(bottom: 4),
-            child: _boldTextBuilder('($dayStr)', 18),
-          ),
+          _boldTextBuilder('($dayStr)', 18),
         ],
       ),
     );
@@ -245,5 +241,19 @@ class CommonWidget {
 
   static roundRectBorder(double radius) {
     return RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));
+  }
+
+  static divider({
+    height: 1.5,
+    color: Colors.black12,
+    margin: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
+    padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+  }) {
+    return Container(
+      height: height,
+      margin: margin,
+      padding: padding,
+      color: Colors.black12,
+    );
   }
 }

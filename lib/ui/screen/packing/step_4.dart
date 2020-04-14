@@ -155,7 +155,6 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
     return Container(
       color: Colors.white,
-      margin: EdgeInsets.only(top: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[

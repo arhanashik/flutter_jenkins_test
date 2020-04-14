@@ -39,7 +39,6 @@ class _Step2ScreenState extends BaseState<Step2Screen> {
 
     return Container(
       color: Colors.white,
-      margin: EdgeInsets.only(top: 8),
       padding: EdgeInsets.only(top: 24, left: 16, right: 16),
       child: Column (
         crossAxisAlignment: CrossAxisAlignment.center,

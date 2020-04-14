@@ -54,6 +54,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
 //          ],
 //        ),
         Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             error.isEmpty? Container() : Container(
               color: Colors.redAccent,
@@ -85,16 +86,9 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
                         ? Navigator.of(context).pop() : onTapNavigation(),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 5.0),
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w700
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
                 ),
                 Padding(
                   padding: EdgeInsets.only(right: 16.0),

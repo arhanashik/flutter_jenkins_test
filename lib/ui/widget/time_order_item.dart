@@ -25,31 +25,29 @@ class TimeOrderItem extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: AppColors.blueGradient),
         borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10)
+            topLeft: Radius.circular(15),
+            topRight: Radius.circular(15)
         )
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-        child: Row(
-          children: <Widget>[
-            Text(
-              deliveryTime,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: <Widget>[
+          Text(
+            deliveryTime,
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 5, top: 3),
+            child: Text(
+              '発送分',
               style: TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white
+                  fontSize: 12, color: Colors.white
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 5, top: 4),
-              child: Text(
-                '発送分',
-                style: TextStyle(
-                    fontSize: 14, color: Colors.white
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -62,8 +60,8 @@ class TimeOrderItem extends StatelessWidget {
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10)
+              bottomLeft: Radius.circular(15),
+              bottomRight: Radius.circular(15)
           )
       ),
       child: Row(
@@ -71,7 +69,7 @@ class TimeOrderItem extends StatelessWidget {
         children: <Widget>[
           Padding(padding: EdgeInsets.only(left: 20),),
           Text(
-            "末完了",
+            "未完了",
             style: TextStyle(
                 fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black
             ),
@@ -82,7 +80,7 @@ class TimeOrderItem extends StatelessWidget {
             style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: AppColors.colorRed
+                color: AppColors.colorAccent
             ),
           ),
           Padding(padding: EdgeInsets.only(left: 5),),
@@ -127,7 +125,7 @@ class TimeOrderItem extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
               color: AppColors.colorB3DAFF,
-              borderRadius: BorderRadius.all(Radius.circular(5))
+              borderRadius: BorderRadius.all(Radius.circular(3))
             ),
             child: Text(
               "${timeOrder.totalProductCount}個",

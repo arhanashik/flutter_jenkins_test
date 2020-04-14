@@ -52,7 +52,7 @@ class OrderListItem extends StatelessWidget {
             children: <Widget>[
               Text(locale.txtProductCount, style: TextStyle(fontSize: 14,),),
               Padding(
-                padding: EdgeInsets.only(left: 16),
+                padding: EdgeInsets.only(left: 15.5),
                 child: Text(
                   orderItem.productCount.toString(),
                   style: TextStyle(

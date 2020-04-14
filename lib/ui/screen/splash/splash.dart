@@ -61,10 +61,11 @@ class _SplashScreenState extends BaseState<SplashScreen> {
           ),
           Container(
             width: 140.0,
-            margin: EdgeInsets.all(16.0),
+            margin: EdgeInsets.only(bottom: 16.0),
             child: Visibility(
               child: GradientButton(
                 text: '更新する', showIcon: true, onPressed: () => _checkImei(),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
               ),
               visible: loadingState == LoadingState.ERROR,
             ),

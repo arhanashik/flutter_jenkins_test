@@ -435,24 +435,24 @@ class _PickingScreenState extends BaseState<PickingScreen>
     params['imei'] = imei;
     params['orderId'] = _orderItem.orderId;
 
-    final response = await HttpUtil.get(HttpUtil.GET_PICKING_LIST, params: params);
-    _refreshController.refreshCompleted();
-    if (response.statusCode != HttpCode.OK) {
-      setState(() => loadingState = LoadingState.ERROR);
-      return;
-    }
-
-    final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
-    if(code == HttpCode.NOT_FOUND) {
-      setState(() => loadingState = LoadingState.ERROR);
-      return;
-    }
-    final List data = responseMap['data'];
-    List<ProductEntity> items = data.map(
-            (data) => ProductEntity.fromJson(data)
-    ).toList();
-//    List<ProductEntity> items = ProductEntity.dummyProducts();
+//    final response = await HttpUtil.get(HttpUtil.GET_PICKING_LIST, params: params);
+//    _refreshController.refreshCompleted();
+//    if (response.statusCode != HttpCode.OK) {
+//      setState(() => loadingState = LoadingState.ERROR);
+//      return;
+//    }
+//
+//    final responseMap = json.decode(response.body);
+//    final code = responseMap['code'];
+//    if(code == HttpCode.NOT_FOUND) {
+//      setState(() => loadingState = LoadingState.ERROR);
+//      return;
+//    }
+//    final List data = responseMap['data'];
+//    List<ProductEntity> items = data.map(
+//            (data) => ProductEntity.fromJson(data)
+//    ).toList();
+    List<ProductEntity> items = ProductEntity.dummyProducts();
 
     LoadingState newState = LoadingState.NO_DATA;
     if (_scanCompletedProducts.isNotEmpty || items.isNotEmpty) {

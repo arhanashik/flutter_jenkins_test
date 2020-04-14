@@ -121,7 +121,7 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
         child: Padding(
           child: Text(
             '短時間配送支援アプリ　　B版\nココカラファイン$_storeName　$_deviceName',
-            style: TextStyle(color: Colors.black, fontSize: 16.0),
+            style: TextStyle(color: Colors.black, fontSize: 14.0),
             textAlign: TextAlign.center,
           ),
           padding: EdgeInsets.all(16.0),

@@ -26,22 +26,25 @@ ThemeData buildTheme() {
 
   TextTheme _buildTextTheme(TextTheme base) {
     return base.copyWith(
-      headline: base.headline.copyWith(
-        fontFamily: 'Merriweather',
-        fontSize: 40.0,
-        color: const Color(0xFF807a6b),
-      ),
-      title: base.title.copyWith(
-        color: Colors.black
-      ),
+//      headline: base.headline.copyWith(
+//        fontFamily: 'Merriweather',
+//        fontSize: 40.0,
+//        color: const Color(0xFF807a6b),
+//      ),
+//      title: base.title.copyWith(
+//        color: Colors.black
+//      ),
     );
   }
 
-  final ThemeData base = ThemeData.light();
+//  final ThemeData base = ThemeData.light();
+  final ThemeData base = ThemeData(fontFamily: 'NotoSansCJKjp');
 
   return base.copyWith(
       textTheme: _buildTextTheme(base.textTheme),
       appBarTheme: _buildAppBarTheme(),
       backgroundColor: AppColors.background,
   );
+
+//  return ThemeData(fontFamily: 'NotoSansCJKjp');
 }

@@ -21,6 +21,7 @@ import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_missing_information_checker_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_order_list_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
+import 'package:o2o/util/helper/common.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 
 /// Created by mdhasnain on 15 Feb, 2020
@@ -141,8 +142,8 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     bool thisStepActive = thisStepIndex <= currentStepIndex;
 
     Color textColor = thisStepActive? Colors.white : Colors.black54;
-    Color circleColor = thisStepActive? Colors.lightBlue : Colors.white;
-    Color lineColor = thisStepActive? Colors.lightBlue : Colors.white;
+    Color circleColor = thisStepActive? AppColors.colorBlue : Colors.white;
+    Color lineColor = thisStepActive? AppColors.colorBlueDark : Colors.white;
 
     if(step == Step.STEP_1) {
       return CommonWidget.circularText(
@@ -151,7 +152,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     } else {
       return Row(
         children: <Widget>[
-          CommonWidget.line(color: lineColor),
+          CommonWidget.line(color: lineColor, width: 40),
           CommonWidget.circularText(
               indicatorText, textColor: textColor, circleColor: circleColor
           ),
@@ -165,10 +166,11 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     int currentStepIndex = Step.values.indexOf(_currentStep);
     bool thisStepActive = thisStepIndex == currentStepIndex;
 
-    Color labelColor = thisStepActive? Colors.lightBlue : Colors.black26;
-    double paddingLeft = step == Step.STEP_1? 0 : 8;
-    double paddingTop = 8;
-    double paddingRight = step == Step.STEP_5? 0 : 8;
+    Color labelColor = thisStepActive
+        ? AppColors.colorBlueDark : AppColors.colorCCCCCC;
+    double paddingLeft = step == Step.STEP_1? 0 : 0;
+    double paddingTop = Common.toDp(context, 10);
+    double paddingRight = step == Step.STEP_5? 5 : 0;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -178,7 +180,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         label,
         style: TextStyle(
             color: labelColor,
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
         ),
         textAlign: TextAlign.center,
@@ -186,7 +188,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     );
   }
 
-  Column _stepsBuilder() {
+  _stepsBuilder() {
     return Column(
       children: <Widget>[
         Row(
@@ -200,7 +202,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           ],
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             _singleStepLabelBuilder(Step.STEP_1, locale.txtPackingStep1),
             _singleStepLabelBuilder(Step.STEP_2, locale.txtPackingStep2),
@@ -213,29 +215,28 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     );
   }
 
-  TextSpan _textSpanBuilder(
+  _textSpanBuilder(
       String text, {
         Color color = Colors.black,
-        bool bold = false
+        bool bold = false,
   }) {
     return TextSpan(
         text: text,
         style: TextStyle(
             color: color,
-          fontSize: 16,
           fontWeight: bold? FontWeight.bold: FontWeight.normal,
         ),
     );
   }
 
-  RichText _richTextMsgBuilder() {
+  _richTextMsgBuilder() {
     RichText richTextMsg;
     switch(_currentStep) {
       case Step.STEP_1:
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: TextStyle(fontSize: 16, color: Colors.black),
+            style: TextStyle(fontSize: 14, color: Colors.black),
             children: [
               _textSpanBuilder('レジに商品を通して、', color: AppColors.colorBlueDark, bold: true),
               _textSpanBuilder('\n商品価格を',),
@@ -249,7 +250,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(fontSize: 14, color: Colors.black),
               children: [
                 _textSpanBuilder('出てきだレシートを記載されている\n４桁の',),
                 _textSpanBuilder('レシート番号', color: AppColors.colorBlueDark, bold: true),
@@ -262,11 +263,14 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(fontSize: 14.0, color: Colors.black),
               children: [
-                _textSpanBuilder('商品を袋に詰め、荷札QRコードの\n印刷されたラベルを',),
-                _textSpanBuilder('袋の数ぶん', color: AppColors.colorBlueDark, bold: true),
-                _textSpanBuilder('\n準備してください。',),
+                _textSpanBuilder('商品を袋に詰め、', ),
+                _textSpanBuilder('荷札QRコードの印刷された\nラベル',
+                    color: AppColors.colorBlueDark,
+                    bold: true,
+                ),
+                _textSpanBuilder('を必要な枚数準備してください。',),
               ]
           ),
         );
@@ -275,9 +279,9 @@ class _PackingScreenState extends BaseState<PackingScreen> {
         richTextMsg = RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(fontSize: 14, color: Colors.black),
               children: [
-                _textSpanBuilder('荷札QRコード', color: AppColors.colorBlueDark, bold: true),
+                _textSpanBuilder('荷札QRコード', color: AppColors.colorBlue, bold: true),
                 _textSpanBuilder('を\nカメラで読み取って下さい。',),
               ]
           ),
@@ -289,9 +293,10 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           text: TextSpan(
               style: TextStyle(fontSize: 16, color: Colors.black),
               children: [
-                _textSpanBuilder('ラベルに',),
-                _textSpanBuilder('「①発送予定時間」、\n「②出荷番号記」、「③個数/個口数」', color: AppColors.colorBlueDark, bold: true),
-                _textSpanBuilder('を\n記入してください。',),
+                _textSpanBuilder('QRコードを読み取ったラベルに\n',),
+                _textSpanBuilder('「①発送予定時間」、「②出荷番号記」、\n「③個数/個口数」',
+                    color: AppColors.colorBlue, bold: true),
+                _textSpanBuilder('を記入してください。',),
               ]
           ),
         );
@@ -301,14 +306,14 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     return richTextMsg;
   }
 
-  Container _msgBuilder() {
+  _msgBuilder() {
     return Container(
-      height: 100,
+      height: 64,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: EdgeInsets.symmetric(horizontal: 16.0,),
       alignment: Alignment.center,
       child: _richTextMsgBuilder(),
     );
@@ -337,16 +342,30 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     }
   }
 
-  Container _bodyBuilder() {
+ _bodyBuilder() {
     return Container(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: _stepsBuilder(),
+          Container (
+            color: AppColors.colorF1F1F1,
+            padding: EdgeInsets.only(
+              top: Common.toDp(context, 18.0),
+              bottom: Common.toDp(context, 14.0),
+            ),
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(
+                      left: Common.toDp(context, 16.0),
+                      right: Common.toDp(context, 16.0),
+                      bottom: Common.toDp(context, 16.0),
+                  ),
+                  child: _stepsBuilder(),
+                ),
+                _msgBuilder(),
+              ],
+            ),
           ),
-          _msgBuilder(),
           Flexible(child: _getStepView(_currentStep),)
         ],
       ),
@@ -408,7 +427,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           onTapNavigation: () => _onWillPop(),
           error: _isUnderWork? '${_orderItem.lockedName}が作業中' : '',
         ),
-        backgroundColor: Color.fromARGB(255, 230, 242, 255),
+        backgroundColor: AppColors.background,
         body: _bodyBuilder(),
       ),
     );

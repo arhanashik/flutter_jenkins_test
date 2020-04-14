@@ -46,12 +46,12 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
 
   _sectionTitleBuilder(title) {
     return Container(
-      margin: EdgeInsets.only(left: 16, top: 16),
+      margin: EdgeInsets.only(left: 16, top: 10),
       decoration: BoxDecoration(
         border: Border(left: BorderSide(width: 3.0, color: Colors.lightBlue)),
       ),
       child: Padding(
-        padding: EdgeInsets.only(left: 16),
+        padding: EdgeInsets.only(left: 10),
         child: Text(
           title,
           style: TextStyle(
@@ -70,7 +70,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
       itemBuilder: (BuildContext context, int index) {
         if (index == itemCount) {
           return Padding(
-            padding: EdgeInsets.only(bottom: itemCount > 1? 90 : 10),
+            padding: EdgeInsets.only(top: 14, bottom: 90),
             child: itemCount > 0? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -90,7 +90,10 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
         );
       },
       separatorBuilder: (BuildContext context, int index) {
-        return Divider(thickness: 2.0,);
+        return CommonWidget.divider(
+          height: 1.2,
+          margin: EdgeInsets.symmetric(horizontal: 16,),
+        );
       },
     );
   }
@@ -177,7 +180,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
                 child: Text(
                   '¥${_packingList.totalPrice}',
                   style: TextStyle(
-                      color: AppColors.colorRed,
+                      color: AppColors.colorAccent,
                       fontSize: 16,
                       fontWeight: FontWeight.bold
                   ),
@@ -209,7 +212,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
                 child: Text(
                   '$itemCount点',
                   style: TextStyle(
-                    color: AppColors.colorRed,
+                    color: AppColors.colorAccent,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -234,12 +237,14 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
 
     return Container(
       color: Colors.white,
-      margin: EdgeInsets.only(top: 8),
       child: Column (
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           _sectionTitleBuilder(locale.txtProductList),
-          Padding(padding: EdgeInsets.only(top: 10),),
+          CommonWidget.divider(
+            height: 1.2,
+            margin: EdgeInsets.only(left: 16, top: 5, right: 16,),
+          ),
           Flexible(
             child: Stack(
               alignment: AlignmentDirectional.bottomCenter,

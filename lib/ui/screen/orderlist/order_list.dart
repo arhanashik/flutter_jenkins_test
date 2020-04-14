@@ -11,6 +11,7 @@ import 'package:o2o/ui/screen/error/error.dart';
 import 'package:o2o/ui/screen/picking/picking.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/common/loader/color_loader.dart';
 import 'package:o2o/ui/widget/common/sliverAppBarDelegate.dart';
@@ -86,7 +87,7 @@ class _OrderListState extends BaseState<OrderList> {
   /// widget to show the currently under work view on an order
   _anotherDeviceIsPickingNow() {
     return Container(
-      height: 102,
+      height: 108,
       decoration: BoxDecoration(
         color: Color(0xEF889CB0),
         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -265,11 +266,9 @@ class _OrderListState extends BaseState<OrderList> {
       resizeToAvoidBottomInset: false,
       appBar: TopBar(
         title: locale.txtOrderList,
-        navigationIcon: AppIcons.loadIcon(
-            AppIcons.icBackToTimeOrderList,
-            size: 50.0,
-            color: AppColors.colorBlue
-        ),
+        navigationIcon: AppImages.loadSizedImage(
+          AppImages.icBackToTimeOrderListUrl, width: 68.48, height: 32.0
+        ), ///The back button icon is 210:98 = 2.14:1. So width:height = 68.48:32
       ),
       backgroundColor: AppColors.background,
       body: _bodyBuilder(),
@@ -340,21 +339,21 @@ class _OrderListState extends BaseState<OrderList> {
     params['orderId'] = orderItem.orderId;
     params['status'] = PickingStatus.WORKING;
 
-    CommonWidget.showLoader(context,);
-    final response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
-    if (response.statusCode != 200) {
-      Navigator.pop(context);
-      SnackbarUtil.show(context, locale.errorServerIsNotAvailable,);
-      return;
-    }
-
-    final responseMap = json.decode(response.body);
-    Navigator.pop(context);
-    final code = responseMap['code'];
-    if(code != HttpCode.OK) {
-      SnackbarUtil.show(context, 'Failed to upate picking status');
-      return;
-    }
+//    CommonWidget.showLoader(context,);
+//    final response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
+//    if (response.statusCode != 200) {
+//      Navigator.pop(context);
+//      SnackbarUtil.show(context, locale.errorServerIsNotAvailable,);
+//      return;
+//    }
+//
+//    final responseMap = json.decode(response.body);
+//    Navigator.pop(context);
+//    final code = responseMap['code'];
+//    if(code != HttpCode.OK) {
+//      SnackbarUtil.show(context, 'ピッキングステータスは更新する事ができません。');
+//      return;
+//    }
 
     final results = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => PickingScreen(

@@ -64,7 +64,6 @@ flutter:
     - assets/icon/ic_qr_code.png
     - assets/icon/ic_arrow_export.png
     - assets/icon/ic_arrow_right.png
-    - assets/icon/ic_back_to_time_order_list.png
     - assets/icon/ic_back.png
     - assets/icon/ic_settings.png
     - assets/icon/ic_back_to_list.png
@@ -81,6 +80,7 @@ flutter:
     - assets/images/ic_digit_2_red.png
     - assets/images/ic_digit_3.png
     - assets/images/ic_digit_3_red.png
+    - assets/images/ic_back_to_time_order_list.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -94,7 +94,13 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
+  fonts:
+    - family: NotoSansCJKjp
+      fonts:
+        - asset: fonts/NotoSansCJKjp-Regular.otf
+        - asset: fonts/NotoSansCJKjp-Light.otf
+        - asset: fonts/NotoSansCJKjp-Medium.otf
+        - asset: fonts/NotoSansCJKjp-Bold.otf
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf
