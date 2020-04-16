@@ -46,7 +46,10 @@ class CommonWidget {
     );
   }
 
-  static Container buildDialogHeader(BuildContext context, String title, {double fontSize = 16.0}) {
+  static Container buildDialogHeader(
+      BuildContext context,
+      String title, {double fontSize = 16.0}
+  ) {
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(vertical: 10),
@@ -270,6 +273,12 @@ class CommonWidget {
         fontWeight: bold? FontWeight.bold: FontWeight.normal,
         fontSize: fontSize,
       ),
+    );
+  }
+
+  static outlineBorder({double width = 3.0, Color color = AppColors.colorBlue}) {
+    return OutlineInputBorder(
+        borderSide: BorderSide(width: width, color: color)
     );
   }
 }

@@ -47,6 +47,48 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
   bool _primaryQrCodeChanged = false;
   bool _qrCodeChanged = false;
 
+  _buildQrCodeDeletedWarning() {
+    return Visibility(
+      child: Padding(
+        padding: EdgeInsets.only(left: 16.0, top: 16.0, right: 16.0),
+        child: Text(
+          locale.warningUpdateLabelInfo,
+          style: TextStyle(
+              color: AppColors.colorAccent,
+              fontSize: 12.0,
+              fontWeight: FontWeight.bold
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      visible: _qrCodeChanged || _primaryQrCodeChanged,
+    );
+  }
+
+  _buildQrCodeListViewer() {
+    return InkWell(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 10.0),
+        margin: EdgeInsets.only(left: 36.0, top: 16.0, right: 36.0, bottom: 4.0),
+        decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.all(Radius.circular(25.0))
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text('読み取った荷札QRコードを確認する', style: TextStyle(
+                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500
+            ),),
+            Icon(Icons.arrow_forward_ios, size: 18.0,)
+          ],
+        ),
+      ),
+      onTap: () => _showQrCodeList(),
+    );
+  }
+
   _buildInstruction() {
     String primaryQrCode = _qrCodes.isEmpty? '12121212' : _qrCodes.toList()[0];
     String primaryQrCodeLast4Digit = primaryQrCode.substring(primaryQrCode.length-4);
@@ -176,22 +218,6 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
     );
   }
 
-//  Container _sectionTitleBuilder(title) {
-//    return Container(
-//      decoration: BoxDecoration(
-//        border: Border(left: BorderSide(width: 3.0, color: Colors.lightBlue)),
-//      ),
-//      child: Padding(
-//        padding: EdgeInsets.only(left: 10),
-//        child: Text(
-//          title,
-//          style: TextStyle(
-//              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-//        ),
-//      ),
-//    );
-//  }
-
   _buildMessage() {
     return Container(
       height: 100,
@@ -225,45 +251,11 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
   _buildBody() {
     return ListView(
       children: <Widget>[
-//        Padding(
-//          padding: EdgeInsets.all(10),
-//          child: _buildLabelExample(),
-//        ),
-        Visibility(
-          child: Padding(
-            padding: EdgeInsets.only(left: 16.0, top: 16.0, right: 16.0),
-            child: Text(
-              locale.warningUpdateLabelInfo,
-              style: TextStyle(
-                  color: AppColors.colorAccent,
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          visible: _qrCodeChanged || _primaryQrCodeChanged,
-        ),
-        InkWell(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 10.0),
-            margin: EdgeInsets.symmetric(horizontal: 36.0, vertical: 16.0),
-            decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.all(Radius.circular(25.0))
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text('読み取った荷札QRコードを確認する', style: TextStyle(
-                  color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500
-                ),),
-                Icon(Icons.arrow_forward_ios, size: 18.0,)
-              ],
-            ),
-          ),
-          onTap: () => _showQrCodeList(),
+        Column(
+          children: <Widget>[
+            _buildQrCodeDeletedWarning(),
+            _buildQrCodeListViewer(),
+          ],
         ),
         Container(
           alignment: Alignment.center,
@@ -283,33 +275,6 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
           padding: EdgeInsets.all(10),
           child: AppImages.imgTagInstruction,
         ),
-//        Padding(
-//          padding: EdgeInsets.all(10),
-//          child: Text(
-//            '${locale.txtOrderNumber}: 111111333',
-//            style: TextStyle(
-//              color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold,
-//            ),
-//          ),
-//        ),
-//        Padding(
-//          padding: EdgeInsets.all(10),
-//          child: _sectionTitleBuilder(locale.txtQRScannedLabeledCount),
-//        ),
-//        Padding(
-//          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-//          child: Text(
-//            qrCodes.join('\n'),
-//            style: TextStyle(
-//              color: Colors.black, fontSize: 16, height: 1.5
-//            ),
-//          ),
-//        ),
-//        Container(
-//          margin: EdgeInsets.symmetric(vertical: 10),
-//          height: 1,
-//          color: Colors.black12,
-//        )
       ],
     );
   }
@@ -393,15 +358,15 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
 
       setState(() {
         String primaryQrCode = _qrCodes.toList()[0];
-        _primaryQrCodeChanged = resultList.contains(primaryQrCode);
-        _qrCodeChanged = !_primaryQrCodeChanged;
         _qrCodes.removeAll(resultList);
+        _primaryQrCodeChanged = !_qrCodes.contains(primaryQrCode);
+        _qrCodeChanged = !_primaryQrCodeChanged;
       });
 
       ToastUtil.show(
         context,
         '${resultList.join(',')} を削除しました。',
-        icon: Icon(Icons.delete, color: Colors.white,),
+        icon: Icon(Icons.delete, color: Colors.white, size: 16.0,),
         error: true
       );
     }

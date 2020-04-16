@@ -33,6 +33,60 @@ class _Step2ScreenState extends BaseState<Step2Screen> {
     ).show();
   }
 
+  _buildReceiptEntryView() {
+    return Container(
+      height: 48.0,
+      child: PinEntry(
+        fieldWidth: 48.0,
+        fontSize: 20.0,
+        showFieldAsBox: true,
+        onChange: (String pin) {
+          setState(() => _pinCode = pin);
+        },
+        onSubmit: (String pin) {
+          setState(() => _pinCode = pin);
+        },
+      ),
+    );
+  }
+
+  _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        GradientButton(
+          text: locale.txtGoBack,
+          onPressed: () => _returnToPreviousStep(),
+          gradient: AppColors.btnGradientLight,
+          txtColor: Colors.black,
+          showIcon: true,
+          icon: Icon(
+            Icons.arrow_back_ios, color: Colors.black, size: 14,
+          ),
+        ),
+        GradientButton(
+          text: locale.txtGoToLabelPreparation,
+          onPressed: () => onNextScreen(_pinCode),
+          enabled: _pinCode.length == 4,
+          showIcon: true,
+        ),
+      ],
+    );
+  }
+
+  _bodyBuilder() {
+    return Column (
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        _buildReceiptEntryView(),
+        Padding(
+          padding: EdgeInsets.only(top: 15),
+          child: _buildActionButtons(),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -40,47 +94,7 @@ class _Step2ScreenState extends BaseState<Step2Screen> {
     return Container(
       color: Colors.white,
       padding: EdgeInsets.only(top: 24, left: 16, right: 16),
-      child: Column (
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            height: 48.0,
-            child: PinEntry(
-              fieldWidth: 48.0,
-              fontSize: 20.0,
-              showFieldAsBox: true,
-              onChange: (String pin) {
-                setState(() => _pinCode = pin);
-              },
-              onSubmit: (String pin) {
-                setState(() => _pinCode = pin);
-              },
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(top: 10),),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              GradientButton(
-                text: locale.txtGoBack,
-                onPressed: () => _returnToPreviousStep(),
-                gradient: AppColors.btnGradientLight,
-                txtColor: Colors.black,
-                showIcon: true,
-                icon: Icon(
-                  Icons.arrow_back_ios, color: Colors.black, size: 14,
-                ),
-              ),
-              GradientButton(
-                text: locale.txtGoToLabelPreparation,
-                onPressed: () => onNextScreen(_pinCode),
-                enabled: _pinCode.length == 4,
-                showIcon: true,
-              ),
-            ],
-          )
-        ],
-      ),
+      child: _bodyBuilder(),
     );
   }
 }

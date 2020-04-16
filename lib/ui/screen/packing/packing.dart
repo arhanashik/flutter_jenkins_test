@@ -78,6 +78,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 
     if(_selectedChoice == _choices[1]) _checkMissingInformation();
     else if(_selectedChoice == _choices[2]) {
+      if(_packingList == null) return;
       Navigator.of(context).push(new MaterialPageRoute<List>(
           builder: (BuildContext context) {
             return FullScreenOrderListDialog(items: _packingList.products,);
@@ -101,10 +102,9 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 
   _initStepScreens() {
     _stepScreens = [
-      Step1Screen(_orderItem, (packingList) => setState(() {
-        _packingList = packingList;
-        _currentStep = Step.STEP_2;
-      }),),
+      Step1Screen(_orderItem, () => setState(() =>_currentStep = Step.STEP_2),
+            (packingList) => setState(() => _packingList = packingList),
+      ),
       Step2Screen(
         () => setState(() => _currentStep = Step.STEP_1),
         (pin) => _updateReceiptNumber(pin)

@@ -11,15 +11,16 @@ class SnackbarUtil {
   static void show(
       BuildContext context,
       String message,
-      {Icon icon = const Icon(Icons.thumb_up, size: 24, color: Colors.white,),
-        Color textColor = Colors.white,
-        Color background = AppColors.colorBlueDark,
-        int durationInSec = 2
+      {Icon icon: const Icon(Icons.thumb_up, size: 24, color: Colors.white,),
+        Color textColor: Colors.white,
+        FontWeight fontWeight: FontWeight.bold,
+        Color background: AppColors.colorBlueDark,
+        int durationInSec: 5
       }
   ) {
     if (_snackbarTimer == null || !_snackbarTimer.isActive) {
       _overlayEntry = _createOverlayEntry(
-          context, message, icon, textColor, background
+          context, message, icon, textColor, fontWeight, background, durationInSec*1000
       );
       Overlay.of(context).insert(_overlayEntry);
       _snackbarTimer = Timer(Duration(seconds: durationInSec), () {
@@ -34,6 +35,7 @@ class SnackbarUtil {
       String message,
       Icon icon,
       Color textColor,
+      FontWeight fontWeight,
       Color background,
   ) {
     return Material(
@@ -55,6 +57,7 @@ class SnackbarUtil {
                   style: TextStyle(
                     fontSize: 16,
                     color: textColor,
+                    fontWeight: fontWeight,
                   ),
                 ),
               ),
@@ -70,14 +73,17 @@ class SnackbarUtil {
       String message,
       Icon icon,
       Color textColor,
+      FontWeight fontWeight,
       Color background,
+      int durationInMills,
   ) {
     return OverlayEntry(
       builder: (context) => Positioned(
         bottom: 0.0,
         width: MediaQuery.of(context).size.width,
         child: SlideInAnimation(
-            _snackbarView(message, icon, textColor, background)
+            _snackbarView(message, icon, textColor, fontWeight, background),
+          durationInMills: durationInMills,
         ),
       ),
     );

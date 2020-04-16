@@ -129,8 +129,8 @@ class PickingStatus {
 
 class PickingCheckStatus {
   static const NOT_PICKED = 200;
-  static const PICKED = 1;
-  static const NOT_AVAILABLE = 2;
+  static const PICKED = 1001;
+  static const NOT_AVAILABLE = 1002;
   static const OVER_REGISTRATION_QUANTITY = 1005;
 }
 

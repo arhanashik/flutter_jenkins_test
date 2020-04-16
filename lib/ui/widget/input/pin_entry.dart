@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/common_widget.dart';
 
 class PinEntry extends StatefulWidget {
   final String lastPin;
@@ -11,24 +13,22 @@ class PinEntry extends StatefulWidget {
   final isTextObscure;
   final showFieldAsBox;
 
-  PinEntry(
-      {this.lastPin,
-        this.fields: 4,
-        this.onChange,
-        this.onSubmit,
-        this.fieldWidth: 40.0,
-        this.fontSize: 20.0,
-        this.isTextObscure: false,
-        this.showFieldAsBox: false})
-      : assert(fields > 0);
+  PinEntry({
+    this.lastPin,
+    this.fields: 4,
+    this.onChange,
+    this.onSubmit,
+    this.fieldWidth: 40.0,
+    this.fontSize: 20.0,
+    this.isTextObscure: false,
+    this.showFieldAsBox: false,
+  }) : assert(fields > 0);
 
   @override
-  State createState() {
-    return PinEntryState();
-  }
+  State createState() => _PinEntryState();
 }
 
-class PinEntryState extends State<PinEntry> {
+class _PinEntryState extends State<PinEntry> {
   List<String> _pin;
   List<FocusNode> _focusNodes;
   List<TextEditingController> _textControllers;
@@ -97,6 +97,8 @@ class PinEntryState extends State<PinEntry> {
     });
 
     final String lastDigit = _textControllers[i].text;
+    final enableBorderColor = lastDigit.isEmpty
+        ? AppColors.colorF1F1F1 : AppColors.colorB3DAFF;
 
     return Container(
       width: widget.fieldWidth,
@@ -123,15 +125,20 @@ class PinEntryState extends State<PinEntry> {
                 color: Colors.black54, fontWeight: FontWeight.normal
             ),
             counterText: '',
-//            border: widget.showFieldAsBox ? _outlineBorder() : InputBorder.none,
+//            border: widget.showFieldAsBox
+//                ? _inputFieldBorder : InputBorder.none,
             enabledBorder: widget.showFieldAsBox
-                ? _outlineBorder(color: lastDigit.isEmpty? Colors.black12 : Colors.lightBlue)
-                : InputBorder.none,
-            focusedBorder: _outlineBorder(),
+                ? CommonWidget.outlineBorder(color: enableBorderColor) : InputBorder.none,
+            focusedBorder: CommonWidget.outlineBorder(),
             contentPadding: EdgeInsets.all(10),
         ),
         onChanged: (String str) {
-          setState(() => _pin[i] = str);
+          setState(() {
+            _pin[i] = str;
+            /// Generating text fields again to reflect the border color change
+            /// on input change. (Separate color for empty and non empty input)
+            _textFields = generateTextFields(context);
+          });
           if (i + 1 != widget.fields) {
             _focusNodes[i].unfocus();
             if (lastDigit != null && _pin[i] == '') {
@@ -156,12 +163,6 @@ class PinEntryState extends State<PinEntry> {
           }
         },
       ),
-    );
-  }
-
-  _outlineBorder({double width = 3.0, Color color = Colors.blue}) {
-    return OutlineInputBorder(
-        borderSide: BorderSide(width: width, color: color)
     );
   }
 

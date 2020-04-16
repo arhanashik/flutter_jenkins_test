@@ -22,13 +22,15 @@ class Step1Screen extends StatefulWidget {
   Step1Screen(
       this.orderItem,
       this.onNextScreen,
+      this.onLoadData,
   );
   final OrderItem orderItem;
   final Function onNextScreen;
+  final Function onLoadData;
 
   @override
   _Step1ScreenState createState() => _Step1ScreenState(
-    orderItem, onNextScreen,
+    orderItem, onNextScreen, onLoadData
   );
 }
 
@@ -37,9 +39,11 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
   _Step1ScreenState(
       this._orderItem,
       this._onNextScreen,
+      this._onLoadData,
   );
   final OrderItem _orderItem;
   final Function _onNextScreen;
+  final Function _onLoadData;
 
   PackingList _packingList = PackingList();
   final _refreshController = RefreshController(initialRefresh: true);
@@ -76,7 +80,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
               children: <Widget>[
                 GradientButton(
                   text: locale.txtGoToReceiptNumberInsertion,
-                  onPressed: () => _onNextScreen(_packingList),
+                  onPressed: () => _onNextScreen(),
                   showIcon: true,
                 )
               ],
@@ -290,6 +294,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
       return;
     }
     final item = PackingList.fromJson(data);
+    _onLoadData(item);
     //final PackingList item = PackingList.dummyPackingList();
 
     setState(() {

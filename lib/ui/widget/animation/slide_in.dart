@@ -3,31 +3,43 @@ import 'package:simple_animations/simple_animations.dart';
 
 class SlideInAnimation extends StatelessWidget {
   final Widget child;
+  final int showDurationInMills = 200;
+  final int hideDurationInMills = 300;
+  final int durationInMills;
 
-  SlideInAnimation(this.child);
+  SlideInAnimation(this.child, {this.durationInMills: 1500});
+  
+  _buildTweenAnimation() {
+    final stayDuration = durationInMills - showDurationInMills - hideDurationInMills;
+    
+    return MultiTrackTween([
+      Track("translateY").add(
+        Duration(milliseconds: showDurationInMills),
+        Tween(begin: 100.0, end: 0.0),
+        curve: Curves.easeOut,
+      ).add(
+          Duration(milliseconds: stayDuration),
+          Tween(begin: 0.0, end: 0.0)
+      ).add(
+          Duration(milliseconds: hideDurationInMills - 100),
+          Tween(begin: 0.0, end: 100.0),
+          curve: Curves.easeIn
+      ),
+      Track("opacity").add(
+          Duration(milliseconds: showDurationInMills),
+          Tween(begin: 0.0, end: 1.0)
+      ).add(Duration(milliseconds: stayDuration),
+          Tween(begin: 1.0, end: 1.0)
+      ).add(
+          Duration(milliseconds: hideDurationInMills),
+          Tween(begin: 1.0, end: 0.0)
+      ),
+    ]);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final tween = MultiTrackTween([
-      Track("translateY")
-          .add(
-        Duration(milliseconds: 200),
-        Tween(begin: 100.0, end: 0.0),
-        curve: Curves.easeOut,
-      )
-          .add(Duration(seconds: 1, milliseconds: 250),
-          Tween(begin: 0.0, end: 0.0))
-          .add(Duration(milliseconds: 200),
-          Tween(begin: 0.0, end: 100.0),
-          curve: Curves.easeIn),
-      Track("opacity")
-          .add(Duration(milliseconds: 300),
-          Tween(begin: 0.0, end: 1.0))
-          .add(Duration(seconds: 1),
-          Tween(begin: 1.0, end: 1.0))
-          .add(Duration(milliseconds: 300),
-          Tween(begin: 1.0, end: 0.0)),
-    ]);
+    final tween = _buildTweenAnimation();
 
     return ControlledAnimation(
       duration: tween.duration,

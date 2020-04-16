@@ -21,6 +21,7 @@ import 'package:o2o/ui/widget/dialog/full_screen_missing_information_checker_dia
 import 'package:o2o/ui/widget/dialog/input_dialog.dart';
 import 'package:o2o/ui/widget/dialog/select_next_step_dialog.dart';
 import 'package:o2o/ui/widget/scanned_product_item.dart';
+import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -199,18 +200,22 @@ class _PickingScreenState extends BaseState<PickingScreen>
 
   /// Checking the missing status of the products
   _checkMissingInformation() async {
-    FullScreenMissingInformationCheckerDialog(items: _scannedProducts,);
+    final items = List();
+    items.addAll(_scannedProducts);
+    items.addAll(_scanCompletedProducts);
 
     final resultList = await Navigator.of(context).push(new MaterialPageRoute<List>(
         builder: (BuildContext context) {
-          return FullScreenMissingInformationCheckerDialog(items: _scannedProducts,);
+          return FullScreenMissingInformationCheckerDialog(items: items,);
         },
         fullscreenDialog: true
     ));
 
     if (resultList != null) {
-      ToastUtil.show(
-        context, '商品を削除しました。', icon: Icon(Icons.close,),
+      String msg = '欠品のため注文番号：${_orderItem.orderId}...はキャンセルになりました。';
+      SnackbarUtil.show(
+        context, msg, background: AppColors.colorAccent,
+        icon: Icon(Icons.cancel, size: 24, color: Colors.white,),
       );
       Navigator.of(context).pop();
     }
@@ -559,7 +564,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     final msg = responseMap['msg'];
     if(code == PickingCheckStatus.NOT_AVAILABLE) {
       ToastUtil.show(
-          context, '注文の商品と異なる商品です。',
+          context, '有効なバーコードではありません。',
           icon: Icon(Icons.error, color: Colors.white,),
           fromTop: true, verticalMargin: 110, error: true
       );

@@ -79,6 +79,47 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
     );
   }
 
+  _actionButtonBuilder() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 56, vertical: 0),
+          child: GradientButton(
+            text: "QRコードを追加で読み取る",
+            onPressed: () {
+              _confirmAddNew();
+            },
+            showIcon: true,
+            icon: Icon(Icons.add, size: 24.0, color: Colors.white,),
+            borderRadius: 24.0,
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 56,),
+          child: GradientButton(
+            text: "QRコードを削除する",
+            onPressed: () {
+              _confirmBefore();
+            },
+            enabled: _resultList.isNotEmpty,
+            showIcon: true,
+            icon: Icon(
+              Icons.delete,
+              size: 24.0,
+              color: _resultList.isEmpty? Colors.grey : Colors.black,
+            ),
+            borderRadius: 24.0,
+            txtColor: Colors.black,
+            disableTxtColor: Colors.grey,
+            gradient: AppColors.btnGradientLight,
+          ),
+        ),
+        Padding(padding: EdgeInsets.only(bottom: 16),)
+      ],
+    );
+  }
+
   _buildBody() {
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
@@ -123,43 +164,7 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
               );
             }
         ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              child: GradientButton(
-                text: "QRコードを追加で読み取る",
-                onPressed: () {
-                  _confirmAddNew();
-                },
-                showIcon: true,
-                icon: Icon(Icons.add, size: 28.0, color: Colors.white,),
-                borderRadius: 24.0,
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              child: GradientButton(
-                text: "QRコードを削除する",
-                onPressed: () {
-                  _confirmBefore();
-                },
-                enabled: _resultList.isNotEmpty,
-                showIcon: true,
-                icon: Icon(
-                  Icons.delete,
-                  size: 28.0,
-                  color: _resultList.isEmpty? Colors.grey : Colors.black,
-                ),
-                borderRadius: 24.0,
-                txtColor: Colors.black,
-                disableTxtColor: Colors.grey,
-                gradient: AppColors.btnGradientLight,
-              ),
-            ),
-          ],
-        ),
+        _actionButtonBuilder(),
       ],
     );
   }
