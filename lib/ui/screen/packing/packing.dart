@@ -7,6 +7,7 @@ import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/data/product/packing_list.dart';
+import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/packing/step_1.dart';
 import 'package:o2o/ui/screen/packing/step_2.dart';
@@ -18,8 +19,10 @@ import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
-import 'package:o2o/ui/widget/dialog/full_screen_missing_information_checker_dialog.dart';
+import 'package:o2o/ui/widget/dialog/full_screen_stock_out_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_order_list_dialog.dart';
+import 'package:o2o/ui/widget/popup/shape_widget.dart';
+import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/helper/common.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
@@ -76,12 +79,14 @@ class _PackingScreenState extends BaseState<PackingScreen> {
       _selectedChoice = choice;
     });
 
-    if(_selectedChoice == _choices[1]) _checkMissingInformation();
+    if(_selectedChoice == _choices[1]) _checkStockOutStatus();
     else if(_selectedChoice == _choices[2]) {
       if(_packingList == null) return;
       Navigator.of(context).push(new MaterialPageRoute<List>(
           builder: (BuildContext context) {
-            return FullScreenOrderListDialog(items: _packingList.products,);
+            return FullScreenOrderListDialog(
+              items: _packingList.products,
+            );
           },
           fullscreenDialog: true
       ));
@@ -319,24 +324,6 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     return _stepScreens[stepIndex];
   }
 
-  _checkMissingInformation() async {
-    final resultList = await Navigator.of(context).push(new MaterialPageRoute<List>(
-        builder: (BuildContext context) {
-          return FullScreenMissingInformationCheckerDialog(items: _packingList.products,);
-        },
-        fullscreenDialog: true
-    ));
-
-    if (resultList != null) {
-      ToastUtil.show(
-        context,
-        '商品を削除しました。',
-        icon: Icon(Icons.close,),
-      );
-      Navigator.of(context).pop();
-    }
-  }
-
  _bodyBuilder() {
     return Container(
       child: Column(
@@ -362,6 +349,59 @@ class _PackingScreenState extends BaseState<PackingScreen> {
             ),
           ),
           Flexible(child: _getStepView(_currentStep),)
+        ],
+      ),
+    );
+  }
+
+  bool _menuShown = false;
+  _buildMenu() {
+    return Container(
+      color: Colors.white,
+      width: 180.0,
+      child: Column(
+        children: <Widget>[
+          Visibility(
+            child: InkWell(
+              child: Padding(
+                child: Text(
+                  locale.txtReportStorage,
+                  style: TextStyle(
+                      color: AppColors.colorBlueDark,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.0
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+              ),
+              onTap: (){
+                setState(() => _menuShown = !_menuShown);
+                _checkStockOutStatus();
+              },
+            ),
+            visible: _currentStep == Step.STEP_1,
+          ),
+          Container(
+            height: _currentStep == Step.STEP_1? 1.5 : 0,
+            color: AppColors.colorF1F1F1,
+          ),
+          InkWell(
+            child: Padding(
+              child: Text(
+                locale.txtSeeOrderList,
+                style: TextStyle(
+                    color: AppColors.colorBlueDark,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.0
+                ),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10.0,),
+            ),
+            onTap: () {
+              setState(() => _menuShown = !_menuShown);
+              _showOrderProductList();
+            },
+          ),
         ],
       ),
     );
@@ -404,31 +444,85 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           ),
           iconColor: AppColors.colorBlue,
           background: Colors.white,
-          menu: PopupMenuButton(
-              child: AppIcons.loadIcon(
-                  AppIcons.icSettings, size: 48.0, color: AppColors.colorBlue
-              ),
-              onSelected: _select,
-              itemBuilder: (BuildContext context) {
-                final choices = _currentStep == Step.STEP_1? _choices.skip(1)
-                      : [_choices[2]];
-                return choices.map((Choice choice) {
-                  return PopupMenuItem<Choice>(
-                    value: choice,
-                    child: Text(choice.title),
-                  );
-                }).toList();
-              }),
+//          menu: PopupMenuButton(
+//              child: AppIcons.loadIcon(
+//                  AppIcons.icSettings, size: 48.0, color: AppColors.colorBlue
+//              ),
+//              onSelected: _select,
+//              itemBuilder: (BuildContext context) {
+//                final choices = _currentStep == Step.STEP_1? _choices.skip(1)
+//                      : [_choices[2]];
+//                return choices.map((Choice choice) {
+//                  return PopupMenuItem<Choice>(
+//                    value: choice,
+//                    child: Text(choice.title),
+//                  );
+//                }).toList();
+//              }),
+          menu: InkWell(
+            child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: AppColors.colorBlue),
+            onTap: () => setState(() => _menuShown = !_menuShown),
+          ),
           onTapNavigation: () => _onWillPop(),
           error: _isUnderWork? '${_orderItem.lockedName}が作業中' : '',
         ),
         backgroundColor: AppColors.background,
-        body: _bodyBuilder(),
+        body: Stack(
+          overflow: Overflow.visible,
+          children: <Widget>[
+            _bodyBuilder(),
+            Visibility(
+              child: Positioned(
+                child: ShapedWidget(
+                  child: _buildMenu(),
+                  background: AppColors.colorBlue,
+                ),
+                right: 13.0,
+                top: 10.0,
+              ),
+              visible: _menuShown,
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  _checkStockOutStatus() async {
+    final products = List<ProductEntity>();
+    _packingList.products.forEach((element) {
+      if(element is ProductEntity) products.add(element);
+    });
+    final resultList = await Navigator.of(context).push(new MaterialPageRoute<List>(
+        builder: (BuildContext context) {
+          return FullScreenStock0utDialog(
+            orderItem: _orderItem, products: products,
+          );
+        },
+        fullscreenDialog: true
+    ));
 
+    if (resultList != null) {
+      String msg = '欠品のため注文番号：${_orderItem.orderId}...はキャンセルになりました。';
+      SnackbarUtil.show(
+        context, msg, background: AppColors.colorAccent,
+        icon: Icon(Icons.cancel, size: 24, color: Colors.white,),
+      );
+      Navigator.of(context).pop();
+    }
+  }
+
+  _showOrderProductList() {
+    if(_packingList == null) return;
+    Navigator.of(context).push(new MaterialPageRoute<List>(
+        builder: (BuildContext context) {
+          return FullScreenOrderListDialog(
+            items: _packingList.products,
+          );
+        },
+        fullscreenDialog: true
+    ));
+  }
 
   _updateReceiptNumber(String receiptNo) async {
     _receiptNumber = receiptNo;

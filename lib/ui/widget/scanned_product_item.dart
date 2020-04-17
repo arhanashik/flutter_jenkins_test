@@ -42,12 +42,7 @@ class ScannedProductItem extends StatelessWidget {
 
   _showProductDetails(BuildContext context) {
     O2OLocalizations locale = O2OLocalizations.of(context);
-    DetailsDialog(
-      context,
-      scannedProduct.title,
-      '${locale.txtJanCode}: ${scannedProduct.janCode}',
-      scannedProduct.imageUrl,
-    ).show();
+    DetailsDialog(context, scannedProduct,).show();
   }
 
   _buildLeading(BuildContext context, String imageUrl) {

@@ -17,9 +17,10 @@ import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/add_product_dialog.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
-import 'package:o2o/ui/widget/dialog/full_screen_missing_information_checker_dialog.dart';
+import 'package:o2o/ui/widget/dialog/full_screen_stock_out_dialog.dart';
 import 'package:o2o/ui/widget/dialog/input_dialog.dart';
 import 'package:o2o/ui/widget/dialog/select_next_step_dialog.dart';
+import 'package:o2o/ui/widget/popup/shape_widget.dart';
 import 'package:o2o/ui/widget/scanned_product_item.dart';
 import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
@@ -50,15 +51,14 @@ class PickingScreen extends StatefulWidget {
       _PickingScreenState(orderItem, isUnderWork);
 }
 
-class _PickingScreenState extends BaseState<PickingScreen>
-    with TickerProviderStateMixin {
+class _PickingScreenState extends BaseState<PickingScreen> {
 
   _PickingScreenState(this._orderItem, this._isUnderWork);
   final OrderItem _orderItem;
   bool _isUnderWork;
   /// Two different list to separate the picking and picked products
   List<ProductEntity> _scannedProducts = List();
-  List _scanCompletedProducts = List();
+  List<ProductEntity> _scanCompletedProducts = List();
 
   final _refreshController = RefreshController(initialRefresh: true);
 
@@ -70,7 +70,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
       _selectedChoice = choice;
     });
 
-    if(_selectedChoice == _choices[1]) _checkMissingInformation();
+    if(_selectedChoice == _choices[1]) _checkStockOutStatus();
     else if (_selectedChoice == _choices[2]) _customJANCodeInput();
   }
 
@@ -199,14 +199,14 @@ class _PickingScreenState extends BaseState<PickingScreen>
   }
 
   /// Checking the missing status of the products
-  _checkMissingInformation() async {
-    final items = List();
-    items.addAll(_scannedProducts);
-    items.addAll(_scanCompletedProducts);
+  _checkStockOutStatus() async {
+    final products = List<ProductEntity>();
+    products.addAll(_scannedProducts);
+    products.addAll(_scanCompletedProducts);
 
     final resultList = await Navigator.of(context).push(new MaterialPageRoute<List>(
         builder: (BuildContext context) {
-          return FullScreenMissingInformationCheckerDialog(items: items,);
+          return FullScreenStock0utDialog(orderItem: _orderItem, products: products,);
         },
         fullscreenDialog: true
     ));
@@ -284,7 +284,9 @@ class _PickingScreenState extends BaseState<PickingScreen>
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                 child: ScannedProductItem(
                   scannedProduct: _scanCompletedProducts[index],
-                  onPressed: () => _checkPickingStatus(),
+                  onPressed: () {
+                    if(_isPickingComplete()) _selectNextStep();
+                  },
                 ),
               );
             },
@@ -339,6 +341,59 @@ class _PickingScreenState extends BaseState<PickingScreen>
     );
   }
 
+  bool _menuShown = false;
+  _buildMenu() {
+    return Container(
+      color: Colors.white,
+      width: 180.0,
+      child: Column(
+        children: <Widget>[
+          InkWell(
+            child: Padding(
+              child: Text(
+                locale.txtReportStorage,
+                style: TextStyle(
+                    color: AppColors.colorBlueDark,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.0
+                ),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10.0),
+            ),
+            onTap: (){
+              setState(() => _menuShown = !_menuShown);
+              _checkStockOutStatus();
+            },
+          ),
+          Container(height: 1.5, color: AppColors.colorF1F1F1,),
+          InkWell(
+            child: Padding(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.edit, color: AppColors.colorBlue, size: 18.0,),
+                  Text(
+                    locale.txtInsertCodeManually,
+                    style: TextStyle(
+                        color: AppColors.colorBlueDark,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14.0
+                    ),
+                  )
+                ],
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10.0,),
+            ),
+            onTap: (){
+              setState(() => _menuShown = !_menuShown);
+              _customJANCodeInput();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   /// If user press on the back button, show the confirmation popup
   /// and return to order list on confirmation
   Future<bool> _onWillPop() async {
@@ -380,22 +435,31 @@ class _PickingScreenState extends BaseState<PickingScreen>
           ),
           iconColor: Colors.white,
           background: Colors.transparent,
-          menu: PopupMenuButton(
-                child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
-                onSelected: _select,
-                itemBuilder: (BuildContext context) {
-                  return _choices.skip(1).map((Choice choice) {
-                    return PopupMenuItem<Choice>(
-                      value: choice,
-                      child: Text(choice.title),
-                    );
-                  }).toList();
-                }),
+          menu: InkWell(
+            child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
+            onTap: () => setState(() => _menuShown = !_menuShown),
+          ),
           onTapNavigation: () => _onWillPop(),
           error: _isUnderWork? '${_orderItem.lockedName}が作業中' : '',
         ),
         backgroundColor: AppColors.colorWhite,
-        body: _bodyBuilder(),
+        body: Stack(
+          overflow: Overflow.visible,
+          children: <Widget>[
+            _bodyBuilder(),
+            Visibility(
+                child: Positioned(
+                  child: ShapedWidget(
+                    child: _buildMenu(),
+                    background: AppColors.colorBlue,
+                  ),
+                  right: 13.0,
+                  top: _isUnderWork? 105.0 : 74.0,
+                ),
+              visible: _menuShown,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -478,7 +542,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
     }
 
     setState(() => loadingState = newState);
-    _checkPickingStatus();
+    if(_isPickingComplete()) _selectNextStep();
   }
 
   /// If user wants to use a fullscreen scanner this function provides that.
@@ -669,17 +733,15 @@ class _PickingScreenState extends BaseState<PickingScreen>
 //    }
 
 //    ToastUtil.show(context, 'Product picked');
+    if(_isPickingComplete()) await _completePicking();
     _resumeCamera();
-    _checkPickingStatus();
     _fetchData();
   }
 
   /// After every picking action check if all items are picked
   /// If picked, popup to go to packing or select another odder
-  _checkPickingStatus() {
-    if(_scannedProducts.isEmpty && _scanCompletedProducts.isNotEmpty) {
-      _selectNextStep();
-    }
+  _isPickingComplete() {
+    return _scannedProducts.isEmpty && _scanCompletedProducts.isNotEmpty;
   }
 
   /// Select next step when all product's picking is complete.
@@ -687,7 +749,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
   /// 1. Start packing -> Update picking status and ask for starting packing
   /// 2. Check missing order -> Check missing order
   /// 3. Start picking for another order -> Go back to order list screen
-  _selectNextStep() {
+  _selectNextStep() async {
     SelectNextStepDialog(
         context: context,
         title: locale.txtAllProductsPickingDone,
@@ -697,11 +759,11 @@ class _PickingScreenState extends BaseState<PickingScreen>
         otherButtonText: locale.txtPickAnotherOrder,
         onConfirm: () {
           Navigator.of(context).pop();
-          _completePickingAndConfirmationForPacking();
+          _confirmPacking();
         },
         onReportMissing: () {
           Navigator.of(context).pop();
-          _checkMissingInformation();
+          _checkStockOutStatus();
         },
         onOther: () {
           Navigator.of(context).pop();
@@ -710,23 +772,36 @@ class _PickingScreenState extends BaseState<PickingScreen>
     ).show();
   }
 
+  _completePicking() async {
+    CommonWidget.showLoader(context, cancelable: true);
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderId'] = _orderItem.orderId;
+    params['status'] = PickingStatus.DONE;
+
+    var response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
+    Navigator.of(context).pop();
+    if (response.statusCode != HttpCode.OK) {
+      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    if(code != HttpCode.OK) {
+      ToastUtil.show(
+          context, 'ピッキングStatusは更新する事ができません。',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
+      return;
+    }
+  }
+
   /// This function uses 'UPDATE_PICKING_STATUS' api to update the picking
   /// status as done and show the confirmation dialog to start packing
-  _completePickingAndConfirmationForPacking() async {
-//    CommonWidget.showLoader(context, cancelable: true);
-//    String imei = await PrefUtil.read(PrefUtil.IMEI);
-//    final params = HashMap();
-//    params['imei'] = imei;
-//    params['orderId'] = _orderItem.orderId;
-//    params['status'] = PickingStatus.DONE;
-//
-//    var response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
-//    Navigator.of(context).pop();
-//    if (response.statusCode != HttpCode.OK) {
-//      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
-//      return;
-//    }
-
+  _confirmPacking() async {
     ConfirmationDialog(
         context,
         locale.txtStartShippingPreparation,
@@ -739,19 +814,29 @@ class _PickingScreenState extends BaseState<PickingScreen>
   /// First change the packing status of the order as working
   /// Then Go to the packing screen and wait for the result
   _startPackingForResult() async {
-//    CommonWidget.showLoader(context, cancelable: true);
-//    String imei = await PrefUtil.read(PrefUtil.IMEI);
-//    final params = HashMap();
-//    params['imei'] = imei;
-//    params['orderId'] = _orderItem.orderId;
-//    //update packing status as working
-//    params['status'] = PackingStatus.WORKING;
-//    var response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
-//    Navigator.of(context).pop();
-//    if (response.statusCode != 200) {
-//      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
-//      return;
-//    }
+    CommonWidget.showLoader(context, cancelable: true);
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderId'] = _orderItem.orderId;
+    params['status'] = PackingStatus.WORKING;
+    var response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
+    Navigator.of(context).pop();
+    if (response.statusCode != HttpCode.OK) {
+      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    if(code != HttpCode.OK) {
+      ToastUtil.show(
+          context, 'パッキングStatusは更新する事ができません。',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
+      return;
+    }
 
     _pauseCamera();
     final results = await Navigator.of(context).push(MaterialPageRoute(
@@ -762,9 +847,7 @@ class _PickingScreenState extends BaseState<PickingScreen>
             )
     ));
 
-    if (results != null && results.containsKey('order_id')) {
-      Navigator.of(context).pop(results);
-    }
+    Navigator.of(context).pop(results);
   }
 
   /// Dispose the controller when the screen is disposed

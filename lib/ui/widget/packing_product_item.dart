@@ -22,12 +22,7 @@ class PackingProductItem extends StatelessWidget {
           product.imageUrl, isAsset: false, width: 48.0, height: 48.0
       ),
       onTap: () {
-        DetailsDialog(
-          context,
-          product.title,
-          '${locale.txtJanCode}: ${product.janCode}',
-          product.imageUrl,
-        ).show();
+        DetailsDialog(context, product,).show();
       },
     );
   }

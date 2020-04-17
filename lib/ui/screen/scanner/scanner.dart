@@ -71,6 +71,21 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
                 ),
                 onTap: _toggleFlush,
               ),
+              GestureDetector(
+                child: Container(
+                  margin: EdgeInsets.only(right: 16,bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                  child: Icon(
+                    Icons.fullscreen_exit,
+                    color: Colors.lightBlue,
+                  ),
+                  padding: EdgeInsets.all(2),
+                ),
+                onTap: onTapNavigation,
+              ),
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: 100,

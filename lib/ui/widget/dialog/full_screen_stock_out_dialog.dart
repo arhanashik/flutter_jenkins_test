@@ -1,4 +1,10 @@
+import 'dart:collection';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:o2o/data/orderitem/order_item.dart';
+import 'package:o2o/data/pref/pref.dart';
+import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/checkable_product_item.dart';
@@ -6,23 +12,30 @@ import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
+import 'package:o2o/ui/widget/toast/toast_util.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 
-class FullScreenMissingInformationCheckerDialog extends StatefulWidget {
-  FullScreenMissingInformationCheckerDialog({this.items});
+class FullScreenStock0utDialog extends StatefulWidget {
+  FullScreenStock0utDialog({
+    @required this.orderItem,
+    @required this.products
+  });
 
-  final List items;
+  final OrderItem orderItem;
+  final List<ProductEntity> products;
 
   @override
-  FullScreenMissingInformationCheckerDialogState createState() =>
-      new FullScreenMissingInformationCheckerDialogState(items);
+  FullScreenStockOutDialogState createState() =>
+      new FullScreenStockOutDialogState(orderItem, products);
 }
 
-class FullScreenMissingInformationCheckerDialogState extends BaseState<FullScreenMissingInformationCheckerDialog> {
+class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> {
 
-  FullScreenMissingInformationCheckerDialogState(this._items);
+  FullScreenStockOutDialogState(this._orderItem, this._products);
 
-  List _items = List();
-  List _resultList = List();
+  final OrderItem _orderItem;
+  List<ProductEntity> _products = List();
+  List<ProductEntity> _resultList = List();
   bool confirmation = false;
 
   _sectionTitleBuilder(title) {
@@ -93,9 +106,9 @@ class FullScreenMissingInformationCheckerDialogState extends BaseState<FullScree
 
   _buildList() {
     return ListView.builder(
-        itemCount: confirmation? _resultList.length : _items.length,
+        itemCount: confirmation? _resultList.length : _products.length,
         itemBuilder: (BuildContext context, int index) {
-          final item = confirmation? _resultList[index] : _items[index];
+          final item = confirmation? _resultList[index] : _products[index];
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
             child: CheckableProductItem(
@@ -187,13 +200,45 @@ class FullScreenMissingInformationCheckerDialogState extends BaseState<FullScree
   _confirmBefore() {
     if(confirmation) {
       setState(() {
-        _resultList.forEach((_item) => _items.remove(_item));
+        _resultList.forEach((_item) => _products.remove(_item));
       });
-      Navigator.of(context).pop(_resultList);
-      _resultList.clear();
+      _checkStockOutStatus();
       return;
     }
 
     setState(() => confirmation = true);
+  }
+
+  _checkStockOutStatus() async {
+    CommonWidget.showLoader(context);
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+    params['orderId'] = _orderItem.orderId;
+    final janCodeList = List<String>();
+    _resultList.forEach((element) { 
+      janCodeList.add(element.janCode.toString());
+    });
+    params['janCodeList'] = janCodeList;
+
+    final response = await HttpUtil.post(HttpUtil.CHECK_STOCK_OUT_STATUS, params);
+    Navigator.of(context).pop();
+    if (response.statusCode != HttpCode.OK) {
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap['code'];
+    if(code != HttpCode.OK) {
+      ToastUtil.show(
+          context, '欠品を情報する事ができません。',
+          icon: Icon(Icons.error, color: Colors.white,),
+          fromTop: true, verticalMargin: 110, error: true
+      );
+      return;
+    }
+
+    Navigator.of(context).pop(_resultList);
+    _resultList.clear();
   }
 }

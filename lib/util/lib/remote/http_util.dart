@@ -22,6 +22,7 @@ abstract class HttpUtil {
   static const _BASE_URL = '$_DEV_SERVER/api/v1';
 
   static const LOGIN = '$_BASE_URL/login';
+  static const UPDATE_FCM_TOKEN = '$_BASE_URL/firebase/token/update';
   static const REGISTER_IMEI = '$_BASE_URL/timeorder/list';
 
   static const GET_TIME_ORDER = '$_BASE_URL/timeorder/list';
@@ -33,6 +34,7 @@ abstract class HttpUtil {
   static const GET_PICKING_LIST = '$_BASE_URL/picking/list';
   static const CHECK_PICKED_ITEM = '$_BASE_URL/picking/details';
   static const UPDATE_PICKING_COUNT = '$_BASE_URL/picking/product/status/update';
+  static const CHECK_STOCK_OUT_STATUS = '$_BASE_URL/stockout/info/update';
 
   static const UPDATE_PACKING_STATUS = '$_BASE_URL/packing/status/update';
   static const GET_PACKING_LIST = '$_BASE_URL/packing/list';

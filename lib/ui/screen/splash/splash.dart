@@ -13,6 +13,7 @@ import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/common/loader/color_loader.dart';
 import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/util/helper/device_util.dart';
+import 'package:o2o/util/lib/fcm/fcm_manager.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -86,19 +87,61 @@ class _SplashScreenState extends BaseState<SplashScreen> {
     setState(() => loadingState = LoadingState.LOADING);
     String imei = await DeviceUtil.getIMEI();
     await PrefUtil.save(PrefUtil.IMEI, imei);
+    final String fcmToken = await FcmManager().getFcmToken();
+    if(fcmToken == null || fcmToken.isEmpty) {
+      setState(() => loadingState = LoadingState.ERROR);
+      SnackbarUtil.show(
+        context,
+        'Fcm token not found',
+        icon: Icon(Icons.error, color: Colors.white,),
+        background: Colors.redAccent,
+      );
+      return;
+    }
+    final oldFcmToken = await PrefUtil.read(PrefUtil.FCM_TOKEN);
+    if(oldFcmToken == null || oldFcmToken.isEmpty || fcmToken != oldFcmToken) {
+      final params = HashMap();
+      params['imei'] = imei;
+      params['token'] = fcmToken;
+
+      final response = await HttpUtil.post(HttpUtil.UPDATE_FCM_TOKEN, params);
+      if (response.statusCode != HttpCode.OK) {
+        setState(() => loadingState = LoadingState.ERROR);
+        SnackbarUtil.show(
+          context,
+          locale.errorServerIsNotAvailable,
+          icon: Icon(Icons.error, color: Colors.white,),
+          background: Colors.redAccent,
+        );
+        return;
+      }
+
+      final responseMap = json.decode(response.body);
+      final code = responseMap['code'];
+      if(code != HttpCode.OK) {
+        setState(() => loadingState = LoadingState.ERROR);
+        SnackbarUtil.show(
+          context,
+          '端末Tokenはサーバーに登録するはできません。',
+          icon: Icon(Icons.error, color: Colors.white,),
+          background: Colors.redAccent,
+        );
+        return;
+      }
+
+      await PrefUtil.save(PrefUtil.FCM_TOKEN, fcmToken);
+    }
 
     final params = HashMap();
     params['imei'] = imei;
     final response = await HttpUtil.get(HttpUtil.LOGIN, params: params);
-    if (response.statusCode != 200) {
-      print('message: ${response.message}');
+    if (response.statusCode != HttpCode.OK) {
       setState(() => loadingState = LoadingState.ERROR);
       SnackbarUtil.show(
         context,
         locale.errorServerIsNotAvailable,
         icon: Icon(Icons.error, color: Colors.white,),
         background: Colors.redAccent,
-        durationInSec: 5,
       );
       return;
     }
@@ -112,7 +155,6 @@ class _SplashScreenState extends BaseState<SplashScreen> {
         '端末はサーバーにまだありません。',
         icon: Icon(Icons.error, color: Colors.white,),
         background: Colors.redAccent,
-        durationInSec: 5,
       );
       return;
     }
@@ -126,7 +168,6 @@ class _SplashScreenState extends BaseState<SplashScreen> {
 //        '端末の情報は取得することができません。',
 //        icon: Icon(Icons.error, color: Colors.white,),
 //        background: Colors.redAccent,
-//        durationInSec: 5,
 //      );
 //      return;
 //    }
@@ -136,6 +177,10 @@ class _SplashScreenState extends BaseState<SplashScreen> {
 
     setState(() => loadingState = LoadingState.OK);
     _goToNextScreen();
+  }
+
+  _updateFcmToken() {
+
   }
 
   _goToNextScreen() {
