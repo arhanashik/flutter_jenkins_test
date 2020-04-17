@@ -114,7 +114,7 @@ class _OrderListHistoryScreenState extends BaseState<OrderListHistoryScreen> {
   Widget build(BuildContext context) {
     super.build(context);
 
-    String titleLeading = '発送前';
+    String titleLeading = locale.txtBeforeShipping;
     if(historyType == HistoryType.COMPLETE) titleLeading = '発送済み';
     if(historyType == HistoryType.MISSING) titleLeading = '欠品';
 

@@ -18,6 +18,7 @@ class FcmManager {
 
   Future<void> init() async {
     if (!_initialized) {
+      print("FCM:: init()");
       // For iOS request permission first.
       _firebaseMessaging.requestNotificationPermissions(
           const IosNotificationSettings(
@@ -44,6 +45,10 @@ class FcmManager {
           print("FCM::(onResume) $message");
           _fcmBackgroundMessageHandler(message);
         },
+//        onBackgroundMessage: (Map<String, dynamic> message) async {
+//          print("FCM::(onBackgroundMessage) $message");
+//          _fcmBackgroundMessageHandler(message);
+//        },
       );
 
       // For testing purposes print the Firebase Messaging token
@@ -64,15 +69,16 @@ class FcmManager {
   }
 
   Future<dynamic> _fcmBackgroundMessageHandler(Map<String, dynamic> message) {
-    print('FCM:: $message');
-    if (message.containsKey('data')) {
-      // Handle data message
-      final dynamic data = message['data'];
-    }
-
     if (message.containsKey('notification')) {
       // Handle notification message
       final dynamic notification = message['notification'];
+      print("FCM::(notification) $notification");
+    }
+
+    if (message.containsKey('data')) {
+      // Handle data message
+      final dynamic data = message['data'];
+      print("FCM::(data) $data");
     }
 
     return null;

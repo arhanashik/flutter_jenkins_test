@@ -59,17 +59,28 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
   _sectionTitleBuilder(title) {
     return Container(
-      margin: EdgeInsets.only(left: 16,),
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(width: 3.0, color: Colors.lightBlue)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(left: 16),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
+      margin: EdgeInsets.symmetric(horizontal: 13, vertical: _isUnderWork? 8:10),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 3.0,
+            height: 24.0,
+            decoration: BoxDecoration(
+              color: AppColors.colorBlue,
+              borderRadius: BorderRadius.all(Radius.circular(2.0)),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              title, style: TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black
+            ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -79,7 +90,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
       alignment: Alignment.bottomRight,
       children: <Widget>[
         Container(
-          height: _isUnderWork? 246 : 275,
+          height: _isUnderWork? 300 : 330,
           child: QRView(
             key: _qrKey,
             onQRViewCreated: _onQRViewCreated,
@@ -146,7 +157,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   @override
   void initState() {
     super.initState();
-    setState(() {_scannedQrCodes.addAll(['11111', '222222']);});
+    setState(() {_scannedQrCodes.addAll(['1111-1111-1111-1111', '2222-1111-1111-1111']);});
   }
 
   @override
@@ -163,14 +174,18 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
             children: <Widget>[
               _sectionTitleBuilder('${locale.txtQRScannedLabeledCount}: ${_scannedQrCodes.length}'),
               Spacer(),
-              Container(
-                height: 48.0,
-                padding: EdgeInsets.all(5),
-                child: GradientButton(
-                  text: locale.txtSeeList,
-                  onPressed: () => _showScannedQrCodeList(),
-                  padding: EdgeInsets.all(10.0),
+              Visibility(
+                child: Container(
+                  height: 32.0,
+                  margin: EdgeInsets.only(right: 13),
+                  child: GradientButton(
+                    text: locale.txtSeeList,
+                    onPressed: () => _showScannedQrCodeList(),
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    height: 32.0,
+                  ),
                 ),
+                visible: _scannedQrCodes.length > 0,
               ),
             ],
           ),
@@ -290,6 +305,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
         context,
         '${resultList.join(',')} を削除しました。',
         icon: Icon(Icons.delete, color: Colors.white,),
+        error: true, verticalMargin: 200,
       );
     }
   }

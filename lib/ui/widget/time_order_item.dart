@@ -29,7 +29,7 @@ class TimeOrderItem extends StatelessWidget {
             topRight: Radius.circular(15)
         )
       ),
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 13),
       child: Row(
         children: <Widget>[
           Text(
@@ -67,7 +67,7 @@ class TimeOrderItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Padding(padding: EdgeInsets.only(left: 20),),
+          Padding(padding: EdgeInsets.only(left: 18),),
           Text(
             "未完了",
             style: TextStyle(

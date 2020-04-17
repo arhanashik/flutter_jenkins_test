@@ -44,23 +44,19 @@ class _HomeScreenState extends BaseState<HomeScreen> {
         elevation: 16,
         items: [
           BottomNavigationBarItem(
-            icon: AppIcons.icList,
-            title: Padding(
-              padding: EdgeInsets.only(top: 5.0),
-              child: Text(
-                locale.homeNavigation1,
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+//            icon: Icon(Icons.assignment),
+            icon: AppIcons.loadSizedIcon(AppIcons.icList, size: 18.0),
+            title: Text(
+              locale.homeNavigation1,
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           BottomNavigationBarItem(
-            icon: AppIcons.icClock,
-            title: Padding(
-              padding: EdgeInsets.only(top: 5.0),
-              child: Text(
-                locale.homeNavigation2,
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+//            icon: Icon(Icons.access_time),
+            icon: AppIcons.loadSizedIcon(AppIcons.icClock, size: 18.0),
+            title: Text(
+              locale.homeNavigation2,
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],

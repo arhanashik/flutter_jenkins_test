@@ -85,6 +85,48 @@ class ToastUtil {
     );
   }
 
+  static _toastView(
+      String message,
+      Icon icon,
+      bool error,
+  ) {
+    return Material(
+      elevation: 5.0,
+      borderRadius: BorderRadius.circular(3),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        decoration: BoxDecoration(
+            color: error? Colors.redAccent : Colors.blue,
+            borderRadius: BorderRadius.circular(3)
+        ),
+        child: Flexible(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              icon,
+              Flexible (
+                child: Padding(
+                  padding: EdgeInsets.only(left: 5),
+                  child: Text(
+                    message,
+                    textAlign: TextAlign.left,
+                    softWrap: true,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   static OverlayEntry _createOverlayEntryDirectional(
       BuildContext context,
       String message,
@@ -101,41 +143,9 @@ class ToastUtil {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Material(
-              elevation: 5.0,
-              borderRadius: BorderRadius.circular(5),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                decoration: BoxDecoration(
-                    color: error? Colors.redAccent : Colors.blue,
-                    borderRadius: BorderRadius.circular(5)
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    icon,
-                    Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5),
-                        child: Text(
-                          message,
-                          textAlign: TextAlign.center,
-                          softWrap: true,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            Flexible(child: _toastView(message, icon, error),)
           ],
-        )
+        ),
       ),
     );
   }

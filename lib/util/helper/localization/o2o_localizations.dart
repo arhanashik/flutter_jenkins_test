@@ -113,7 +113,7 @@ class O2OLocalizations {
       'msg_return_to_previous_step': '現在行っている作業の状態は\n保存されません。\n前の作業に戻ってよろしですか？',
       'txt_ok': 'OK',
       'txt_product_count': '商品点数',
-      'txt_shipping_preparation_complete': '発送準備完了',
+      'txt_before_shipping': '発送前',
       'txt_shipping_done': '発送済み',
       'txt_missing': '欠品',
       'txt_return_to_order_list': 'ピッキング作業を中断して\n作業一覧に戻りますか？',
@@ -272,7 +272,7 @@ class O2OLocalizations {
       'msg_return_to_previous_step': '現在行っている作業の状態は\n保存されません。\n前の作業に戻ってよろしですか？',
       'txt_ok': 'OK',
       'txt_product_count': '商品点数',
-      'txt_shipping_preparation_complete': '発送準備完了',
+      'txt_before_shipping': '発送前',
       'txt_shipping_done': '発送済み',
       'txt_missing': '欠品',
       'txt_return_to_order_list': 'ピッキング作業を中断して\n作業一覧に戻りますか？',
@@ -435,7 +435,7 @@ class O2OLocalizations {
   String get msgReturnToPreviousStep => _getLocalizedValue('msg_return_to_previous_step');
   String get txtOk => _getLocalizedValue('txt_ok');
   String get txtProductCount => _getLocalizedValue('txt_product_count');
-  String get txtShippingPreparationComplete => _getLocalizedValue('txt_shipping_preparation_complete');
+  String get txtBeforeShipping => _getLocalizedValue('txt_before_shipping');
   String get txtShippingDone => _getLocalizedValue('txt_shipping_done');
   String get txtMissing => _getLocalizedValue('txt_missing');
   String get txtReturnToOrderList => _getLocalizedValue('txt_return_to_order_list');

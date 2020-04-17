@@ -2,10 +2,12 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:o2o/data/constant/const.dart';
 import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/data/pref/pref.dart';
-import 'package:o2o/data/timeorder/time_order.dart';
 import 'package:o2o/data/timeorder/time_order_heading.dart';
+import 'package:o2o/data/timeorder/time_order_list_item.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/error/error.dart';
 import 'package:o2o/ui/screen/home/history/order_list_history.dart';
@@ -18,7 +20,9 @@ import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/time_order_history_item.dart';
+import 'package:o2o/util/helper/common.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 /// Created by mdhasnain on 04 Jan, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -54,133 +58,33 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
       _selectedChoice = choice;
     });
 
-//    if(_selectedChoice == _choices[0]) _searchOrder('');
     if(_selectedChoice == _choices[0]) _scanBarcode();
     if(_selectedChoice == _choices[1]) _scanQrCode();
   }
 
   void _initChoices() {
     _choices.clear();
-    _choices.add(Choice(title: locale.txtReadBarcode, icon: AppIcons.loadIcon(AppIcons.icBarCode, color: AppColors.colorBlue)));
-    _choices.add(Choice(title: locale.txtReadQRCode, icon: AppIcons.loadIcon(AppIcons.icQrCode, color: AppColors.colorBlue)));
+    _choices.add(
+        Choice(
+            title: locale.txtReadBarcode,
+            icon: AppIcons.loadIcon(AppIcons.icBarCode, color: AppColors.colorBlue, size: 18.0)
+        )
+    );
+    _choices.add(
+        Choice(
+            title: locale.txtReadQRCode,
+            icon: AppIcons.loadIcon(AppIcons.icQrCode, color: AppColors.colorBlue, size: 18.0)
+        )
+    );
 
     _selectedChoice = _choices[0];
   }
 
-  List _timeOrders = new List();
-  List _shippingCompletedList = new List();
-  List _missingList = new List();
+  final Map<TimeOrderHeading, List> _timeOrders = HashMap();
+  final Map<TimeOrderHeading, List> _shippingCompletedList = HashMap();
+  final Map<TimeOrderHeading, List> _missingList = HashMap();
 
-  _fetchData() async {
-    if (loadingState == LoadingState.LOADING) return;
-
-    setState(() => loadingState = LoadingState.LOADING);
-
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final requestBody = HashMap();
-    requestBody['imei'] = imei;
-
-    final response = await HttpUtil.post(HttpUtil.GET_TIME_ORDER_HISTORY, requestBody);
-    print('code: ${response.statusCode}');
-//    if (response.statusCode != 200) {
-//      setState(() => loadingState = LoadingState.ERROR);
-//      return;
-//    }
-
-    List tempList = new List();
-    tempList.add(TimeOrder(
-        scheduledDeliveryDateTime: "111 12:30",
-        orderCount: 1,
-        incompleteOrderCount: 2,
-        totalProductCount: 3
-    ));
-
-    _timeOrders.add(TimeOrderHeading(10, 12, '金'));
-    _shippingCompletedList.add(TimeOrderHeading(10, 12, '金'));
-    _missingList.add(TimeOrderHeading(10, 12, '金'));
-
-    LoadingState newState = LoadingState.NO_DATA;
-    if (_timeOrders.isNotEmpty || tempList.isNotEmpty) {
-      newState = LoadingState.OK;
-
-      _timeOrders.addAll(tempList);
-      _shippingCompletedList.addAll(tempList);
-      _missingList.addAll(tempList);
-    }
-
-    setState(() => loadingState = newState);
-  }
-
-  _scanBarcode() async {
-    final results = await Navigator.of(context).push(
-        MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => BarcodeScannerScreen(),
-          fullscreenDialog: true,
-        ),
-    );
-
-    if (results != null && results.containsKey('barcode')) {
-      String barcode = results['barcode'];
-      if (barcode.isNotEmpty) {
-//        ToastUtil.showCustomToast(context, locale.txtScanned1QRCode);
-        String msg = locale.txtScanned1QRCode + '\n\n'
-            + locale.txtQrCodeNumber + '\n' + barcode;
-        ConfirmationDialog(
-          context,
-          locale.txtConfirm,
-          msg,
-          locale.txtOk,
-          () => _searchOrder(barcode),
-        ).show();
-      }
-    }
-  }
-
-  _scanQrCode() async {
-    final results = await Navigator.of(context).push(
-      MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => QrCodeScannerScreen(),
-        fullscreenDialog: true,
-      ),
-    );
-
-    if (results != null && results.containsKey('qrCode')) {
-      String qrCode = results['qrCode'];
-      if (qrCode.isNotEmpty) {
-//        ToastUtil.showCustomToast(context, locale.txtScanned1QRCode);
-        String msg = locale.txtScanned1QRCode + '\n\n'
-            + locale.txtQrCodeNumber + '\n' + qrCode;
-        ConfirmationDialog(
-          context,
-          locale.txtConfirm,
-          msg,
-          locale.txtOk,
-              () => _searchOrder(qrCode),
-        ).show();
-      }
-    }
-  }
-
-  _searchOrder(String qrCode) {
-    Navigator.of(context).push(
-      MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => SearchHistory(
-          searchQuery: qrCode,
-        ),
-      ),
-    );
-  }
-
-  ScrollController _scrollController;
-  _scrollListener() {
-    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
-        !_scrollController.position.outOfRange) {
-      _fetchData();
-    }
-//    if(scrollController.position.pixels == scrollController.position.maxScrollExtent) {
-//      fetchData();
-//    }
-  }
+  final _refreshController = RefreshController(initialRefresh: false);
 
    _sectionTitleBuilder() {
     return Stack(
@@ -240,37 +144,76 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     );
   }
 
+  _buildControlBtn(
+      int btnIndex,
+      String txt, {
+        EdgeInsets padding: const EdgeInsets.symmetric(horizontal: 32.0,),
+  }) {
+    return Container(
+      height: 36.0,
+      decoration: _buildControlBtnBorder(btnIndex),
+      child: GradientButton(
+        text: txt,
+        txtColor: _currentPage == btnIndex? Colors.white : Colors.black,
+        fontWeight: FontWeight.w800,
+        onPressed: () => _scrollToPage(btnIndex),
+        gradient: _currentPage == btnIndex? AppColors.btnGradient : AppColors.lightGradient,
+        borderRadius: 5.0,
+        padding: padding,
+      ),
+    );
+  }
+
+  _buildControlBtnBorder(int btnIndex) {
+    return _currentPage == btnIndex? null : BoxDecoration(
+      border: Border.all(color: Colors.black12),
+      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+    );
+  }
+
   _controllerButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        GradientButton(
-          text: locale.txtShippingPreparationComplete,
-          txtColor: _currentPage == 0? Colors.white : Colors.lightBlue,
-          fontWeight: FontWeight.w800,
-          onPressed: () => _scrollToPage(0),
-          gradient: _currentPage == 0? AppColors.btnGradient : AppColors.lightGradient,
-        ),
-        GradientButton(
-          text: locale.txtShippingDone,
-          txtColor: _currentPage == 1? Colors.white : Colors.lightBlue,
-          fontWeight: FontWeight.w800,
-          onPressed: () => _scrollToPage(1),
-          gradient: _currentPage == 1? AppColors.btnGradient : AppColors.lightGradient,
-        ),
-        GradientButton(
-          text: locale.txtMissing,
-          txtColor: _currentPage == 2? Colors.white : Colors.lightBlue,
-          fontWeight: FontWeight.w800,
-          onPressed: () => _scrollToPage(2),
-          gradient: _currentPage == 2? AppColors.btnGradient : AppColors.lightGradient,
-          padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 10.0),
-        ),
+        _buildControlBtn(0, locale.txtBeforeShipping),
+        _buildControlBtn(1, locale.txtShippingDone),
+        _buildControlBtn(2, locale.txtMissing),
       ],
     );
   }
 
-  _buildList(timeOrders, historyType) {
+  /// Builds the 'SliverStickyHeader' which consists of a 'TimeOrderHeading'
+  /// and the 'TimeOrderItem' list under that header
+  _buildPinnedHeaderList(TimeOrderHeading heading, List slivers, historyType) {
+    return SliverStickyHeader(
+      header: CommonWidget.sectionDateBuilder(
+          heading.month, heading.day, heading.dayStr
+      ),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final currentItem = slivers[index];
+          return TimeOrderHistoryItem(
+            context: context,
+            timeOrder: currentItem,
+            historyType: historyType,
+          );
+        },
+          childCount: slivers.length,
+        ),
+      ),
+    );
+  }
+
+  _buildHistoryList(Map<TimeOrderHeading, List> timeOrders, historyType) {
+    final List<Widget> slivers = List();
+    timeOrders.forEach((key, value) {
+      slivers.add(_buildPinnedHeaderList(key, value, historyType));
+    });
+
+    return slivers;
+  }
+
+  _buildPage(Map<TimeOrderHeading, List> timeOrders, historyType) {
     return loadingState == LoadingState.ERROR ? ErrorScreen(
         errorMessage: locale.errorMsgCannotGetData,
         btnText: locale.txtReload,
@@ -282,27 +225,20 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
       btnText: locale.refreshOrderList,
       onClickBtn: () => _fetchData(),
 
-    ) : ListView.builder(
-      scrollDirection: Axis.vertical,
-      shrinkWrap: true,
-      itemCount: timeOrders.length + 1,
-      itemBuilder: (BuildContext context, int index) {
-        if (index == timeOrders.length) {
-          return CommonWidget.buildProgressIndicator(loadingState);
-        } else {
-          final currentItem = timeOrders[index];
-          if (currentItem is TimeOrderHeading) {
-            return CommonWidget.sectionDateBuilder(
-                currentItem.month, currentItem.day, currentItem.dayStr);
-          }
-          return TimeOrderHistoryItem(
-              context: context,
-              timeOrder: timeOrders[index],
-              historyType: historyType,
-          );
-        }
-      },
-      controller: _scrollController,
+    ) : SmartRefresher(
+      enablePullDown: true,
+      header: ClassicHeader(
+        idleText: locale.txtPullToRefresh,
+        refreshingText: locale.txtRefreshing,
+        completeText: locale.txtRefreshCompleted,
+        releaseText: locale.txtReleaseToRefresh,
+      ),
+      child: CustomScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        slivers: _buildHistoryList(timeOrders, historyType),
+      ),
+      controller: _refreshController,
+      onRefresh: () => _fetchData(),
     );
   }
 
@@ -315,19 +251,21 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
   * doesn't get called automatically. After our manual scroll we add the
   * listener again.
   * */
-  _scrollToPage(int page) {
+  _scrollToPage(int page) async {
     setState(() => _currentPage = page);
     _pageController.removeListener(_pageScrollListener);
-    _pageController.animateToPage(
-        page, duration: Duration(milliseconds: 500), curve: Curves.decelerate
-    ).then((value) => _pageController.addListener(_pageScrollListener));
+//    _pageController.jumpToPage(page);
+    await _pageController.animateToPage(
+        page, duration: Duration(milliseconds: 250), curve: Curves.decelerate
+    );
+    _pageController.addListener(_pageScrollListener);
   }
 
   _bodyBuilder() {
     return PageView.builder(
       controller: _pageController,
       itemBuilder: (context, position) {
-        List orderList = _timeOrders;
+        Map<TimeOrderHeading, List> orderList = _timeOrders;
         HistoryType historyType = HistoryType.PLANNING;
         if(position == 1) {
           orderList = _shippingCompletedList;
@@ -337,7 +275,7 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
           historyType = HistoryType.MISSING;
         }
 
-        return _buildList(orderList, historyType);
+        return _buildPage(orderList, historyType);
       },
       itemCount: 3,
       physics: BouncingScrollPhysics(),
@@ -349,8 +287,6 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     super.initState();
     _pageController = PageController();
     _pageController.addListener(_pageScrollListener);
-    _scrollController = ScrollController();
-    _scrollController.addListener(_scrollListener);
     _fetchData();
   }
 
@@ -360,13 +296,14 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     _initChoices();
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 230, 242, 255),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: _sectionTitleBuilder(),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48.0),
+          preferredSize: const Size.fromHeight(56.0),
           child: Container(
-            color: Color.fromARGB(255, 230, 242, 255),
+            height: 56.0,
+            color: AppColors.colorF1F1F1,
             child: _controllerButtons(),
           ),
         ),
@@ -375,9 +312,108 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     );
   }
 
+  _fetchData() async {
+    if (loadingState == LoadingState.LOADING) return;
+
+    setState(() => loadingState = LoadingState.LOADING);
+
+    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    final params = HashMap();
+    params['imei'] = imei;
+
+    _refreshController.refreshCompleted();
+    final response = await HttpUtil.get(HttpUtil.GET_TIME_ORDER_HISTORY, params: params);
+//    if (response.statusCode != 200) {
+//      setState(() => loadingState = LoadingState.ERROR);
+//      return;
+//    }
+    List<TimeOrderListItem> items = TimeOrderListItem.dummyTimeOrderList();
+
+    LoadingState newState = LoadingState.NO_DATA;
+    if (items.isNotEmpty) {
+      _timeOrders.clear();
+      _shippingCompletedList.clear();
+      _missingList.clear();
+      for (int i = 0; i < items.length; i++) {
+        final item = items[i];
+        final dateTime = Common.convertToDateTime(item.date);
+        final header = TimeOrderHeading(
+          dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday-1],
+        );
+        _timeOrders[header] = item.timeOrderSummaryList;
+        _shippingCompletedList[header] = item.timeOrderSummaryList;
+        _missingList[header] = item.timeOrderSummaryList;
+      }
+
+      newState = LoadingState.OK;
+    }
+
+    setState(() => loadingState = newState);
+  }
+
+  _scanQrCode() async {
+    final results = await Navigator.of(context).push(
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => QrCodeScannerScreen(),
+        fullscreenDialog: true,
+      ),
+    );
+
+    if (results != null && results.containsKey('qrCode')) {
+      String qrCode = results['qrCode'];
+      if (qrCode.isNotEmpty) {
+//        ToastUtil.showCustomToast(context, locale.txtScanned1QRCode);
+        String msg = locale.txtScanned1QRCode + '\n\n'
+            + locale.txtQrCodeNumber + '\n' + qrCode;
+        ConfirmationDialog(
+          context,
+          locale.txtConfirm,
+          msg,
+          locale.txtOk,
+              () => _searchOrder(qrCode),
+        ).show();
+      }
+    }
+  }
+
+  _searchOrder(String qrCode) {
+    Navigator.of(context).push(
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => SearchHistory(
+          searchQuery: qrCode,
+        ),
+      ),
+    );
+  }
+
+  _scanBarcode() async {
+    final results = await Navigator.of(context).push(
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => BarcodeScannerScreen(),
+        fullscreenDialog: true,
+      ),
+    );
+
+    if (results != null && results.containsKey('barcode')) {
+      String barcode = results['barcode'];
+      if (barcode.isNotEmpty) {
+//        ToastUtil.showCustomToast(context, locale.txtScanned1QRCode);
+        String msg = locale.txtScanned1QRCode + '\n\n'
+            + locale.txtQrCodeNumber + '\n' + barcode;
+        ConfirmationDialog(
+          context,
+          locale.txtConfirm,
+          msg,
+          locale.txtOk,
+              () => _searchOrder(barcode),
+        ).show();
+      }
+    }
+  }
+
   @override
   void dispose() {
-    _scrollController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 }

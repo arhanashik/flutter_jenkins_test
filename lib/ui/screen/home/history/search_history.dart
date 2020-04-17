@@ -226,7 +226,7 @@ class _SearchHistoryState extends BaseState<SearchHistory> {
       slivers: <Widget>[
         SliverVisibility(
           sliver: SliverToBoxAdapter(
-            child: _sectionTitleBuilder(locale.txtShippingPreparationComplete),
+            child: _sectionTitleBuilder(locale.txtBeforeShipping),
           ),
           visible: _filteredTimeOrders.isNotEmpty,
         ),

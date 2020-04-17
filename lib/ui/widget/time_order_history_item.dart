@@ -15,6 +15,10 @@ class TimeOrderHistoryItem extends StatelessWidget {
   ): super(key: key);
 
   Container _itemHeaderBuilder() {
+    final deliveryTime = timeOrder.scheduledDeliveryDateTime.substring(
+        timeOrder.scheduledDeliveryDateTime.lastIndexOf(" ")
+    );
+
     return Container(
       height: 32,
       width: MediaQuery.of(context).size.width - 16,
@@ -26,21 +30,21 @@ class TimeOrderHistoryItem extends StatelessWidget {
         )
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 13),
         child: Row(
           children: <Widget>[
             Text(
-              "13:00",
+              deliveryTime,
               style: TextStyle(
                   fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(left: 5, top: 2),
+              padding: EdgeInsets.only(left: 5, top: 5.5),
               child: Text(
                 '発送分',
                 style: TextStyle(
-                    fontSize: 14, color: Colors.white
+                    fontSize: 12, color: Colors.white
                 ),
               ),
             ),
@@ -67,7 +71,7 @@ class TimeOrderHistoryItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Padding(padding: EdgeInsets.only(left: 16),),
+          Padding(padding: EdgeInsets.only(left: 18),),
           Text(
             locale.txtOrderQuantity,
             style: TextStyle(

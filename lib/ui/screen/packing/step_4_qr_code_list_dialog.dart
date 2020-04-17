@@ -5,6 +5,7 @@ import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
+import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 
 class Step4QrCodeListDialog extends StatefulWidget {
@@ -50,23 +51,6 @@ class _Step4QrCodeListDialogState extends BaseState<Step4QrCodeListDialog> {
     }).show();
   }
 
-  _sectionTitleBuilder(title) {
-    return Container(
-      margin: EdgeInsets.only(left: 16.0, top: 16.0),
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(width: 3.0, color: Colors.lightBlue)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(left: 16),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-      ),
-    );
-  }
-
   _buildBody() {
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
@@ -95,25 +79,45 @@ class _Step4QrCodeListDialogState extends BaseState<Step4QrCodeListDialog> {
               }
 
               if(index == 1) {
-                return _sectionTitleBuilder(
+                return CommonWidget.sectionTitleBuilder(
                     '${locale.txtQRScannedLabeledCount}: ${_items.length}'
                 );
               }
 
               final item = _items[index - 2];
+              return Container(
+                child: Row(
+                  children: <Widget>[
+                    Checkbox(
+                      value: _resultList.contains(item),
+                      onChanged: (bool selected) {
+                        _onItemChecked(selected, item);
+                      },
+                    ),
+                    Text(
+                      item,
+                      style: TextStyle(fontSize: 16.0,),
+                    ),
+                  ],
+                ),
+              );
               return CheckboxListTile(
                 value: _resultList.contains(item),
                 onChanged: (bool selected) {
                   _onItemChecked(selected, item);
                 },
-                title: Text(item),
+                title: Text(
+                  item,
+                  style: TextStyle(fontSize: 16.0,),
+                ),
                 controlAffinity: ListTileControlAffinity.leading,
+                dense: true,
               );
             }
         ),
         Container(
-          height: 48.0,
-          margin: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          height: 40.0,
+          margin: EdgeInsets.symmetric(horizontal: 48, vertical: 16),
           child: GradientButton(
             text: locale.txtDeleteSelectedQrCodes,
             onPressed: () {
@@ -121,8 +125,8 @@ class _Step4QrCodeListDialogState extends BaseState<Step4QrCodeListDialog> {
             },
             enabled: _resultList.isNotEmpty,
             showIcon: true,
-            icon: Icon(Icons.play_circle_filled, size: 28.0,),
             borderRadius: 24.0,
+            height: 40.0,
           ),
         ),
       ],

@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "443344195869",
-    "firebase_url": "https://test002-35a4e.firebaseio.com",
-    "project_id": "test002-35a4e",
-    "storage_bucket": "test002-35a4e.appspot.com"
+    "project_number": "1085452999727",
+    "firebase_url": "https://o2o-push.firebaseio.com",
+    "project_id": "o2o-push",
+    "storage_bucket": "o2o-push.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:443344195869:android:7b37679ce8413714cd91f4",
+        "mobilesdk_app_id": "1:1085452999727:android:2b6dbd7277292be6c1bada",
         "android_client_info": {
           "package_name": "com.healthcaretech.o2o"
         }
       },
       "oauth_client": [
         {
-          "client_id": "443344195869-ic0ioq2rb5el995gqulq3hu3gujn36co.apps.googleusercontent.com",
+          "client_id": "1085452999727-5pnf2i8pr5pshf935h1b1lb3fgc92emd.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA2bTL9W--rWD5bkRGO8-SEgqrYp2OxMhk"
+          "current_key": "AIzaSyBoKF6OrVMh_CSpTbjh2vzf-Eo7SPmZC0s"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "443344195869-ic0ioq2rb5el995gqulq3hu3gujn36co.apps.googleusercontent.com",
+              "client_id": "1085452999727-5pnf2i8pr5pshf935h1b1lb3fgc92emd.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -14,7 +14,7 @@ import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/common/loader/color_loader.dart';
-import 'package:o2o/ui/widget/common/sliverAppBarDelegate.dart';
+import 'package:o2o/ui/widget/common/sliver_app_bar_delegate.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/order_list_item.dart';

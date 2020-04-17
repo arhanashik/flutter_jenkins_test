@@ -18,6 +18,14 @@ class AppIcons {
     return ImageIcon(_loadImage(icon), size: size, color: color,);
   }
 
+  static ImageIcon loadSizedIcon(icon, {size = 24.0}) {
+    if(icon is ImageIcon) {
+      return ImageIcon(icon.image, size: size,);
+    }
+
+    return ImageIcon(_loadImage(icon), size: size,);
+  }
+
   static const _iconDir = 'assets/icon/';
   static ImageIcon icList = _loadIcon('${_iconDir}ic_list.png',);
   static ImageIcon icClock = _loadIcon('${_iconDir}ic_clock.png',);
