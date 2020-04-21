@@ -97,36 +97,28 @@ class _Step3ScreenState extends BaseState<Step3Screen> {
   }
 
   _buildActionButtons() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GradientButton(
-              text: locale.txtGoToQrCodeScanner,
-              onPressed: () => onNextScreen(),
-              showIcon: true,
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          GradientButton(
+            text: locale.txtGoToQrCodeScanner,
+            onPressed: () => onNextScreen(),
+            showIcon: true,
+          ),
+          GradientButton(
+            text: locale.txtGoBack,
+            onPressed: () => _returnToPreviousStep(),
+            gradient: AppColors.btnGradientLight,
+            txtColor: Colors.black,
+            showIcon: true,
+            icon: Icon(
+              Icons.arrow_back_ios, color: Colors.black, size: 14,
             ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GradientButton(
-              text: locale.txtGoBack,
-              onPressed: () => _returnToPreviousStep(),
-              gradient: AppColors.btnGradientLight,
-              txtColor: Colors.black,
-              showIcon: true,
-              icon: Icon(
-                Icons.arrow_back_ios, color: Colors.black, size: 14,
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 70, vertical: 10.0),
-            ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -137,10 +129,7 @@ class _Step3ScreenState extends BaseState<Step3Screen> {
         _buildTopMessage(),
         AppImages.imgLabelInstruction,
         _buildCurrentLabel(),
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: _buildActionButtons(),
-        ),
+        _buildActionButtons(),
       ],
     );
   }

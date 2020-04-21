@@ -27,6 +27,7 @@ import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_code_scanner/qr_scanner_overlay_shape.dart';
 
 /// Created by mdhasnain on 31 Jan, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -93,16 +94,22 @@ class _PickingScreenState extends BaseState<PickingScreen> {
   /// Barcode scanner widget with fullscreen, flush buttons
   _sectionBarcodeScanner() {
     return Container(
-      constraints: BoxConstraints.expand(height: 220),
+      constraints: BoxConstraints.expand(height: 300),
       child: Stack(
         alignment: Alignment.bottomRight,
         children: <Widget>[
           Container(
             height: MediaQuery.of(context).size.height,
-//            color: Colors.lightBlue,
             child: QRView(
               key: _qrKey,
               onQRViewCreated: _onQRViewCreated,
+              overlay: QrScannerOverlayShape(
+                borderColor: AppColors.colorBlue,
+                borderRadius: 5,
+                borderLength: 13,
+                borderWidth: 5,
+                cutOutSize: 160,
+              ),
             ),
           ),
           Container(
@@ -150,14 +157,14 @@ class _PickingScreenState extends BaseState<PickingScreen> {
   /// Title widget for picked and picking product list
   _sectionTitleBuilder(title) {
     return Container(
-      margin: EdgeInsets.only(left: 16, top: 16),
+      margin: EdgeInsets.only(left: 16, top: 5),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(
-            width: 4.0,
-            height: 24.0,
+            width: 3.0,
+            height: 20.0,
             decoration: BoxDecoration(
               color: AppColors.colorBlue,
               borderRadius: BorderRadius.all(Radius.circular(2.0)),
@@ -167,7 +174,7 @@ class _PickingScreenState extends BaseState<PickingScreen> {
             padding: EdgeInsets.only(left: 10),
             child: Text(
               title, style: TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black
+                  fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black
               ),
             ),
           )
@@ -239,7 +246,7 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         SliverToBoxAdapter(
           child: Visibility(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 5.0),
+                padding: EdgeInsets.only(top: 5.0),
                 child: _sectionTitleBuilder(locale.txtScannedProduct),
               ),
             visible: _scannedProducts.isNotEmpty,
@@ -265,7 +272,7 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         SliverToBoxAdapter(
           child: Visibility(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 5.0),
+              padding: EdgeInsets.only(top: 5.0),
               child: _sectionTitleBuilder(locale.txtScanCompletedProduct),
             ),
             visible: _scanCompletedProducts.isNotEmpty,

@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:o2o/util/lib/notification/notification_manager.dart';
 
 /// Created by mdhasnain on 16 Apr, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -39,11 +40,10 @@ class FcmManager {
         },
         onLaunch: (Map<String, dynamic> message) async {
           print("FCM::(onLaunch) $message");
-          _fcmBackgroundMessageHandler(message);
+          _notificationClickHandler(message);
         },
         onResume: (Map<String, dynamic> message) async {
           print("FCM::(onResume) $message");
-          _fcmBackgroundMessageHandler(message);
         },
 //        onBackgroundMessage: (Map<String, dynamic> message) async {
 //          print("FCM::(onBackgroundMessage) $message");
@@ -68,11 +68,32 @@ class FcmManager {
     return token;
   }
 
+  Future<dynamic> _notificationClickHandler(Map<String, dynamic> message) {
+    if (message.containsKey('notification')) {
+      // Handle notification message
+      final dynamic notification = message['notification'];
+      print("FCM::(notification) $notification");
+    }
+
+    if (message.containsKey('data')) {
+      // Handle data message
+      final dynamic data = message['data'];
+      print("FCM::(data) $data");
+    }
+
+    return null;
+  }
+
   Future<dynamic> _fcmBackgroundMessageHandler(Map<String, dynamic> message) {
     if (message.containsKey('notification')) {
       // Handle notification message
       final dynamic notification = message['notification'];
       print("FCM::(notification) $notification");
+
+      String title = notification['title'];
+      String body = notification['body'];
+      print("FCM::(notification) $title, $body");
+      NotificationManager().notify(title: title, message: body, payload: '');
     }
 
     if (message.containsKey('data')) {

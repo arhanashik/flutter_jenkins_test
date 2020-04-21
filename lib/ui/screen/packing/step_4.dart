@@ -14,6 +14,7 @@ import 'package:o2o/ui/screen/packing/step_4_qr_code_list_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_code_scanner/qr_scanner_overlay_shape.dart';
 
 class Step4Screen extends StatefulWidget {
 
@@ -94,6 +95,13 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
           child: QRView(
             key: _qrKey,
             onQRViewCreated: _onQRViewCreated,
+            overlay: QrScannerOverlayShape(
+              borderColor: AppColors.colorBlue,
+              borderRadius: 5,
+              borderLength: 13,
+              borderWidth: 5,
+              cutOutSize: 300,
+            ),
           ),
         ),
         GestureDetector(
@@ -167,12 +175,13 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
     return Container(
       color: Colors.white,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _sectionTitleBuilder('${locale.txtQRScannedLabeledCount}: ${_scannedQrCodes.length}'),
+              _sectionTitleBuilder(
+                  '${locale.txtQRScannedLabeledCount}: ${_scannedQrCodes.length}'
+              ),
               Spacer(),
               Visibility(
                 child: Container(

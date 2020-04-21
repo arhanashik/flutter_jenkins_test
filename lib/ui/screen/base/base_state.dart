@@ -10,6 +10,7 @@ import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 import 'package:o2o/util/lib/fcm/fcm_manager.dart';
+import 'package:o2o/util/lib/notification/notification_manager.dart';
 
 /// Created by mdhasnain on 01 Feb, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -115,6 +116,9 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
+    //Init local notification manager
+    NotificationManager().init();
+
     //Init Firebase Notification Observer
     FcmManager().init();
 
