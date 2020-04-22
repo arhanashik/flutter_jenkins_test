@@ -13,6 +13,7 @@ import 'package:o2o/ui/screen/packing/packing.dart';
 import 'package:o2o/ui/screen/scanner/scanner.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/add_product_dialog.dart';
@@ -105,77 +106,28 @@ class _PickingScreenState extends BaseState<PickingScreen> {
               onQRViewCreated: _onQRViewCreated,
               overlay: QrScannerOverlayShape(
                 borderColor: AppColors.colorBlue,
-                borderRadius: 5,
+                borderRadius: 0,
                 borderLength: 13,
                 borderWidth: 5,
-                cutOutSize: 160,
+                cutOutSize: 140,
               ),
             ),
           ),
           Container(
-            height: 65,
+            height: 56,
             margin: EdgeInsets.only(right: 10, bottom: 10),
             child: Column(
               children: <Widget>[
                 GestureDetector(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
-                    ),
-                    child: Icon(
-                      _flashOn ? Icons.flash_off : Icons.flash_on,
-                      color: Colors.lightBlue,
-                    ),
-                    padding: EdgeInsets.all(2),
-                  ),
+                  child: _flashOn ? AppImages.icFlushOn : AppImages.icFlushOff,
                   onTap: _toggleFlush,
                 ),
                 Spacer(),
                 GestureDetector(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
-                    ),
-                    child: Icon(
-                      Icons.fullscreen,
-                      color: Colors.lightBlue,
-                    ),
-                    padding: EdgeInsets.all(2),
-                  ),
+                  child: AppImages.icFullScreenEnter,
                   onTap: _fullScreenScanner,
                 ),
               ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  /// Title widget for picked and picking product list
-  _sectionTitleBuilder(title) {
-    return Container(
-      margin: EdgeInsets.only(left: 16, top: 5),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            width: 3.0,
-            height: 20.0,
-            decoration: BoxDecoration(
-              color: AppColors.colorBlue,
-              borderRadius: BorderRadius.all(Radius.circular(2.0)),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              title, style: TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black
-              ),
             ),
           )
         ],
@@ -230,13 +182,14 @@ class _PickingScreenState extends BaseState<PickingScreen> {
 
   /// Custom input for JAN Code
   _customJANCodeInput() {
+    _pauseCamera();
     InputDialog(context, locale.titleInsertCodeManually, locale.txtEntryJANCode,
             (code) {
           if (code.isNotEmpty) {
             Navigator.of(context).pop();
             _checkJanCodeProduct(code);
           }
-        }).show();
+        }, onCancel: () => _resumeCamera()).show();
   }
 
   /// Create the lists of picked and picking products
@@ -246,8 +199,8 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         SliverToBoxAdapter(
           child: Visibility(
               child: Padding(
-                padding: EdgeInsets.only(top: 5.0),
-                child: _sectionTitleBuilder(locale.txtScannedProduct),
+                padding: EdgeInsets.only(left: 16, top: 10,),
+                child: CommonWidget.sectionTitleBuilder(locale.txtScannedProduct),
               ),
             visible: _scannedProducts.isNotEmpty,
           ),
@@ -272,8 +225,8 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         SliverToBoxAdapter(
           child: Visibility(
             child: Padding(
-              padding: EdgeInsets.only(top: 5.0),
-              child: _sectionTitleBuilder(locale.txtScanCompletedProduct),
+              padding: EdgeInsets.only(left: 16, top: 10,),
+              child: CommonWidget.sectionTitleBuilder(locale.txtScanCompletedProduct),
             ),
             visible: _scanCompletedProducts.isNotEmpty,
           ),
@@ -565,20 +518,13 @@ class _PickingScreenState extends BaseState<PickingScreen> {
                   size: 48.0,
                   color: Colors.white
               ),
-              menu: PopupMenuButton(
-                child: AppIcons.loadIcon(
-                    AppIcons.icSettings, size: 48.0, color: Colors.white
-                ),
-                onSelected: _select,
-                itemBuilder: (BuildContext context) {
-                  return _choices.skip(1).map((Choice choice) {
-                    return PopupMenuItem<Choice>(
-                      value: choice,
-                      child: Text(choice.title),
-                    );
-                  }).toList();
-                }),
-              onTapNavigation: () => Navigator.of(context).pop(),
+              menu: InkWell(
+                child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _menuShown = !_menuShown);
+                },
+              ),
             ),
             fullscreenDialog: true
         )
@@ -678,13 +624,16 @@ class _PickingScreenState extends BaseState<PickingScreen> {
 //      return;
 //    });
 
-    if(product == null) return;
+    if(product == null) {
+      _resumeCamera();
+      return;
+    }
 
     AddProductDialog(context, product, (int pickCount) {
       Navigator.of(context).pop();
       if(pickCount > 0)
         _updateProductPickingCount(product, pickCount);
-    }).show();
+    }, onCancel: () => _resumeCamera()).show();
   }
 
   /// After 'AddProductDialog' this function is called to add the new product to

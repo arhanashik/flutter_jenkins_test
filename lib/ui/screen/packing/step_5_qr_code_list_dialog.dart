@@ -5,6 +5,7 @@ import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
+import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 
 class Step5QrCodeListDialog extends StatefulWidget {
@@ -34,51 +35,6 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
     }
   }
 
-  _confirmAddNew() {
-    String msg = 'QRコード読み取り画面に\n戻ります。よろしいですか？';
-    ConfirmationDialog(
-        context,
-        'QRコード読み取り作業に戻ります',
-        msg,
-        locale.txtOk,
-            () => Navigator.of(context).pop(_items.toList())
-    ).show();
-  }
-
-  _confirmBefore() {
-    bool isPrimaryQrCodeDelete = _resultList.contains(_items[0]);
-    String msg = (isPrimaryQrCodeDelete? locale.msgDeletePrimaryQrCodes : locale.msgDeleteQrCodes) + '\n\n' +
-        locale.txtQrCodeNumber + '\n' + _resultList.join('\n');
-    ConfirmationDialog(
-        context,
-        locale.txtConfirm,
-        msg,
-        locale.txtOk, () {
-          setState(() {
-            _resultList.forEach((_item) => _items.remove(_item));
-          });
-          Navigator.of(context).pop(_resultList.toList());
-          _resultList.clear();
-    }).show();
-  }
-
-  _sectionTitleBuilder(title) {
-    return Container(
-      margin: EdgeInsets.only(left: 16.0, top: 16.0),
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(width: 3.0, color: Colors.lightBlue)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(left: 16),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-      ),
-    );
-  }
-
   _actionButtonBuilder() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -87,9 +43,7 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
           margin: EdgeInsets.symmetric(horizontal: 56, vertical: 0),
           child: GradientButton(
             text: "QRコードを追加で読み取る",
-            onPressed: () {
-              _confirmAddNew();
-            },
+            onPressed: () => _confirmAddNew(),
             showIcon: true,
             icon: Icon(Icons.add, size: 24.0, color: Colors.white,),
             borderRadius: 24.0,
@@ -99,9 +53,7 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
           margin: EdgeInsets.symmetric(horizontal: 56,),
           child: GradientButton(
             text: "QRコードを削除する",
-            onPressed: () {
-              _confirmBefore();
-            },
+            onPressed: () => _confirmDelete(),
             enabled: _resultList.isNotEmpty,
             showIcon: true,
             icon: Icon(
@@ -148,19 +100,29 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
               }
 
               if(index == 1) {
-                return _sectionTitleBuilder(
-                    '${locale.txtQRScannedLabeledCount}: ${_items.length}'
+                return Padding(
+                  padding: EdgeInsets.only(left: 16, top: 16,),
+                  child: CommonWidget.sectionTitleBuilder(
+                      '${locale.txtQRScannedLabeledCount}: ${_items.length}'
+                  ),
                 );
               }
-
               final item = _items[index - 2];
-              return CheckboxListTile(
-                value: _resultList.contains(item),
-                onChanged: (bool selected) {
-                  _onItemChecked(selected, item);
-                },
-                title: Text(item),
-                controlAffinity: ListTileControlAffinity.leading,
+              return Container(
+                child: Row(
+                  children: <Widget>[
+                    Checkbox(
+                      value: _resultList.contains(item),
+                      onChanged: (bool selected) {
+                        _onItemChecked(selected, item);
+                      },
+                    ),
+                    Text(
+                      item,
+                      style: TextStyle(fontSize: 16.0,),
+                    ),
+                  ],
+                ),
               );
             }
         ),
@@ -191,5 +153,33 @@ class Step5QrCodeListDialogState extends BaseState<Step5QrCodeListDialog> {
       ),
       body: _buildBody(),
     );
+  }
+
+  _confirmAddNew() {
+    String msg = 'QRコード読み取り画面に\n戻ります。よろしいですか？';
+    ConfirmationDialog(
+        context,
+        'QRコード読み取り作業に戻ります',
+        msg,
+        locale.txtOk,
+            () => Navigator.of(context).pop(List())
+    ).show();
+  }
+
+  _confirmDelete() {
+    bool isPrimaryQrCodeDelete = _resultList.contains(_items[0]);
+    String msg = (isPrimaryQrCodeDelete? locale.msgDeletePrimaryQrCodes : locale.msgDeleteQrCodes) + '\n\n' +
+        locale.txtQrCodeNumber + '\n' + _resultList.join('\n');
+    ConfirmationDialog(
+        context,
+        locale.txtConfirm,
+        msg,
+        locale.txtOk, () {
+      setState(() {
+        _resultList.forEach((_item) => _items.remove(_item));
+      });
+      Navigator.of(context).pop(_resultList.toList());
+      _resultList.clear();
+    }).show();
   }
 }

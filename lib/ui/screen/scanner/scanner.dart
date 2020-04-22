@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/home/history/search_history.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_code_scanner/qr_scanner_overlay_shape.dart';
 
 class ScannerScreen extends StatefulWidget {
   ScannerScreen({
@@ -19,16 +21,15 @@ class ScannerScreen extends StatefulWidget {
 
   @override
   _ScannerScreenState createState() => _ScannerScreenState(
-    navigationIcon, menu, onTapNavigation
+    navigationIcon, menu,
   );
 }
 
 class _ScannerScreenState extends BaseState<ScannerScreen> {
 
-  _ScannerScreenState(this.navigationIcon, this.menu, this.onTapNavigation);
-  final Widget navigationIcon;
-  final Widget menu;
-  final Function onTapNavigation;
+  _ScannerScreenState(this._navigationIcon, this._menu,);
+  final Widget _navigationIcon;
+  final Widget _menu;
 
   final GlobalKey _qrKey = GlobalKey(debugLabel: 'SCANNER');
   var _qrCode = "";
@@ -42,6 +43,13 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
       child: QRView(
         key: _qrKey,
         onQRViewCreated: _onQRViewCreated,
+        overlay: QrScannerOverlayShape(
+          borderColor: AppColors.colorBlue,
+          borderRadius: 0,
+          borderLength: 13,
+          borderWidth: 5,
+          cutOutSize: 180,
+        ),
       ),
     );
   }
@@ -58,33 +66,17 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
             children: <Widget>[
               GestureDetector(
                 child: Container(
-                  margin: EdgeInsets.only(right: 16,bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  child: Icon(
-                    _flashOn? Icons.flash_off : Icons.flash_on,
-                    color: Colors.lightBlue,
-                  ),
-                  padding: EdgeInsets.all(2),
+                  margin: EdgeInsets.only(right: 16,bottom: 5),
+                  child: _flashOn ? AppImages.icFlushOn : AppImages.icFlushOff,
                 ),
                 onTap: _toggleFlush,
               ),
               GestureDetector(
                 child: Container(
                   margin: EdgeInsets.only(right: 16,bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  child: Icon(
-                    Icons.fullscreen_exit,
-                    color: Colors.lightBlue,
-                  ),
-                  padding: EdgeInsets.all(2),
+                  child: AppImages.icFullScreenExit,
                 ),
-                onTap: onTapNavigation,
+                onTap: () => Navigator.of(context).pop(),
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
@@ -113,10 +105,10 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
       extendBodyBehindAppBar: true,
       appBar: TopBar(
         title: '',
-        navigationIcon: navigationIcon,
+        navigationIcon: _navigationIcon,
         background: Colors.transparent,
-        menu: menu,
-        onTapNavigation: onTapNavigation,
+        menu: _menu,
+        onTapNavigation: () => Navigator.of(context).pop(),
       ),
       backgroundColor: AppColors.background,
       body: _bodyBuilder(),

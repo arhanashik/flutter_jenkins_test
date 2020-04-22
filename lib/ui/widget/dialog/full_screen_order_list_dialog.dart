@@ -20,18 +20,19 @@ class FullScreenOrderListDialogState extends BaseState<FullScreenOrderListDialog
   List _items = List();
 
   _buildBody() {
-    return ListView.separated(
+    return ListView.builder(
+      physics: ScrollPhysics(),
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       itemCount: _items.length,
       itemBuilder: (BuildContext context, int index) {
-        return Padding(
+        return Container(
           padding: EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.black12))
+          ),
           child: PackingProductItem(product: _items[index],),
         );
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return Divider();
       },
     );
   }

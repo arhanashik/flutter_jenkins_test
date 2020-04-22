@@ -31,12 +31,17 @@ class AppImages {
   static const NO_IMAGE_URL_LARGE = 'https://via.placeholder.com/240/999999/fff?text=NO+IMAGE';
 
   static const _imageDir = 'assets/images/';
+  static const _iconDir = 'assets/icon/';
   static const icDigit1Url = '${_imageDir}ic_digit_1.png';
   static const icDigit2Url = '${_imageDir}ic_digit_2.png';
   static const icDigit2RedUrl = '${_imageDir}ic_digit_2_red.png';
   static const icDigit3Url = '${_imageDir}ic_digit_3.png';
   static const icDigit3RedUrl = '${_imageDir}ic_digit_3_red.png';
   static const icBackToTimeOrderListUrl = '${_imageDir}ic_back_to_time_order_list.png';
+  static const icFlushOnUrl = '${_iconDir}ic_flush_on.png';
+  static const icFlushOffUrl = '${_iconDir}ic_flush_off.png';
+  static const icFullScreenEnterUrl = '${_iconDir}ic_full_screen_enter.png';
+  static const icFullScreenExitUrl = '${_iconDir}ic_full_screen_exit.png';
 
   static Image imgLabelInstruction = loadImage('${_imageDir}img_label_instruction.png');
   static Image imgTagInstruction = loadImage('${_imageDir}img_tag_instruction.png');
@@ -49,4 +54,8 @@ class AppImages {
   static Image icDigit3 = loadSizedImage(icDigit3Url);
   static Image icDigit3Red = loadSizedImage(icDigit3RedUrl);
   static Image icBackToTimeOrderList = loadSizedImage(icBackToTimeOrderListUrl);
+  static Image icFlushOn = loadSizedImage(icFlushOnUrl);
+  static Image icFlushOff = loadSizedImage(icFlushOffUrl);
+  static Image icFullScreenEnter = loadSizedImage(icFullScreenEnterUrl);
+  static Image icFullScreenExit = loadSizedImage(icFullScreenExitUrl);
 }

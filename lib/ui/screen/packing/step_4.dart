@@ -6,15 +6,15 @@ import 'package:o2o/data/loadingstate/LoadingState.dart';
 import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
+import 'package:o2o/ui/screen/packing/step_4_qr_code_list_dialog.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
-import 'package:o2o/ui/screen/packing/step_4_qr_code_list_dialog.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:qr_code_scanner/qr_scanner_overlay_shape.dart';
 
 class Step4Screen extends StatefulWidget {
 
@@ -58,34 +58,6 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   QRViewController _controller;
   bool _flashOn = false;
 
-  _sectionTitleBuilder(title) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 13, vertical: _isUnderWork? 8:10),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            width: 3.0,
-            height: 24.0,
-            decoration: BoxDecoration(
-              color: AppColors.colorBlue,
-              borderRadius: BorderRadius.all(Radius.circular(2.0)),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              title, style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black
-            ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   _sectionQRCodeScanner() {
     return Stack(
       alignment: Alignment.bottomRight,
@@ -95,27 +67,19 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
           child: QRView(
             key: _qrKey,
             onQRViewCreated: _onQRViewCreated,
-            overlay: QrScannerOverlayShape(
-              borderColor: AppColors.colorBlue,
-              borderRadius: 5,
-              borderLength: 13,
-              borderWidth: 5,
-              cutOutSize: 300,
-            ),
+//            overlay: QrScannerOverlayShape(
+//              borderColor: AppColors.colorBlue,
+//              borderRadius: 0,
+//              borderLength: 13,
+//              borderWidth: 5,
+//              cutOutSize: 140,
+//            ),
           ),
         ),
         GestureDetector(
           child: Container(
             margin: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-            ),
-            child: Icon(
-              _flashOn ? Icons.flash_off : Icons.flash_on,
-              color: Colors.lightBlue,
-            ),
-            padding: EdgeInsets.all(2),
+            child: _flashOn ? AppImages.icFlushOn : AppImages.icFlushOff,
           ),
           onTap: _toggleFlush,
         ),
@@ -165,7 +129,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   @override
   void initState() {
     super.initState();
-    setState(() {_scannedQrCodes.addAll(['1111-1111-1111-1111', '2222-1111-1111-1111']);});
+//    setState(() {_scannedQrCodes.addAll(['1111-1111-1111-1111', '2222-1111-1111-1111']);});
   }
 
   @override
@@ -179,8 +143,11 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _sectionTitleBuilder(
-                  '${locale.txtQRScannedLabeledCount}: ${_scannedQrCodes.length}'
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 13, vertical: _isUnderWork? 8:10),
+                child: CommonWidget.sectionTitleBuilder(
+                    '${locale.txtQRScannedLabeledCount}: ${_scannedQrCodes.length}'
+                ),
               ),
               Spacer(),
               Visibility(
@@ -275,7 +242,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
     final responseMap = json.decode(response.body);
     final code = responseMap['code'];
-    final msg = responseMap['msg'];
+//    final msg = responseMap['msg'];
     if(code == PackingQrCodeStatus.NOT_ISSUED) {
       setState(() => loadingState = LoadingState.ERROR);
       ToastUtil.show(

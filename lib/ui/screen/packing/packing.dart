@@ -414,10 +414,11 @@ class _PackingScreenState extends BaseState<PackingScreen> {
       locale.msgCancelPacking,
       locale.txtReturnToTheList,
         () {
-          int popCount = 0;
-          Navigator.popUntil(context, (route) {
-            return popCount++ == 2;
-          });
+//          int popCount = 0;
+//          Navigator.popUntil(context, (route) {
+//            return popCount++ == 2;
+//          });
+          Navigator.of(context).pop();
         },
       msgTxtColor: Colors.red,
     ).show()) ?? false;
@@ -549,7 +550,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
   _updatePackingInfo() async {
     if(!isOnline) {
       ToastUtil.show(
-          context, 'Connect to internet first',
+          context, locale.errorInternetIsNotAvailable,
           icon: Icon(Icons.error, color: Colors.white,), error: true
       );
       return;
@@ -583,6 +584,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
   /// Update the packing status as DONE.
   /// If successfully updated, close packing screen and return to order list
   _completeOrder() async {
+    CommonWidget.showLoader(context, cancelable: true);
     String imei = await PrefUtil.read(PrefUtil.IMEI);
     final params = HashMap();
     params['imei'] = imei;

@@ -18,7 +18,7 @@ abstract class HttpUtil {
   static const _HOME_PC = 'http://192.168.100.122:8080';
   static const _SAI_HOME_PC = 'http://192.168.11.2:8080';
   static const _SAI_OFFICE_PC = 'http://192.168.4.166:8080';
-  static const _DEV_SERVER = 'http://128.168.76.221:8080/';
+  static const _DEV_SERVER = 'http://128.168.76.221:8080';
   static const _BASE_URL = '$_DEV_SERVER/api/v1';
 
   static const LOGIN = '$_BASE_URL/login';

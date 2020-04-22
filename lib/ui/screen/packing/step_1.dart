@@ -102,6 +102,45 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
     );
   }
 
+  _buildFooterItem(List<InlineSpan> titleSpans, String valueText, {
+    Color fontColor = AppColors.colorAccent,
+    double fontSize = 14.0,
+  }) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(bottom: 2,),
+          child: RichText(
+            text: TextSpan(
+                style: TextStyle(color: Colors.white, fontSize: 12),
+                children: titleSpans,
+            ),
+          ),
+        ),
+        Container(
+          width: 100,
+          height: 36,
+          margin: EdgeInsets.only(top: 2,),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(3))
+          ),
+          child: Text(
+            valueText,
+            style: TextStyle(
+              color: fontColor,
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
   _buildFooter() {
     if(_packingList.products == null) return Container();
     int itemCount = 0;
@@ -115,7 +154,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
         _packingList.appointedDeliveringTime
     );
     return Container(
-      height: 80,
+      height: 75,
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: AppColors.blueGradient),
       ),
@@ -123,110 +162,25 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(bottom: 2,),
-                child: RichText(
-                  text: TextSpan(
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                      children: [TextSpan(text: locale.txtShippingPlanTime,),]
-                  ),
-                ),
-              ),
-              Container(
-                width: 100,
-                height: 36,
-                margin: EdgeInsets.only(top: 2,),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(5))
-                ),
-                child: Text(
-                  '${deliveryDate.hour}:${deliveryDate.minute}',
-                  style: TextStyle(
-                    color: AppColors.colorBlueDark,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            ],
+          _buildFooterItem(
+              [TextSpan(text: locale.txtShippingPlanTime,),],
+              '${deliveryDate.hour}:${deliveryDate.minute}',
+              fontColor: AppColors.colorBlueDark
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(bottom: 2,),
-                child: RichText(
-                  text: TextSpan(
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                      children: [
-                        TextSpan(text: locale.txtTotalAmountOfMoney,),
-                        TextSpan(
-                          text: '  (${locale.txtTaxIncluded})',
-                          style: TextStyle(fontSize: 12),
-                        )
-                      ]
-                  ),
-                ),
-              ),
-              Container(
-                width: 100,
-                height: 36,
-                margin: EdgeInsets.only(top: 2,),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(5))
-                ),
-                child: Text(
-                  Common.formatPrice(_packingList.totalPrice),
-                  style: TextStyle(
-                      color: AppColors.colorAccent,
-                      fontSize: _packingList.totalPrice.toString().length>6? 12 : 16,
-                      fontWeight: FontWeight.bold
-                  ),
-                ),
-              )
-            ],
+          _buildFooterItem(
+              [
+                TextSpan(text: locale.txtTotalAmountOfMoney,),
+                TextSpan(
+                  text: '  (${locale.txtTaxIncluded})',
+                  style: TextStyle(fontSize: 10),
+                )
+              ],
+            Common.formatPrice(_packingList.totalPrice),
+            fontSize: _packingList.totalPrice.toString().length > 6? 10 : 14
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(bottom: 2,),
-                child: RichText(
-                  text: TextSpan(
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                      children: [TextSpan(text: locale.txtTotalProductCount,),]
-                  ),
-                ),
-              ),
-              Container(
-                width: 100,
-                height: 36,
-                margin: EdgeInsets.only(top: 2,),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(5))
-                ),
-                child: Text(
-                  '$itemCount点',
-                  style: TextStyle(
-                    color: AppColors.colorAccent,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            ],
+          _buildFooterItem(
+            [TextSpan(text: locale.txtTotalProductCount,),],
+            '$itemCount点',
           ),
         ],
       ),
@@ -248,7 +202,10 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
       child: Column (
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _sectionTitleBuilder(locale.txtProductList),
+          Padding(
+            padding: EdgeInsets.only(left: 16, top: 16,),
+            child: CommonWidget.sectionTitleBuilder(locale.txtProductList),
+          ),
           CommonWidget.divider(
             height: 1.2,
             margin: EdgeInsets.only(left: 16, top: 5, right: 16,),

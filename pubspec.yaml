@@ -67,6 +67,10 @@ flutter:
     - assets/icon/ic_settings.png
     - assets/icon/ic_back_to_list.png
     - assets/icon/ic_close.png
+    - assets/icon/ic_flush_off.png
+    - assets/icon/ic_flush_on.png
+    - assets/icon/ic_full_screen_enter.png
+    - assets/icon/ic_full_screen_exit.png
     - assets/images/img_temp.jpeg
     - assets/images/qr.svg
     - assets/images/img_label_instruction.png

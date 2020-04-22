@@ -282,31 +282,28 @@ class CommonWidget {
     );
   }
 
-  static sectionTitleBuilder(title) {
-    return Container(
-      margin: EdgeInsets.only(left: 16, top: 16, bottom: 5),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            width: 3.0,
-            height: 24.0,
-            decoration: BoxDecoration(
-              color: AppColors.colorBlue,
-              borderRadius: BorderRadius.all(Radius.circular(2.0)),
-            ),
+  static sectionTitleBuilder(String title) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          width: 3.0,
+          height: 20.0,
+          decoration: BoxDecoration(
+            color: AppColors.colorBlue,
+            borderRadius: BorderRadius.all(Radius.circular(2.0)),
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              title, style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black
-            ),
-            ),
-          )
-        ],
-      ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 10),
+          child: Text(
+            title, style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black
+          ),
+          ),
+        )
+      ],
     );
   }
 }

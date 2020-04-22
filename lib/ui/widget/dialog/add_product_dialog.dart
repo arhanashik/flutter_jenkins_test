@@ -8,12 +8,15 @@ import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
 class AddProductDialog {
 
-  AddProductDialog(this.context, this.product, this.onInsertAndNext) {
+  AddProductDialog(this.context, this.product, this.onInsertAndNext, {
+    this.onCancel
+  }) {
     pickCount = product.pickedItemCount;
   }
   final BuildContext context;
   final ProductEntity product;
   final Function onInsertAndNext;
+  Function onCancel;
   int pickCount;
 
   _loadImg(String url, double padding) {
@@ -114,7 +117,10 @@ class AddProductDialog {
         GradientButton(
           text: O2OLocalizations.of(context).txtCancel,
           txtColor: Colors.black,
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.of(context).pop();
+            if(onCancel != null) onCancel();
+          },
           gradient: AppColors.btnGradientLight,
         ),
         GradientButton(
@@ -131,6 +137,7 @@ class AddProductDialog {
 
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return Dialog(shape: CommonWidget.roundRectBorder(5.0), child: Container(
             child: StatefulBuilder(

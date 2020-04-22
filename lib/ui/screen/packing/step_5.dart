@@ -351,24 +351,28 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
     ));
 
     if (resultList != null) {
-      if(resultList.length == _qrCodes.length) {
+      if(resultList.isNotEmpty) {
+        setState(() {
+          String primaryQrCode = _qrCodes.toList()[0];
+          _qrCodes.removeAll(resultList);
+          _primaryQrCodeChanged = !_qrCodes.contains(primaryQrCode);
+          _qrCodeChanged = !_primaryQrCodeChanged;
+        });
+
+        ToastUtil.show(
+            context,
+            '${resultList.join(',')} を削除しました。',
+            icon: Icon(Icons.delete, color: Colors.white, size: 16.0,),
+            error: true
+        );
+      }
+
+      // Add new qr code
+      // or, All qr code is deleted so return to add qr screen
+      if(resultList.isEmpty || _qrCodes.length == 0) {
         _onPrevScreen();
         return;
       }
-
-      setState(() {
-        String primaryQrCode = _qrCodes.toList()[0];
-        _qrCodes.removeAll(resultList);
-        _primaryQrCodeChanged = !_qrCodes.contains(primaryQrCode);
-        _qrCodeChanged = !_primaryQrCodeChanged;
-      });
-
-      ToastUtil.show(
-        context,
-        '${resultList.join(',')} を削除しました。',
-        icon: Icon(Icons.delete, color: Colors.white, size: 16.0,),
-        error: true
-      );
     }
   }
 }

@@ -79,8 +79,11 @@ class _Step4QrCodeListDialogState extends BaseState<Step4QrCodeListDialog> {
               }
 
               if(index == 1) {
-                return CommonWidget.sectionTitleBuilder(
-                    '${locale.txtQRScannedLabeledCount}: ${_items.length}'
+                return Padding(
+                  padding: EdgeInsets.only(left: 16, top: 16,),
+                  child: CommonWidget.sectionTitleBuilder(
+                      '${locale.txtQRScannedLabeledCount}: ${_items.length}'
+                  ),
                 );
               }
 

@@ -9,6 +9,7 @@ class InputDialog {
   final String btnTxt;
   final Function onTxtChange;
   final Function onBtnTap;
+  Function onCancel;
 
   String insertedCode = '';
 
@@ -16,13 +17,15 @@ class InputDialog {
       this.context,
       this.title,
       this.btnTxt,
-      this.onBtnTap,
-      {this.onTxtChange
+      this.onBtnTap, {
+        this.onTxtChange,
+        this.onCancel,
   });
 
   show() {
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return Dialog(
             shape: CommonWidget.roundRectBorder(5.0),
@@ -36,7 +39,10 @@ class InputDialog {
                       children: <Widget>[
                         CommonWidget.buildDialogHeader(context, title, fontSize: 14.0),
                         InkWell(
-                            onTap: () => Navigator.of(context).pop(),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              if(onCancel != null) onCancel();
+                            },
                             child: Padding(
                               padding: EdgeInsets.only(right: 5),
                               child: Icon(Icons.close, color: Colors.white,),

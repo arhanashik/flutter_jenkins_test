@@ -94,12 +94,12 @@ class O2OLocalizations {
       'txt_quantity': '個数',
       'txt_number_of_pieces': '個口数',
       'txt_comment': 'コメント',
-      'txt_confirm_shipping_preparation_completion': '発送準備の完了を確認',
+      'txt_confirm_shipping_preparation_completion': '発送準備の完了確認',
       'msg_confirm_shipping_preparation_completion': 'ラベルに「発送準備時間」、「荷物管理番号」、'
           '\n「個口数」が記入されていることを\n確認してください。'
           '\n\n発送準備の完了した商品はドライバーが集荷に同いますので、所定の場所に\n保管してください。',
       'txt_done': '完了する',
-      'txt_cancal_packing': 'パッキング作業を中断して作業一覧に戻りますか？',
+      'txt_cancal_packing': 'パッキング作業を中断して\n作業一覧に戻りますか？',
       'msg_cancal_packing': 'それまでの作業は途中保存されず\n作業を途中から\n再開することができません。',
       'txt_return_to_the_list': '一覧に戻る',
       'txt_see_order_list': '注文商品一覧を見る',
@@ -255,12 +255,12 @@ class O2OLocalizations {
       'txt_quantity': '個数',
       'txt_number_of_pieces': '告口数',
       'txt_comment': 'コメント',
-      'txt_confirm_shipping_preparation_completion': '発送準備の完了を確認',
+      'txt_confirm_shipping_preparation_completion': '発送準備の完了確認',
       'msg_confirm_shipping_preparation_completion': 'ラベルに「発送準備時間」、「荷物管理番号」、'
           '\n「個口数」が記入されていることを\n確認してください。'
           '\n\n発送準備の完了した商品はドライバーが集荷に同いますので、所定の場所に\n保管してください。',
       'txt_done': '完了する',
-      'txt_cancal_packing': 'パッキング作業を中断して作業一覧に戻りますか？',
+      'txt_cancal_packing': 'パッキング作業を中断して\n作業一覧に戻りますか？',
       'msg_cancal_packing': 'それまでの作業は途中保存されず\n作業を途中から\n再開することができません。',
       'txt_return_to_the_list': '一覧に戻る',
       'txt_see_order_list': '注文商品一覧を見る',

@@ -134,7 +134,10 @@ class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> 
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _buildMessage(),
-            CommonWidget.sectionTitleBuilder(locale.txtProductList),
+            Padding(
+              padding: EdgeInsets.only(left: 16, top: 16, bottom: 5),
+              child: CommonWidget.sectionTitleBuilder(locale.txtProductList),
+            ),
             Expanded(child: _buildList(),),
           ],
         ),
