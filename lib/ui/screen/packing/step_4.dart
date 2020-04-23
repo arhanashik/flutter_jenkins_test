@@ -7,6 +7,7 @@ import 'package:o2o/data/orderitem/order_item.dart';
 import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/packing/step_4_qr_code_list_dialog.dart';
+import 'package:o2o/ui/screen/packing/step_4_scanner_overlay_shape.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
@@ -55,25 +56,30 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
   final GlobalKey _qrKey = GlobalKey(debugLabel: 'QRCodeScanner');
   var _qrText = "";
+//  QRViewController _controller;
   QRViewController _controller;
   bool _flashOn = false;
 
   _sectionQRCodeScanner() {
+//    return QrScanner(
+//        height: _isUnderWork? 300.0 : 330.0,
+//        controller: _controller, onQrCode: (qrCode) {
+//      _checkQrProduct(qrCode);
+//    });
     return Stack(
       alignment: Alignment.bottomRight,
       children: <Widget>[
         Container(
-          height: _isUnderWork? 300 : 330,
           child: QRView(
             key: _qrKey,
             onQRViewCreated: _onQRViewCreated,
-//            overlay: QrScannerOverlayShape(
-//              borderColor: AppColors.colorBlue,
-//              borderRadius: 0,
-//              borderLength: 13,
-//              borderWidth: 5,
-//              cutOutSize: 140,
-//            ),
+            overlay: Step4ScannerOverlayShape(
+              borderColor: AppColors.colorBlue,
+              borderRadius: 0,
+              borderLength: 13,
+              borderWidth: 5,
+              cutOutSize: 160,
+            ),
           ),
         ),
         GestureDetector(
@@ -165,8 +171,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
               ),
             ],
           ),
-          _sectionQRCodeScanner(),
-          Spacer(),
+          Flexible(child: _sectionQRCodeScanner(),),
           _buildControlBtn(),
         ],
       ),

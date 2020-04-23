@@ -333,7 +333,7 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
         alignment: AlignmentDirectional.bottomCenter,
         children: <Widget>[
           Container(
-            padding: EdgeInsets.only(bottom: 70),
+            padding: EdgeInsets.only(bottom: 60),
             child: _buildBody(),
           ),
           _buildControlBtn(),

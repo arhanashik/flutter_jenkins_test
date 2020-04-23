@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/home/history/search_history.dart';
+import 'package:o2o/ui/screen/scanner/full_screen_scanner_overlay_shape.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
@@ -43,12 +44,13 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
       child: QRView(
         key: _qrKey,
         onQRViewCreated: _onQRViewCreated,
-        overlay: QrScannerOverlayShape(
+        overlay: FullScreenScannerOverlayShape(
           borderColor: AppColors.colorBlue,
           borderRadius: 0,
           borderLength: 13,
           borderWidth: 5,
-          cutOutSize: 180,
+          cutOutWidth: 180,
+          cutOutHeight: 120,
         ),
       ),
     );
@@ -80,14 +82,15 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
-                height: 100,
+                height: 86,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(colors: AppColors.blueGradient)
                 ),
-                padding: EdgeInsets.all(16),
+                alignment: Alignment.center,
                 child: Text(
-                  locale.msgReadQRCode,
+                  locale.msgReadBarcode,
                   style: TextStyle(color: Colors.white, fontSize: 16),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],

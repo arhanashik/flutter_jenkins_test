@@ -163,8 +163,8 @@ class O2OLocalizations {
       'txt_contact_us_part_4': '\nお電話で以下の番号をお伝え下さい。\n-imei-',
       'txt_read_barcode': 'バーコード読取',
       'txt_read_qrcode': 'QR読取',
-      'msg_read_barcode': 'バーコードにカメラをかざしてください。読み取りが成功しますと、'
-          'そのバーコードの商品を含む注文の対応履歴が表示されます。',
+      'msg_read_barcode': 'バーコードをカメラで読み取ってください。\n読み取りが成功しますと、\n'
+          '対象の商品情報が表示されます。',
       'msg_read_qrcode': '荷札QRコードにカメラをかざしてください。読み取りが成功しますと、'
           'そのQRコードに紐づいたの注文の対応履歴が表示されます。',
       'hint_search_by_barcode': 'JANコードを入力して対応履歴を検索',
@@ -321,8 +321,8 @@ class O2OLocalizations {
       'txt_contact_us_part_4': '\nお電話で以下の番号をお伝え下さい。\n-imei-',
       'txt_read_barcode': 'バーコード読取',
       'txt_read_qrcode': 'QR読取',
-      'msg_read_barcode': 'バーコードにカメラをかざしてください。読み取りが成功しますと、'
-          'そのバーコードの商品を含む注文の対応履歴が表示されます。',
+      'msg_read_barcode': 'バーコードをカメラで読み取ってください。\n読み取りが成功しますと、\n'
+          '対象の商品情報が表示されます。',
       'msg_read_qrcode': '荷札QRコードにカメラをかざしてください。読み取りが成功しますと、'
           'そのQRコードに紐づいたの注文の対応履歴が表示されます。',
       'hint_search_by_barcode': 'JANコードを入力して対応履歴を検索',

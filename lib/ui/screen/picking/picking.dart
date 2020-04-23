@@ -10,6 +10,7 @@ import 'package:o2o/data/product/product_entity.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/error/error.dart';
 import 'package:o2o/ui/screen/packing/packing.dart';
+import 'package:o2o/ui/screen/picking/picking_scanner_overlay_shape.dart';
 import 'package:o2o/ui/screen/scanner/scanner.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
@@ -28,7 +29,6 @@ import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:qr_code_scanner/qr_scanner_overlay_shape.dart';
 
 /// Created by mdhasnain on 31 Jan, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -94,44 +94,42 @@ class _PickingScreenState extends BaseState<PickingScreen> {
 
   /// Barcode scanner widget with fullscreen, flush buttons
   _sectionBarcodeScanner() {
-    return Container(
-      constraints: BoxConstraints.expand(height: 300),
-      child: Stack(
-        alignment: Alignment.bottomRight,
-        children: <Widget>[
-          Container(
-            height: MediaQuery.of(context).size.height,
-            child: QRView(
-              key: _qrKey,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: QrScannerOverlayShape(
-                borderColor: AppColors.colorBlue,
-                borderRadius: 0,
-                borderLength: 13,
-                borderWidth: 5,
-                cutOutSize: 140,
-              ),
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: <Widget>[
+        Container(
+          height: 300,
+          child: QRView(
+            key: _qrKey,
+            onQRViewCreated: _onQRViewCreated,
+            overlay: PickingScannerOverlayShape(
+              borderColor: AppColors.colorBlue,
+              borderRadius: 0,
+              borderLength: 13,
+              borderWidth: 5,
+              cutOutWidth: 180,
+              cutOutHeight: 120,
             ),
           ),
-          Container(
-            height: 56,
-            margin: EdgeInsets.only(right: 10, bottom: 10),
-            child: Column(
-              children: <Widget>[
-                GestureDetector(
-                  child: _flashOn ? AppImages.icFlushOn : AppImages.icFlushOff,
-                  onTap: _toggleFlush,
-                ),
-                Spacer(),
-                GestureDetector(
-                  child: AppImages.icFullScreenEnter,
-                  onTap: _fullScreenScanner,
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
+        ),
+        Container(
+          height: 56,
+          margin: EdgeInsets.only(right: 10, bottom: 10),
+          child: Column(
+            children: <Widget>[
+              GestureDetector(
+                child: _flashOn ? AppImages.icFlushOn : AppImages.icFlushOff,
+                onTap: _toggleFlush,
+              ),
+              Spacer(),
+              GestureDetector(
+                child: AppImages.icFullScreenEnter,
+                onTap: _fullScreenScanner,
+              ),
+            ],
+          ),
+        )
+      ],
     );
   }
 
@@ -510,6 +508,7 @@ class _PickingScreenState extends BaseState<PickingScreen> {
   /// scan result of the scanner. If the scanner finds a barcode
   /// this function calls '_checkJanCodeProduct' to check that code in server
   void _fullScreenScanner() async {
+    _pauseCamera();
     final results = await Navigator.of(context).push(
         MaterialPageRoute<dynamic>(
             builder: (BuildContext context) => ScannerScreen(
