@@ -36,7 +36,7 @@ class TimeOrderListScreen extends StatefulWidget {
 class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
   /// List of timeOrders and timeOrderHeaders data
 //  final _timeOrders = List();
-  final Map<TimeOrderHeading, List> _timeOrders = HashMap();
+  final Map<TimeOrderHeading, List> _timeOrders = LinkedHashMap();
 
   final _refreshController = RefreshController(initialRefresh: true);
 

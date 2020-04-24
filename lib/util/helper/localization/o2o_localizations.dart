@@ -310,6 +310,7 @@ class O2OLocalizations {
       'hint_search_order': '注文番号を入力してを検索',
       'txt_recent_search_history': '最近の検索履歴',
       'txt_required_picking_order': 'ピッキングが必要な注文',
+      'txt_total_product_count': '合計商品点数',
       'txt_concept_of_label': 'ラベルの数の考え方',
       'txt_check_qr_code_to_delete': '読み取ったQRコードを削除する場合、対象のコードにチェックをつけてください。',
       'error_msg_cannot_get_data': 'データが取得できません。\n電波の良いところで再度お試し下さい。',

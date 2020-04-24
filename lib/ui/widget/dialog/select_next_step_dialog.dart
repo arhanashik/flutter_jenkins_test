@@ -45,6 +45,7 @@ class SelectNextStepDialog {
   show() {
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return Dialog(
             shape: RoundedRectangleBorder(

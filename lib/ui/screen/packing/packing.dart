@@ -248,7 +248,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           text: TextSpan(
               style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
-                CommonWidget.textSpanBuilder('出てきだレシートを記載されている\n４桁の',),
+                CommonWidget.textSpanBuilder('出てきたレシートを記載されている\n４桁の',),
                 CommonWidget.textSpanBuilder(
                     ' レシート番号 ', color: AppColors.colorBlueDark, bold: true, fontSize: 14.0
                 ),
@@ -293,7 +293,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
               style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
                 CommonWidget.textSpanBuilder('QRコードを読み取ったラベルに\n',),
-                CommonWidget.textSpanBuilder('「①発送予定時間」、「②出荷番号記」、\n「③個数/個口数」',
+                CommonWidget.textSpanBuilder('「①発送予定時間」、「②配送番号」、\n「③個数/個口数」',
                     color: AppColors.colorBlue, bold: true, fontSize: 14.0
                 ),
                 CommonWidget.textSpanBuilder('を記入してください。',),
