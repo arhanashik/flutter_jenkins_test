@@ -5,7 +5,7 @@ import 'package:unique_identifier/unique_identifier.dart';
 import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 
 class DeviceUtil {
-  static Future<String> getIMEI() async {
+  static Future<String> getSerialNumber() async {
     String os = Platform.operatingSystem; //in your code
     print(os);
 

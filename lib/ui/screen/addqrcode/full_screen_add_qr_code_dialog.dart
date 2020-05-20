@@ -1,20 +1,31 @@
+import 'dart:collection';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:o2o/data/orderitem/order_item.dart';
+import 'package:o2o/data/pref/pref.dart';
+import 'package:o2o/data/response/order_history_details_response.dart';
 import 'package:o2o/ui/screen/addqrcode/add_qr_code_step_1.dart';
 import 'package:o2o/ui/screen/addqrcode/add_qr_code_step_2.dart';
 import 'package:o2o/ui/screen/addqrcode/add_qr_code_step_3.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
+import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
+import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
-class FullScreenAddQrCodeDialog extends StatefulWidget {
-  FullScreenAddQrCodeDialog({this.orderItem, this.qrCodes});
+import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
+import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
+import 'package:o2o/util/helper/common.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 
-  final OrderItem orderItem;
-  final List<String> qrCodes;
+class FullScreenAddQrCodeDialog extends StatefulWidget {
+  FullScreenAddQrCodeDialog({
+    this.orderHistoryDetails,
+  });
+
+  final OrderHistoryDetails orderHistoryDetails;
 
   @override
-  _FullScreenAddQrCodeDialogState createState() => new _FullScreenAddQrCodeDialogState(
-      orderItem, qrCodes,
-  );
+  _FullScreenAddQrCodeDialogState createState() => new _FullScreenAddQrCodeDialogState();
 }
 
 enum Step {
@@ -22,38 +33,9 @@ enum Step {
 }
 
 class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialog> {
-
-  _FullScreenAddQrCodeDialogState(this._orderItem, this._qrCodes);
-
-  final OrderItem _orderItem;
-  List<String> _qrCodes = List();
-  List<String> _tempQrCodes = List();
+  final _newQrCodes = LinkedHashSet<String>();
 
   Step _currentStep = Step.STEP_1;
-  List _stepScreens = List();
-
-  _initStepScreens() {
-    _stepScreens = [
-      AddQrCodeStep1(_qrCodes, (qrCodes) {
-        setState(() {
-          _tempQrCodes.clear();
-          _tempQrCodes.addAll(qrCodes);
-          _currentStep = Step.STEP_2;
-        });
-      }),
-      AddQrCodeStep2(_orderItem, _tempQrCodes, () {
-        setState(() => _currentStep = Step.STEP_1);
-      }, () {
-        setState(() => _currentStep = Step.STEP_3);
-      }),
-      AddQrCodeStep3(_orderItem, _tempQrCodes, () {
-        setState(() => _currentStep = Step.STEP_2);
-      }, () {
-        setState(() => _qrCodes = _tempQrCodes);
-        Navigator.of(context).pop(_qrCodes);
-      }),
-    ];
-  }
 
   _singleStepBuilder(Step step, String indicatorText) {
     int thisStepIndex = Step.values.indexOf(step);
@@ -61,8 +43,8 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     bool thisStepActive = thisStepIndex <= currentStepIndex;
 
     Color textColor = thisStepActive? Colors.white : Colors.black54;
-    Color circleColor = thisStepActive? Colors.lightBlue : Colors.white;
-    Color lineColor = thisStepActive? Colors.lightBlue : Colors.white;
+    Color circleColor = thisStepActive? AppColors.colorBlue : Colors.white;
+    Color lineColor = thisStepActive? AppColors.colorBlueDark : Colors.white;
 
     if(step == Step.STEP_1) {
       return CommonWidget.circularText(
@@ -71,7 +53,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     } else {
       return Row(
         children: <Widget>[
-          CommonWidget.line(color: lineColor, width: 48.0),
+          CommonWidget.line(color: lineColor, width: 40),
           CommonWidget.circularText(
               indicatorText, textColor: textColor, circleColor: circleColor
           ),
@@ -83,12 +65,13 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
   _singleStepLabelBuilder(Step step, String label) {
     int thisStepIndex = Step.values.indexOf(step);
     int currentStepIndex = Step.values.indexOf(_currentStep);
-    bool thisStepActive = thisStepIndex <= currentStepIndex;
+    bool thisStepActive = thisStepIndex == currentStepIndex;
 
-    Color labelColor = thisStepActive? Colors.lightBlue : Colors.black26;
-    double paddingLeft = step == Step.STEP_1? 0 : 14;
-    double paddingTop = 8;
-    double paddingRight = step == Step.STEP_3? 0 : 14;
+    Color labelColor = thisStepActive
+        ? AppColors.colorBlueDark : AppColors.colorCCCCCC;
+    double paddingLeft = step == Step.STEP_1? 0 : 0;
+    double paddingTop = Common.toDp(context, 10);
+    double paddingRight = step == Step.STEP_3? 10 : step == Step.STEP_2? 10 : 0;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -98,7 +81,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
         label,
         style: TextStyle(
           color: labelColor,
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: FontWeight.bold,
         ),
         textAlign: TextAlign.center,
@@ -117,77 +100,105 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
             _singleStepBuilder(Step.STEP_3, '3'),
           ],
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _singleStepLabelBuilder(Step.STEP_1, locale.txtPackingStep1),
-            _singleStepLabelBuilder(Step.STEP_2, locale.txtPackingStep2),
-            _singleStepLabelBuilder(Step.STEP_3, locale.txtPackingStep3),
-          ],
+        Container(
+          width: 220,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              _singleStepLabelBuilder(Step.STEP_1, 'QRコード\n読み取り'),
+              _singleStepLabelBuilder(Step.STEP_2, 'ラベル\n記入'),
+              _singleStepLabelBuilder(Step.STEP_3, 'ラベル\n修正'),
+            ],
+          ),
         ),
       ],
     );
   }
 
   _getStepView(Step step) {
-    int stepIndex = Step.values.indexOf(step);
-    return _stepScreens[stepIndex];
+    switch(Step.values.indexOf(step)) {
+      case 0:
+        return AddQrCodeStep1(
+            widget.orderHistoryDetails, _newQrCodes, (newQrCodes) {
+              setState(() {
+                _newQrCodes.clear();
+                _newQrCodes.addAll(newQrCodes);
+                _currentStep = Step.STEP_2;
+          });
+        });
+
+      case 1:
+        return AddQrCodeStep2(widget.orderHistoryDetails, _newQrCodes, () {
+          setState(() => _currentStep = Step.STEP_1);
+        }, () {
+          setState(() => _currentStep = Step.STEP_3);
+        });
+
+      case 2:
+        return AddQrCodeStep3(widget.orderHistoryDetails, _newQrCodes, () {
+          setState(() => _currentStep = Step.STEP_2);
+        }, () => _updateQrCodes());
+
+      default:
+        return Container();
+    }
   }
 
-  TextSpan _textSpanBuilder(
-      String text, {
-        Color color = Colors.black,
-        FontWeight fontWeight = FontWeight.w500
-      }) {
-    return TextSpan(
-      text: text,
-      style: TextStyle(
-        color: color,
-        fontSize: 16,
-        fontWeight: fontWeight,
-      ),
-    );
-  }
-
-  RichText _richTextMsgBuilder() {
+  _richTextMsgBuilder() {
     RichText richTextMsg;
     switch(_currentStep) {
       case Step.STEP_1:
-        String msg = locale.txtBaggageManagementNumber + ':4444に追加します。'
-            '\n荷札QRコードをカメラで読み取って下さい。';
         richTextMsg = RichText(
-          textAlign: TextAlign.left,
+          textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
-                _textSpanBuilder(msg,),
+                CommonWidget.textSpanBuilder('配送番号：',),
+                CommonWidget.textSpanBuilder(
+                    widget.orderHistoryDetails.baggageControlNumber.toString(), color: AppColors.colorBlueDark,
+                    bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder(' にQRコードを追加します。\n',),
+                CommonWidget.textSpanBuilder(
+                    ' 荷札QRコード', color: AppColors.colorBlueDark, bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('をカメラで読み取って下さい。',),
               ]
           ),
         );
         break;
       case Step.STEP_2:
         richTextMsg = RichText(
-          textAlign: TextAlign.left,
+          textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
-                _textSpanBuilder('追加したラベルに',),
-                _textSpanBuilder('「発送予定時間」、「荷物管理番号」、「個口数」', color: Colors.lightBlue, fontWeight: FontWeight.bold),
-                _textSpanBuilder('を記入してください。',),
+                CommonWidget.textSpanBuilder('追加したラベルに\n',),
+                CommonWidget.textSpanBuilder(
+                    '「①発送予定時間」、「②配送番号」、\n「③個口数」', color: AppColors.colorBlueDark,
+                    bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('を記入してください。',),
               ]
           ),
         );
         break;
       case Step.STEP_3:
         richTextMsg = RichText(
-          textAlign: TextAlign.left,
+          textAlign: TextAlign.center,
           text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(fontSize: 12, color: Colors.black, height: 1.4),
               children: [
-                _textSpanBuilder(locale.txtBaggageManagementNumber + ':4444', color: Colors.lightBlue, fontWeight: FontWeight.bold),
-                _textSpanBuilder('が記載されたラベルを貼り付けた荷物を用意してください。\n用意ができたら、ラベルの',),
-                _textSpanBuilder('「個口数」', color: Colors.lightBlue, fontWeight: FontWeight.bold),
-                _textSpanBuilder('を修正してください。',),
+                CommonWidget.textSpanBuilder('配送番号：',),
+                CommonWidget.textSpanBuilder(
+                    widget.orderHistoryDetails.baggageControlNumber.toString(), color: AppColors.colorBlueDark,
+                    bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder(' が記載されたラベルを\n貼り付けた荷物を用意してください。\n用意ができたら、ラベルの\n',),
+                CommonWidget.textSpanBuilder(
+                    ' 「③個口数」', color: AppColors.colorBlueDark, bold: true, fontSize: 14.0
+                ),
+                CommonWidget.textSpanBuilder('を修正してください。',),
               ]
           ),
         );
@@ -199,7 +210,13 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
 
   Container _msgBuilder() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+//      height: 68,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+      ),
+      margin: EdgeInsets.symmetric(horizontal: 13.0,),
+      padding: EdgeInsets.symmetric(vertical: 10.0,),
       alignment: Alignment.center,
       child: _richTextMsgBuilder(),
     );
@@ -207,14 +224,15 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
 
   _bodyBuilder() {
     return Container(
+      color: AppColors.colorF1F1F1,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: EdgeInsets.symmetric(vertical: 8,),
             child: _stepsBuilder(),
           ),
           _msgBuilder(),
+          Padding(padding: EdgeInsets.only(top: 8),),
           Flexible(child: _getStepView(_currentStep),)
         ],
       ),
@@ -222,29 +240,93 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
   }
 
   @override
-  void initState() {
-    super.initState();
-    _initStepScreens();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(''),
-        backgroundColor: Colors.blue,
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.close, color: Colors.white,),
-            onPressed: () => Navigator.of(context).pop(null),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: Container(
+              padding: EdgeInsets.only(left: 9, top: 12, bottom: 12,),
+              child: InkWell(
+                child: AppImages.loadSizedImage(AppImages.icBackToHistoryUrl,),
+                onTap: _onWillPop,
+              )
           ),
-        ],
-        leading: new Container(),
+          title: const Text(''),
+        ),
+        backgroundColor: AppColors.background,
+        body: _bodyBuilder(),
       ),
-      backgroundColor: Color.fromARGB(255, 230, 242, 255),
-      body: _bodyBuilder(),
+    );
+  }
+
+  Future<bool> _onWillPop() async {
+    switch(_currentStep) {
+      case Step.STEP_2:
+        setState(() => _currentStep = Step.STEP_1);
+        return false;
+      case Step.STEP_3:
+        setState(() => _currentStep = Step.STEP_2);
+        return false;
+      case Step.STEP_1:
+      default:
+        return (await ConfirmationDialog(
+          context,
+          '作業を中断して\n対応履歴画面に戻りますか？',
+          '中断すると現在行っている\n作業内容は反映されません。\n対応履歴画面に戻ってよろしいですか？',
+          locale.txtOk,
+          () => Navigator.of(context).pop(),
+          msgTxtColor: Colors.red,
+        ).show()) ?? false;
+    }
+  }
+
+  _updateQrCodes() async {
+    CommonWidget.showLoader(context);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
+    final params = HashMap();
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = widget.orderHistoryDetails.orderId;
+    int qrSerial = widget.orderHistoryDetails.qrCodes.length;
+    final qrCodes = List<String>();
+    _newQrCodes.forEach((qrCode) {
+      String qrStr = "$qrSerial:$qrCode";
+      qrCodes.add(qrStr);
+      qrSerial++;
+    });
+    params[Params.QR_CODE_LIST] = qrCodes;
+
+    String url = HttpUtil.ADD_QR_CODE_ON_HISTORY;
+    final response = await HttpUtil.post(url, params);
+    Navigator.of(context).pop();
+    if (response.statusCode != HttpCode.OK) {
+      _showSnackBar(locale.errorServerIsNotAvailable);
+      return;
+    }
+    final responseMap = json.decode(response.body);
+    final code = responseMap[Params.CODE];
+    if(code != HttpCode.OK) {
+      _showSnackBar('QRコードを追加する事ができませんでした。');
+      return;
+    }
+
+    String qrCodesStr = _newQrCodes.toList().join('\n');
+    _showSnackBar('QRコード\n$qrCodesStr\nを追加しました。', error: false);
+    Navigator.of(context).pop(_newQrCodes.toList());
+  }
+
+  _showSnackBar(
+      String msg, {
+        error = true,
+      }) {
+    final icon = AppIcons.loadIcon (
+        error? AppIcons.icError : AppIcons.icLike, color: Colors.white, size: 16.0
+    );
+    SnackbarUtil.show(
+      context, msg, durationInSec: 3, icon: icon,
+        background: error? AppColors.colorAccent : AppColors.colorBlue
     );
   }
 }

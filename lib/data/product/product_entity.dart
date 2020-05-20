@@ -9,6 +9,7 @@ class ProductEntity {
   int pickedItemCount;
   String imageUrl;
   int price;
+  int flag;
 
   ProductEntity._({
     this.title,
@@ -18,6 +19,7 @@ class ProductEntity {
     this.pickedItemCount,
     this.imageUrl,
     this.price = 0,
+    this.flag = 0,
   });
 
   ProductEntity(
@@ -29,6 +31,7 @@ class ProductEntity {
       this.imageUrl,
       {
         this.price = 0,
+        this.flag = 0,
       }
   );
 
@@ -41,6 +44,7 @@ class ProductEntity {
       pickedItemCount: json['pickedItemCount'],
       imageUrl: json['imageUrl'],
       price: json['price'],
+      flag: json['flag'],
     );
   }
 
@@ -52,6 +56,7 @@ class ProductEntity {
     'pickedItemCount': pickedItemCount,
     'imageUrl': imageUrl,
     'price': price,
+    'flag': flag,
   };
 
   static dummyProducts () {

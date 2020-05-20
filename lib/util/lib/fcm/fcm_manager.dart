@@ -17,6 +17,18 @@ class FcmManager {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   bool _initialized = false;
 
+  ///Back stack for the callback functions. This helps to remember the callback
+  ///functions added from different screens.
+  ///1. When a new screen is initialized a new callback is added to this list
+  ///2. If another screen is called from the current screen, a new callback is
+  ///   added with 'observeOnMessage(Function onMessage)' function
+  ///   on top of the previous callback and the notification data will be
+  ///   provided on the last callback.
+  ///3. When the screen is dismissed, the last added callback is also removed
+  ///   from the back stack using 'removeObserver()' function. So, the callback
+  ///   added before the last one will be used to provide notification data.
+  List<Function> onMessageBackStack = List();
+
   Future<void> init() async {
     if (!_initialized) {
       print("FCM:: init()");
@@ -62,6 +74,15 @@ class FcmManager {
     }
   }
 
+  void observeOnMessage(Function onMessage) {
+    onMessageBackStack.add(onMessage);
+  }
+
+  void removeObserver() {
+    if(onMessageBackStack.isEmpty) return;
+    onMessageBackStack.removeAt(onMessageBackStack.length-1);
+  }
+
   Future<String> getFcmToken() async {
     String token = await _firebaseMessaging.getToken();
     print("FCM::(Push Messaging token) $token");
@@ -93,7 +114,11 @@ class FcmManager {
       String title = notification['title'];
       String body = notification['body'];
       print("FCM::(notification) $title, $body");
-      NotificationManager().notify(title: title, message: body, payload: '');
+      if(onMessageBackStack.isEmpty) {
+        NotificationManager().notify(title: title, message: body, payload: '');
+      } else {
+        onMessageBackStack[onMessageBackStack.length-1](title, body);
+      }
     }
 
     if (message.containsKey('data')) {

@@ -3,6 +3,7 @@ import 'package:o2o/ui/widget/animation/slide_in.dart';
 import 'dart:async';
 
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 
 class SnackbarUtil {
   static Timer _snackbarTimer;
@@ -11,11 +12,12 @@ class SnackbarUtil {
   static void show(
       BuildContext context,
       String message,
-      {Icon icon: const Icon(Icons.thumb_up, size: 24, color: Colors.white,),
+      {
+        Widget icon,
         Color textColor: Colors.white,
         FontWeight fontWeight: FontWeight.bold,
         Color background: AppColors.colorBlueDark,
-        int durationInSec: 5
+        int durationInSec: 4
       }
   ) {
     if (_snackbarTimer == null || !_snackbarTimer.isActive) {
@@ -33,20 +35,23 @@ class SnackbarUtil {
 
   static _snackbarView(
       String message,
-      Icon icon,
+      Widget icon,
       Color textColor,
       FontWeight fontWeight,
       Color background,
   ) {
+    final snackIcon = icon == null? AppIcons.loadIcon(
+        AppIcons.icLike, color: Colors.white
+    ) : icon;
     return Material(
       elevation: 10.0,
       child: Container(
         color: background,
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            icon,
+            snackIcon,
             Flexible(
               child: Padding(
                 padding: EdgeInsets.only(left: 10),
@@ -71,7 +76,7 @@ class SnackbarUtil {
   static OverlayEntry _createOverlayEntry(
       BuildContext context,
       String message,
-      Icon icon,
+      Widget icon,
       Color textColor,
       FontWeight fontWeight,
       Color background,

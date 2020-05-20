@@ -10,6 +10,7 @@ import 'package:o2o/ui/screen/packing/step_4_qr_code_list_dialog.dart';
 import 'package:o2o/ui/screen/packing/step_4_scanner_overlay_shape.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
@@ -94,6 +95,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   }
 
   _returnToPreviousStep() {
+    ToastUtil.clear();
     ConfirmationDialog(
       context,
       locale.txtReturnToPreviousStep,
@@ -123,7 +125,10 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
           ),
           GradientButton(
             text: locale.txtGoToAddLabel,
-            onPressed: () => _onNextScreen(_scannedQrCodes),
+            onPressed: () {
+              ToastUtil.clear();
+              _onNextScreen(_scannedQrCodes);
+            },
             showIcon: true,
             enabled: _scannedQrCodes.isNotEmpty,
           ),
@@ -204,32 +209,24 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
   _checkQrProduct(qrCode) async {
     if(_scannedQrCodes.contains(qrCode)) {
-      ToastUtil.show(
-          context, locale.txtAlreadyScannedQRCode,
-          icon: Icon(Icons.error, color: Colors.white,),
-          verticalMargin: 200, error: true
-      );
+      _showToast(locale.txtAlreadyScannedQRCode);
       _resumeCamera();
       return;
     }
 
     if(!isOnline) {
-      ToastUtil.show(
-          context, locale.errorInternetIsNotAvailable,
-          icon: Icon(Icons.error, color: Colors.white,),
-          verticalMargin: 200, error: true
-      );
+      _showToast(locale.errorInternetIsNotAvailable);
       _resumeCamera();
       return;
     }
 
     setState(() => loadingState = LoadingState.LOADING);
     CommonWidget.showLoader(context, cancelable: true);
-    if(_myIMEI == null) _myIMEI = await PrefUtil.read(PrefUtil.IMEI);
+    if(_myIMEI == null) _myIMEI = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = _myIMEI;
-    params['orderId'] = _orderItem.orderId;
-    params['qrCode'] = qrCode;
+    params[Params.SERIAL] = _myIMEI;
+    params[Params.ORDER_ID] = _orderItem.orderId;
+    params[Params.QR_CODE] = qrCode;
 
     final response = await HttpUtil.get(HttpUtil.CHECK_PACKING_QR_CODE, params: params);
     Navigator.of(context).pop();
@@ -237,41 +234,30 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
     if (response.statusCode != HttpCode.OK) {
       setState(() => loadingState = LoadingState.ERROR);
-      ToastUtil.show(
-          context, locale.errorServerIsNotAvailable,
-          icon: Icon(Icons.error, color: Colors.white,),
-          verticalMargin: 200, error: true
-      );
+      _showToast(locale.errorServerIsNotAvailable);
       return;
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
+    final code = responseMap[Params.CODE];
 //    final msg = responseMap['msg'];
     if(code == PackingQrCodeStatus.NOT_ISSUED) {
       setState(() => loadingState = LoadingState.ERROR);
-      ToastUtil.show(
-          context, locale.txtScannedQRCodeIsNotAvailable,
-          icon: Icon(Icons.error, color: Colors.white,),
-          verticalMargin: 200, error: true
-      );
+      _showToast(locale.txtScannedQRCodeIsNotAvailable);
       return;
     }
 
     if(code == PackingQrCodeStatus.REGISTERED) {
-      ToastUtil.show(
-          context, locale.txtAlreadyScannedQRCode,
-          icon: Icon(Icons.error, color: Colors.white,),
-          verticalMargin: 200, error: true
-      );
+      _showToast(locale.txtAlreadyScannedQRCode);
       //return;
     }
 
     setState(() => _scannedQrCodes.add(_qrText));
-    ToastUtil.show(context, locale.txtScanned1QRCode, verticalMargin: 200,);
+    _showToast(locale.txtScanned1QRCode, error: false);
   }
 
   _showScannedQrCodeList() async {
+    ToastUtil.clear();
     final List resultList = await Navigator.of(context).push(
         MaterialPageRoute<List>(builder: (BuildContext context) {
           return Step4QrCodeListDialog(items: _scannedQrCodes.toList(),);
@@ -281,13 +267,10 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
     if (resultList != null) {
       setState(() => _scannedQrCodes.removeAll(resultList));
-
-      ToastUtil.show(
-        context,
-        '${resultList.join(',')} を削除しました。',
-        icon: Icon(Icons.delete, color: Colors.white,),
-        error: true, verticalMargin: 200,
-      );
+//      resultList.add('1111121323344445355');
+      String msg = 'QRコード :\n${resultList.join(', \n')}\nを削除しました。';
+      double verticalMargin = 220 - 20 - (resultList.length * 10.0);
+      _showToast(msg, isDelete: true, verticalMargin: verticalMargin);
     }
   }
 
@@ -295,6 +278,25 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
   void dispose() {
     _controller?.dispose();
     super.dispose();
+  }
+
+  _showToast(
+      String msg, {
+        error = true,
+        fromTop = false,
+        isDelete = false,
+        double verticalMargin: 220,
+      }) {
+    final icon = AppIcons.loadIcon(
+        error? isDelete? AppIcons.icDelete : AppIcons.icError : AppIcons.icLike,
+        color: Colors.white, size: 16.0
+    );
+    ToastUtil.show(
+        context, msg,
+        icon: icon,
+        fromTop: fromTop, verticalMargin: verticalMargin, error: error,
+        duration: Duration(seconds: 3),
+    );
   }
 
 }

@@ -71,6 +71,13 @@ flutter:
     - assets/icon/ic_flush_on.png
     - assets/icon/ic_full_screen_enter.png
     - assets/icon/ic_full_screen_exit.png
+    - assets/icon/ic_like.png
+    - assets/icon/ic_notification.png
+    - assets/icon/ic_delete.png
+    - assets/icon/ic_error.png
+    - assets/icon/ic_back_to_history.png
+    - assets/icon/ic_search_jan_code.png
+    - assets/icon/ic_search_qr_code.png
     - assets/images/img_temp.jpeg
     - assets/images/qr.svg
     - assets/images/img_label_instruction.png
@@ -84,6 +91,8 @@ flutter:
     - assets/images/ic_digit_3.png
     - assets/images/ic_digit_3_red.png
     - assets/images/ic_back_to_time_order_list.png
+    - assets/images/ic_back_to_previous.png
+    - assets/images/ic_stop.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

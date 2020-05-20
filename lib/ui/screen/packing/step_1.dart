@@ -188,12 +188,6 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    //_fetchData();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
 
@@ -239,10 +233,10 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
   _fetchData() async {
     //setState(() => loadingState = LoadingState.LOADING);
 
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
     final response = await HttpUtil.get(HttpUtil.GET_PACKING_LIST, params: params);
     _refreshController.refreshCompleted();
     final data = _validateResponse(response, 'Dataは取得する事ができません');
@@ -272,13 +266,13 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
+    final code = responseMap[Params.CODE];
     if(code != HttpCode.OK) {
       ToastUtil.show(context, errorMsg);
       return null;
     }
 
-    return responseMap['data'];
+    return responseMap[Params.DATA];
   }
 
   @override

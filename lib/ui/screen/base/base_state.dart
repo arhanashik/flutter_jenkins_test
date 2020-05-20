@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:o2o/data/loadingstate/LoadingState.dart';
-import 'package:o2o/data/pref/pref.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
+import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 import 'package:o2o/util/lib/fcm/fcm_manager.dart';
 import 'package:o2o/util/lib/notification/notification_manager.dart';
@@ -112,15 +112,30 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
     _isNoConnectionViewVisible = show;
   }
 
+  ///Observe Firebase Notification Event.
+  ///This function provides a callback function to add to the back stack of
+  ///the FcmManager for the current screen. So, at dispose we also need to
+  ///remove the last added callback from back stack so that the previous
+  ///screen's callback function can provide the callback.
+  _observeFcmEvent() {
+    FcmManager().observeOnMessage((title, body) {
+      SnackbarUtil.show(
+        context, locale.msgNewNotification,
+        icon: AppIcons.loadIcon(AppIcons.icNotification, color: Colors.white),
+      );
+    });
+  }
+
   /// Default initState
   @override
   void initState() {
     super.initState();
     //Init local notification manager
     NotificationManager().init();
-
-    //Init Firebase Notification Observer
+    
+    //Init Firebase
     FcmManager().init();
+    _observeFcmEvent();
 
     // Init internet connectivity observer
     _initConnectivity();
@@ -153,6 +168,8 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
   void dispose() {
     // Removing the subscription of connectivity listener
     _connectivitySubscription.cancel();
+    // Removing the last added callback from the FcmManager callback back stack.
+    FcmManager().removeObserver();
     super.dispose();
   }
 }

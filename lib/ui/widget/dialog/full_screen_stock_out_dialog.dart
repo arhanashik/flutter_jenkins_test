@@ -15,8 +15,8 @@ import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 
-class FullScreenStock0utDialog extends StatefulWidget {
-  FullScreenStock0utDialog({
+class FullScreenStockOutDialog extends StatefulWidget {
+  FullScreenStockOutDialog({
     @required this.orderItem,
     @required this.products
   });
@@ -29,7 +29,7 @@ class FullScreenStock0utDialog extends StatefulWidget {
       new FullScreenStockOutDialogState(orderItem, products);
 }
 
-class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> {
+class FullScreenStockOutDialogState extends BaseState<FullScreenStockOutDialog> {
 
   FullScreenStockOutDialogState(this._orderItem, this._products);
 
@@ -59,7 +59,7 @@ class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> 
               children: [
                 CommonWidget.textSpanBuilder('以下の商品の欠品を報告します。',),
                 CommonWidget.textSpanBuilder(
-                    '\n欠品が報告されと、欠品商品を含む\n注文自体がキャンセルとなります。',
+                    '\n欠品が報告されると、欠品商品を含む\n注文自体がキャンセルとなります。',
                   fontSize: 14.0, bold: true, color: AppColors.colorAccent,
                 ),
                 CommonWidget.textSpanBuilder('\n本当によろしですか？',),
@@ -77,12 +77,14 @@ class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> 
   }
 
   _buildList() {
+    int itemCount = confirmation? _resultList.length : _products.length;
     return ListView.builder(
-        itemCount: confirmation? _resultList.length : _products.length,
+        itemCount: itemCount,
         itemBuilder: (BuildContext context, int index) {
           final item = confirmation? _resultList[index] : _products[index];
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            padding: EdgeInsets.only(bottom: index == itemCount - 1? 64 : 0),
             child: CheckableProductItem(
               scannedProduct: item,
               checkboxVisible: !confirmation,
@@ -97,9 +99,9 @@ class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> 
   _buildActionButtons() {
     return Container(
       height: 40,
-      margin: EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(left: 16.0, bottom: 16, right: 16.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Visibility(
             child: GradientButton(
@@ -107,7 +109,7 @@ class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> 
               txtColor: Colors.black,
               onPressed: () => setState(() => confirmation = false),
               gradient: AppColors.disabledGradient,
-              padding: EdgeInsets.symmetric(horizontal: 20.0,),
+              padding: EdgeInsets.symmetric(horizontal: 34.0,),
               enabled: _resultList.isNotEmpty,
               showIcon: true,
               icon: Icon(Icons.arrow_back_ios, color: Colors.black87, size: 14.0,),
@@ -119,7 +121,7 @@ class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> 
             onPressed: () => _confirmBefore(),
             enabled: _resultList.isNotEmpty,
             showIcon: true,
-            padding: EdgeInsets.symmetric(horizontal: 25.0,),
+            padding: EdgeInsets.symmetric(horizontal: 34.0,),
           ),
         ],
       ),
@@ -186,15 +188,15 @@ class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> 
 
   _checkStockOutStatus() async {
     CommonWidget.showLoader(context);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
     final janCodeList = List<String>();
     _resultList.forEach((element) { 
       janCodeList.add(element.janCode.toString());
     });
-    params['janCodeList'] = janCodeList;
+    params[Params.JAN_CODE_LIST] = janCodeList;
 
     final response = await HttpUtil.post(HttpUtil.CHECK_STOCK_OUT_STATUS, params);
     Navigator.of(context).pop();
@@ -203,7 +205,7 @@ class FullScreenStockOutDialogState extends BaseState<FullScreenStock0utDialog> 
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
+    final code = responseMap[Params.CODE];
     if(code != HttpCode.OK) {
       ToastUtil.show(
           context, '欠品を情報する事ができません。',

@@ -12,10 +12,18 @@ class AppImages {
 
   static Image loadSizedImage(
       String imageUrl,
-      {width = 24.0, height = 24.0, isAsset = true, placeholder = NO_IMAGE_URL}) {
+      {
+        width = 24.0,
+        height = 24.0,
+        isAsset = true,
+        placeholder = NO_IMAGE_URL,
+        Color color,
+      }) {
+    if(imageUrl == null || imageUrl.isEmpty) imageUrl = placeholder;
+
     if(isAsset) {
       return Image.asset(
-        imageUrl, fit: BoxFit.fill, width: width, height: height,
+        imageUrl, fit: BoxFit.fill, width: width, height: height, color: color,
       );
     }
 
@@ -38,10 +46,15 @@ class AppImages {
   static const icDigit3Url = '${_imageDir}ic_digit_3.png';
   static const icDigit3RedUrl = '${_imageDir}ic_digit_3_red.png';
   static const icBackToTimeOrderListUrl = '${_imageDir}ic_back_to_time_order_list.png';
+  static const icBackToPreviousUrl = '${_imageDir}ic_back_to_previous.png';
+  static const icStopUrl = '${_imageDir}ic_stop.png';
   static const icFlushOnUrl = '${_iconDir}ic_flush_on.png';
   static const icFlushOffUrl = '${_iconDir}ic_flush_off.png';
   static const icFullScreenEnterUrl = '${_iconDir}ic_full_screen_enter.png';
   static const icFullScreenExitUrl = '${_iconDir}ic_full_screen_exit.png';
+  static const icBackToHistoryUrl = '${_iconDir}ic_back_to_history.png';
+  static const icSearchJanCodeUrl = '${_iconDir}ic_search_jan_code.png';
+  static const icSearchQrCodeUrl = '${_iconDir}ic_search_qr_code.png';
 
   static Image imgLabelInstruction = loadImage('${_imageDir}img_label_instruction.png');
   static Image imgTagInstruction = loadImage('${_imageDir}img_tag_instruction.png');
@@ -58,4 +71,9 @@ class AppImages {
   static Image icFlushOff = loadSizedImage(icFlushOffUrl);
   static Image icFullScreenEnter = loadSizedImage(icFullScreenEnterUrl);
   static Image icFullScreenExit = loadSizedImage(icFullScreenExitUrl);
+  static Image icBackToPrevious = loadSizedImage(icBackToPreviousUrl);
+  static Image icStop = loadSizedImage(icStopUrl);
+  static Image icBackToHistory = loadSizedImage(icBackToHistoryUrl);
+  static Image icSearchJanCode = loadImage(icSearchJanCodeUrl);
+  static Image icSearchQrCode = loadImage(icSearchQrCodeUrl);
 }

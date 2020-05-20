@@ -12,7 +12,13 @@ class InputReceiptNumberDialog {
 
   String insertedCode = '';
 
-  InputReceiptNumberDialog(this.context, this.title, this.btnTxt, this.onBtnTap, {this.onTxtChange});
+  InputReceiptNumberDialog(
+      this.context,
+      this.title,
+      this.btnTxt,
+      this.onBtnTap, {
+        this.onTxtChange,
+      });
 
   show() {
     showDialog(

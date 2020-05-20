@@ -1,28 +1,14 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_sticky_header/flutter_sticky_header.dart';
-import 'package:o2o/data/constant/const.dart';
-import 'package:o2o/data/loadingstate/LoadingState.dart';
-import 'package:o2o/data/pref/pref.dart';
-import 'package:o2o/data/timeorder/time_order_heading.dart';
-import 'package:o2o/data/timeorder/time_order_list_item.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
-import 'package:o2o/ui/screen/error/error.dart';
-import 'package:o2o/ui/screen/home/history/order_list_history.dart';
-import 'package:o2o/ui/screen/home/history/search_history.dart';
-import 'package:o2o/ui/screen/scanner/barcode_scanner.dart';
-import 'package:o2o/ui/screen/scanner/qrcode_scanner.dart';
+import 'package:o2o/ui/screen/home/history/history_list.dart';
+import 'package:o2o/ui/screen/searchhistory/search_history_barcode_scanner.dart';
+import 'package:o2o/ui/screen/searchhistory/search_history_qrcode_scanner.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
-import 'package:o2o/ui/widget/common/common_widget.dart';
-import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
-import 'package:o2o/ui/widget/time_order_history_item.dart';
-import 'package:o2o/util/helper/common.dart';
-import 'package:o2o/util/lib/remote/http_util.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import 'history_type.dart';
 
 /// Created by mdhasnain on 04 Jan, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -50,6 +36,13 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
   _pageScrollListener() {
     setState(() => _currentPage = _pageController.page.ceil());
   }
+  final _pages = List();
+  _initPages() {
+    _pages.clear();
+    _pages.add(HistoryListScreen(historyType: HistoryType.PLANNING,));
+    _pages.add(HistoryListScreen(historyType: HistoryType.DELIVERED,));
+    _pages.add(HistoryListScreen(historyType: HistoryType.STOCK_OUT,));
+  }
 
   List<Choice> _choices = List();
   Choice _selectedChoice;
@@ -64,27 +57,19 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
 
   void _initChoices() {
     _choices.clear();
-    _choices.add(
-        Choice(
-            title: locale.txtReadBarcode,
-            icon: AppIcons.loadIcon(AppIcons.icBarCode, color: AppColors.colorBlue, size: 18.0)
-        )
+    _choices.add(Choice(
+            title: locale.txtReadBarcode, icon: AppIcons.loadIcon(
+            AppIcons.icBarCode, color: AppColors.colorBlue, size: 18.0
+        ))
     );
-    _choices.add(
-        Choice(
-            title: locale.txtReadQRCode,
-            icon: AppIcons.loadIcon(AppIcons.icQrCode, color: AppColors.colorBlue, size: 18.0)
-        )
+    _choices.add(Choice(
+            title: locale.txtReadQRCode, icon: AppIcons.loadIcon(
+            AppIcons.icQrCode, color: AppColors.colorBlue, size: 18.0
+        ))
     );
 
     _selectedChoice = _choices[0];
   }
-
-  final Map<TimeOrderHeading, List> _timeOrders = HashMap();
-  final Map<TimeOrderHeading, List> _shippingCompletedList = HashMap();
-  final Map<TimeOrderHeading, List> _missingList = HashMap();
-
-  final _refreshController = RefreshController(initialRefresh: false);
 
    _sectionTitleBuilder() {
     return Stack(
@@ -182,66 +167,6 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     );
   }
 
-  /// Builds the 'SliverStickyHeader' which consists of a 'TimeOrderHeading'
-  /// and the 'TimeOrderItem' list under that header
-  _buildPinnedHeaderList(TimeOrderHeading heading, List slivers, historyType) {
-    return SliverStickyHeader(
-      header: CommonWidget.sectionDateBuilder(
-          heading.month, heading.day, heading.dayStr
-      ),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate((context, index) {
-          final currentItem = slivers[index];
-          return TimeOrderHistoryItem(
-            context: context,
-            timeOrder: currentItem,
-            historyType: historyType,
-          );
-        },
-          childCount: slivers.length,
-        ),
-      ),
-    );
-  }
-
-  _buildHistoryList(Map<TimeOrderHeading, List> timeOrders, historyType) {
-    final List<Widget> slivers = List();
-    timeOrders.forEach((key, value) {
-      slivers.add(_buildPinnedHeaderList(key, value, historyType));
-    });
-
-    return slivers;
-  }
-
-  _buildPage(Map<TimeOrderHeading, List> timeOrders, historyType) {
-    return loadingState == LoadingState.ERROR ? ErrorScreen(
-        errorMessage: locale.errorMsgCannotGetData,
-        btnText: locale.txtReload,
-        onClickBtn: () => _fetchData(),
-        showHelpTxt: true
-    ) : loadingState == LoadingState.NO_DATA
-        ? ErrorScreen(
-      errorMessage: locale.errorMsgNoData,
-      btnText: locale.refreshOrderList,
-      onClickBtn: () => _fetchData(),
-
-    ) : SmartRefresher(
-      enablePullDown: true,
-      header: ClassicHeader(
-        idleText: locale.txtPullToRefresh,
-        refreshingText: locale.txtRefreshing,
-        completeText: locale.txtRefreshCompleted,
-        releaseText: locale.txtReleaseToRefresh,
-      ),
-      child: CustomScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        slivers: _buildHistoryList(timeOrders, historyType),
-      ),
-      controller: _refreshController,
-      onRefresh: () => _fetchData(),
-    );
-  }
-
   /*
   * This function is used to manually scroll the page view.
   * In this function we set the _currentPage value manually.
@@ -265,17 +190,7 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     return PageView.builder(
       controller: _pageController,
       itemBuilder: (context, position) {
-        Map<TimeOrderHeading, List> orderList = _timeOrders;
-        HistoryType historyType = HistoryType.PLANNING;
-        if(position == 1) {
-          orderList = _shippingCompletedList;
-          historyType = HistoryType.COMPLETE;
-        } else if(position == 2) {
-          orderList = _missingList;
-          historyType = HistoryType.MISSING;
-        }
-
-        return _buildPage(orderList, historyType);
+        return _pages[position];
       },
       itemCount: 3,
       physics: BouncingScrollPhysics(),
@@ -287,14 +202,14 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     super.initState();
     _pageController = PageController();
     _pageController.addListener(_pageScrollListener);
-    _fetchData();
+
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     _initChoices();
-
+    _initPages();
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -312,108 +227,21 @@ class _HistoryScreenState extends BaseState<HistoryScreen> {
     );
   }
 
-  _fetchData() async {
-    if (loadingState == LoadingState.LOADING) return;
-
-    setState(() => loadingState = LoadingState.LOADING);
-
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final params = HashMap();
-    params['imei'] = imei;
-
-    _refreshController.refreshCompleted();
-    final response = await HttpUtil.get(HttpUtil.GET_TIME_ORDER_HISTORY, params: params);
-//    if (response.statusCode != 200) {
-//      setState(() => loadingState = LoadingState.ERROR);
-//      return;
-//    }
-    List<TimeOrderListItem> items = TimeOrderListItem.dummyTimeOrderList();
-
-    LoadingState newState = LoadingState.NO_DATA;
-    if (items.isNotEmpty) {
-      _timeOrders.clear();
-      _shippingCompletedList.clear();
-      _missingList.clear();
-      for (int i = 0; i < items.length; i++) {
-        final item = items[i];
-        final dateTime = Common.convertToDateTime(item.date);
-        final header = TimeOrderHeading(
-          dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday-1],
-        );
-        _timeOrders[header] = item.timeOrderSummaryList;
-        _shippingCompletedList[header] = item.timeOrderSummaryList;
-        _missingList[header] = item.timeOrderSummaryList;
-      }
-
-      newState = LoadingState.OK;
-    }
-
-    setState(() => loadingState = newState);
-  }
-
   _scanQrCode() async {
-    final results = await Navigator.of(context).push(
-      MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => QrCodeScannerScreen(),
-        fullscreenDialog: true,
-      ),
-    );
-
-    if (results != null && results.containsKey('qrCode')) {
-      String qrCode = results['qrCode'];
-      if (qrCode.isNotEmpty) {
-//        ToastUtil.showCustomToast(context, locale.txtScanned1QRCode);
-        String msg = locale.txtScanned1QRCode + '\n\n'
-            + locale.txtQrCodeNumber + '\n' + qrCode;
-        ConfirmationDialog(
-          context,
-          locale.txtConfirm,
-          msg,
-          locale.txtOk,
-              () => _searchOrder(qrCode),
-        ).show();
-      }
-    }
-  }
-
-  _searchOrder(String qrCode) {
     Navigator.of(context).push(
       MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => SearchHistory(
-          searchQuery: qrCode,
-        ),
+        builder: (BuildContext context) => SearchHistoryQrCodeScannerScreen(),
+        fullscreenDialog: true,
       ),
     );
   }
 
   _scanBarcode() async {
-    final results = await Navigator.of(context).push(
+    Navigator.of(context).push(
       MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => BarcodeScannerScreen(),
+        builder: (BuildContext context) => SearchHistoryBarcodeScannerScreen(),
         fullscreenDialog: true,
       ),
     );
-
-    if (results != null && results.containsKey('barcode')) {
-      String barcode = results['barcode'];
-      if (barcode.isNotEmpty) {
-//        ToastUtil.showCustomToast(context, locale.txtScanned1QRCode);
-        String msg = locale.txtScanned1QRCode + '\n\n'
-            + locale.txtQrCodeNumber + '\n' + barcode;
-        ConfirmationDialog(
-          context,
-          locale.txtConfirm,
-          msg,
-          locale.txtOk,
-              () => _searchOrder(barcode),
-        ).show();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _refreshController.dispose();
-    super.dispose();
   }
 }

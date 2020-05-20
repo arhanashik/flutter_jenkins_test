@@ -21,7 +21,7 @@ class OrderListItem extends StatelessWidget {
     O2OLocalizations locale = O2OLocalizations.of(context);
 
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 11),
       child: Column(
         children: <Widget>[
           Row(
@@ -52,7 +52,7 @@ class OrderListItem extends StatelessWidget {
             children: <Widget>[
               Text(locale.txtProductCount, style: TextStyle(fontSize: 14,),),
               Padding(
-                padding: EdgeInsets.only(left: 15.5),
+                padding: EdgeInsets.only(left: 15.5, bottom: 5.0),
                 child: Text(
                   orderItem.productCount.toString(),
                   style: TextStyle(

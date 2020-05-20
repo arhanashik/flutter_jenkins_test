@@ -3,12 +3,14 @@ import 'dart:convert';
 
 class PrefUtil {
 
-  static const String IMEI = "imei";
+  static const String SERIAL_NUMBER = "serial";
   static const String DEVICE_NAME = "device_name";
   static const String STORE_NAME = "store_name";
   static const String FCM_TOKEN = "fcm_token";
+  static const String QR_SEARCH_HISTORY = "qr_search_history";
+  static const String JAN_SEARCH_HISTORY = "jan_search_history";
 
-  static save(String key, value) async {
+  static save<T>(String key, value) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(key, json.encode(value));
   }

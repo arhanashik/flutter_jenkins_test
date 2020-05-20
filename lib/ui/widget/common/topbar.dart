@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
+import 'package:o2o/ui/widget/common/app_icons.dart';
 
 /// Created by mdhasnain on 03 Mar, 2020
 /// Email: md.hasnain@healthcare-tech.co.jp
@@ -19,8 +20,8 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
     this.menu,
     this.onTapNavigation,
     this.error = '',
-    this.errorIcon = const Icon(Icons.warning, color: Colors.white,)
-  }) : preferredSize = Size.fromHeight(80.0);
+    this.errorIcon,
+  }) : preferredSize = Size.fromHeight(76.0);
   final String title;
   final Widget navigationIcon;
   final Color iconColor;
@@ -28,13 +29,13 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget menu;
   final Function onTapNavigation;
   final String error;
-  final Icon errorIcon;
+  final Widget errorIcon;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        height: error.isEmpty? 50.0 : 84.0,
+        height: error.isEmpty? 50.0 : 76.0,
         width: MediaQuery.of(context).size.width,
         color: background,
         padding: EdgeInsets.zero,
@@ -57,13 +58,15 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             error.isEmpty? Container() : Container(
-              color: Colors.redAccent,
-              padding: EdgeInsets.symmetric(vertical: 4.0),
+              color: AppColors.colorAccent,
+              padding: EdgeInsets.symmetric(vertical: 5.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  errorIcon,
-                  Padding(padding: EdgeInsets.symmetric(horizontal: 5),),
+                  errorIcon == null ? AppIcons.loadIcon(
+                      AppIcons.icError, color: Colors.white, size: 18.0
+                  ) : errorIcon,
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 5,),),
                   Text(
                     error,
                     style: TextStyle(

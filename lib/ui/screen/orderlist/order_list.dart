@@ -8,6 +8,7 @@ import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/data/timeorder/time_order.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/screen/error/error.dart';
+import 'package:o2o/ui/screen/packing/packing.dart';
 import 'package:o2o/ui/screen/picking/picking.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_icons.dart';
@@ -19,6 +20,7 @@ import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/order_list_item.dart';
 import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
+import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -56,32 +58,8 @@ class _OrderListState extends BaseState<OrderList> {
   _sectionTitleBuilder(title) {
     return Container(
       margin: EdgeInsets.only(left: 16, top: 16),
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(width: 3.0, color: AppColors.colorBlue)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(left: 16),
-        child: Text(
-          title,
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-      ),
+      child: CommonWidget.sectionTitleBuilder(title, fontSize: 16),
     );
-  }
-
-  /// Confirmation dialog before starting the picking of an order
-  /// On confirmation check and update the picking status on server and then
-  /// start picking
-  _confirmStartPickingTask(OrderItem orderItem) {
-    bool isUnderWork = orderItem.isUnderWork(_myDeviceName);
-    ConfirmationDialog(
-      context,
-      locale.txtStartPicking,
-      isUnderWork? locale.warningOtherDeviceIsPicking : locale.msgStartPicking,
-      locale.txtStart, () => _startPickingTaskForResult(orderItem, isUnderWork),
-      msgTxtColor: isUnderWork ? Colors.redAccent : Colors.black,
-    ).show();
   }
 
   /// widget to show the currently under work view on an order
@@ -135,11 +113,10 @@ class _OrderListState extends BaseState<OrderList> {
                 OrderListItem(
                   context: context,
                   orderItem: item,
-                  onPressed: () => _confirmStartPickingTask(item),
                 ),
                 InkWell(
                   child: _anotherDeviceIsPickingNow(),
-                  onTap: () => _confirmStartPickingTask(item),
+                  onTap: () => _confirmPacking(item),
                 ),
               ],
             );
@@ -147,7 +124,7 @@ class _OrderListState extends BaseState<OrderList> {
           return OrderListItem(
             context: context,
             orderItem: item,
-            onPressed: () => _confirmStartPickingTask(item),
+            onPressed: () => _confirmPacking(item),
           );
         },
         childCount: _completedOrderItems.length,
@@ -167,11 +144,10 @@ class _OrderListState extends BaseState<OrderList> {
                 OrderListItem(
                   context: context,
                   orderItem: item,
-                  onPressed: () => _confirmStartPickingTask(item),
                 ),
                 InkWell(
                   child: _anotherDeviceIsPickingNow(),
-                  onTap: () => _confirmStartPickingTask(item),
+                  onTap: () => _confirmPicking(item),
                 ),
               ],
             );
@@ -179,7 +155,7 @@ class _OrderListState extends BaseState<OrderList> {
           return OrderListItem(
             context: context,
             orderItem: item,
-            onPressed: () => _confirmStartPickingTask(item),
+            onPressed: () => _confirmPicking(item),
           );
         },
         childCount: _orderItems.length,
@@ -248,13 +224,6 @@ class _OrderListState extends BaseState<OrderList> {
         );
   }
 
-  /// 1. Fetching the time order list for the first time
-  @override
-  void initState() {
-    super.initState();
-    //_fetchData();
-  }
-
   /// Main building block of the screen
   /// 1. 'TopBar' is a custom app bar for showing custom navigation icon,
   /// custom title and custom menu
@@ -288,28 +257,28 @@ class _OrderListState extends BaseState<OrderList> {
 
     _myDeviceName = await PrefUtil.read(PrefUtil.DEVICE_NAME);
 
-    _myIMEI = await PrefUtil.read(PrefUtil.IMEI);
+    _myIMEI = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = _myIMEI;
-    params['deliveryDateTime'] = _timeOrder.scheduledDeliveryDateTime;
+    params[Params.SERIAL] = _myIMEI;
+    params[Params.DELIVERY_DATE_TIME] = _timeOrder.scheduledDeliveryDateTime;
 
     final response = await HttpUtil.get(HttpUtil.GET_ORDER_LIST, params: params);
     _refreshController.refreshCompleted();
-    if (response.statusCode != 200) {
+    if (response.statusCode != HttpCode.OK) {
       setState(() => loadingState = LoadingState.ERROR);
       return;
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
-    if(code == HttpCode.NOT_FOUND) {
+    final code = responseMap[Params.CODE];
+    if(code != HttpCode.OK) {
       setState(() => loadingState = LoadingState.ERROR);
       return;
     }
 
     LoadingState newState = LoadingState.NO_DATA;
-    if((responseMap['data'] is List)) {
-      final List data = responseMap['data'];
+    if((responseMap[Params.DATA] is List)) {
+      final List data = responseMap[Params.DATA];
       List<OrderItem> items = data.map((data) => OrderItem.fromJson(data))
           .toList();
 //    List<OrderItem> items = OrderItem.dummyOrderItems();
@@ -329,31 +298,46 @@ class _OrderListState extends BaseState<OrderList> {
     setState(() => loadingState = newState);
   }
 
+  /// Confirmation dialog before starting the picking of an order
+  /// On confirmation check and update the picking status on server and then
+  /// start picking
+  _confirmPicking(OrderItem orderItem) {
+    bool isUnderWork = orderItem.isUnderWork(_myDeviceName);
+    ConfirmationDialog(
+      context,
+      locale.txtStartPicking,
+      isUnderWork? locale.warningOtherDeviceIsPicking : locale.msgStartPicking,
+      locale.txtStart, () => _startPickingForResult(orderItem, isUnderWork),
+      msgTxtColor: isUnderWork ? Colors.redAccent : Colors.black,
+    ).show();
+  }
+
   /// After confirming picking task of an order item, this function launches
   /// the 'PickingScreen' for picking task and waits for the result of
   /// completing picking and packing.
   /// If we get the result from the packing we reload the data of this page
-  _startPickingTaskForResult(OrderItem orderItem, bool isUnderWork) async {
-    final params = HashMap();
-    params['imei'] = _myIMEI;
-    params['orderId'] = orderItem.orderId;
-    params['status'] = PickingStatus.WORKING;
+  _startPickingForResult(OrderItem orderItem, bool isUnderWork) async {
 
-//    CommonWidget.showLoader(context,);
-//    final response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
-//    if (response.statusCode != 200) {
-//      Navigator.pop(context);
-//      SnackbarUtil.show(context, locale.errorServerIsNotAvailable,);
-//      return;
-//    }
-//
-//    final responseMap = json.decode(response.body);
-//    Navigator.pop(context);
-//    final code = responseMap['code'];
-//    if(code != HttpCode.OK) {
-//      SnackbarUtil.show(context, 'ピッキングステータスは更新する事ができません。');
-//      return;
-//    }
+    final params = HashMap();
+    params[Params.SERIAL] = _myIMEI;
+    params[Params.ORDER_ID] = orderItem.orderId;
+    params[Params.STATUS] = PickingStatus.WORKING;
+
+    CommonWidget.showLoader(context, cancelable: false);
+    final response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
+    if (response.statusCode != HttpCode.OK) {
+      Navigator.pop(context);
+      SnackbarUtil.show(context, locale.errorServerIsNotAvailable,);
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    Navigator.pop(context);
+    final code = responseMap[Params.CODE];
+    if(code != HttpCode.OK) {
+      _showToast('ピッキングステータスは更新する事ができません。');
+      return;
+    }
 
     final results = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => PickingScreen(
@@ -362,12 +346,88 @@ class _OrderListState extends BaseState<OrderList> {
         )
     ));
 
-    if (results != null && results.containsKey('order_id')) {
+    _fetchData();
+
+    if (results != null
+        && results.containsKey(Params.ORDER_ID)
+        && results.containsKey(Params.STATUS)
+    ) {
+      final orderId = 22223345677888;
+      final status = results[Params.STATUS];
+
+      String msg = '${locale.txtOrderNumber} : $orderId...の';
+      if(status == TransitStatus.PICKING_DONE) {
+        msg += 'ピッキング';
+      } else if(status == TransitStatus.PACKING_DONE) {
+        msg += '発送準備';
+      } else if(status == TransitStatus.STOCK_OUT) {
+        msg += '発送準備';
+      }
+      msg += 'を完了しました。';
+      SnackbarUtil.show(context, msg,);
+    }
+  }
+
+  /// This function uses 'UPDATE_PICKING_STATUS' api to update the picking
+  /// status as done and show the confirmation dialog to start packing
+  _confirmPacking(OrderItem orderItem) async {
+    bool isUnderWork = orderItem.isUnderWork(_myDeviceName);
+    ConfirmationDialog(
+        context,
+        locale.txtStartShippingPreparation,
+        isUnderWork? locale.warningOtherDeviceIsPicking : locale.msgStartPicking,
+        locale.txtStart, () => _startPackingForResult(orderItem, isUnderWork)
+    ).show();
+  }
+
+  /// Start packing when all items are picked.
+  /// First change the packing status of the order as working
+  /// Then Go to the packing screen and wait for the result
+  _startPackingForResult(OrderItem orderItem, bool isUnderWork) async {
+
+    CommonWidget.showLoader(context, cancelable: false);
+    final params = HashMap();
+    params[Params.SERIAL] = _myIMEI;
+    params[Params.ORDER_ID] = orderItem.orderId;
+    params[Params.STATUS] = PackingStatus.WORKING;
+    var response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
+    Navigator.of(context).pop();
+    if (response.statusCode != HttpCode.OK) {
+      _showToast(locale.errorServerIsNotAvailable,);
+      return;
+    }
+
+    final responseMap = json.decode(response.body);
+    final code = responseMap[Params.CODE];
+    if(code != HttpCode.OK) {
+      _showToast('パッキングStatusは更新する事ができません。');
+      return;
+    }
+    
+    final results = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) =>
+            PackingScreen(
+              orderItem: orderItem,
+              isUnderWork: isUnderWork,
+            )
+    ));
+
+    if (results != null && results.containsKey(Params.ORDER_ID)) {
       _fetchData();
       String msg = locale.txtOrderNumber + ' : '
-          + '${results['order_id']} の発送準備を完了しました。';
+          + '${results[Params.ORDER_ID]} の発送準備を完了しました。';
       SnackbarUtil.show(context, msg, durationInSec: 3);
     }
+  }
+
+  _showToast(
+      String msg, {
+        error = true,
+      }) {
+    final icon = AppIcons.loadIcon(
+        error? AppIcons.icError : AppIcons.icLike, color: Colors.white, size: 16.0
+    );
+    ToastUtil.show(context, msg, icon: icon, error: error);
   }
 
   @override

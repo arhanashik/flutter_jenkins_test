@@ -16,6 +16,7 @@ import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/loader/color_loader.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/time_order_item.dart';
+import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/helper/common.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -213,24 +214,24 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
 
     //setState(() => loadingState = LoadingState.LOADING);
 
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
+    params[Params.SERIAL] = imei;
 
     final response = await HttpUtil.get(HttpUtil.GET_TIME_ORDER, params: params);
     _refreshController.refreshCompleted();
-    if (response.statusCode != 200) {
+    if (response.statusCode != HttpCode.OK) {
       setState(() => loadingState = LoadingState.ERROR);
       return;
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
-    if(code == HttpCode.NOT_FOUND) {
+    final code = responseMap[Params.CODE];
+    if(code != HttpCode.OK) {
       setState(() => loadingState = LoadingState.ERROR);
       return;
     }
-    final List data = responseMap['data'];
+    final List data = responseMap[Params.DATA];
     List<TimeOrderListItem> items = data.map(
             (data) => TimeOrderListItem.fromJson(data)
     ).toList();
@@ -266,6 +267,16 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
       _deviceName = deviceName;
       _storeName = storeName;
     });
+  }
+
+  _showToast(
+      String msg, {
+        error = true,
+      }) {
+    final icon = AppIcons.loadIcon(
+        error? AppIcons.icError : AppIcons.icLike, color: Colors.white, size: 16.0
+    );
+    ToastUtil.show(context, msg, icon: icon, error: error);
   }
 
   /// This is where we dispose our list scroll controller

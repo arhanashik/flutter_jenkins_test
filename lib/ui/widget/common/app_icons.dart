@@ -37,4 +37,8 @@ class AppIcons {
   static ImageIcon icSettings = _loadIcon('${_iconDir}ic_settings.png',);
   static ImageIcon icBackToList = _loadIcon('${_iconDir}ic_back_to_list.png',);
   static ImageIcon icClose = _loadIcon('${_iconDir}ic_close.png',);
+  static ImageIcon icLike = _loadIcon('${_iconDir}ic_like.png',);
+  static ImageIcon icNotification = _loadIcon('${_iconDir}ic_notification.png',);
+  static ImageIcon icDelete = _loadIcon('${_iconDir}ic_delete.png',);
+  static ImageIcon icError = _loadIcon('${_iconDir}ic_error.png',);
 }

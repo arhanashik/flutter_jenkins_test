@@ -24,6 +24,9 @@ class O2OLocalizations {
       'home_navigation_2': '対応履歴',
       'home_navigation_1_title': '発送時間帯別の作業一覧',
       'home_navigation_2_title': '対応履歴',
+      'error_device_not_available': '端末はサーバーにまだありません。',
+      'error_cannot_get_device_info': '端末の情報は取得することができません。',
+      'error_cannot_register_device': '未登録の端末です。',
       'error_order_data': '注文情報が取得できません。\n電波の良いところで再度お試しください。',
       'no_time_order_data': '現在対応必要な注文はありません。',
       'txt_reload': '再読み込みする',
@@ -40,9 +43,9 @@ class O2OLocalizations {
       'txt_start': '開始する',
       'txt_cancel': 'キャンセル',
       'txt_start_picking': 'ピッキング作業を開始します。',
-      'msg_start_picking': 'この注文のステータスを「作業中」に変更して作業を開始しますか？',
+      'msg_start_picking': 'この注文のステータスを「作業中」に変更して、作業を開始しますか？',
       'warning_other_device_is_picking': 'この注文は他の方が作業中です。\n発送準備を開始しますか？',
-      'msg_scan_barcode': 'バーコードをカメラで読み取ってください。',
+      'msg_scan_barcode': 'バーコードをカメラで読み取って下さい。',
       'msg_scan_barcode_extended': 'バーコードをカメラで読み取ってください。\n読み取りが成功しまと、\n対象の商品情報が表示されます。',
       'txt_settings': '設定',
       'txt_report_storage': '欠品を報告する',
@@ -50,7 +53,7 @@ class O2OLocalizations {
       'title_insert_code_manually': 'JANコードを手入力してください',
       'txt_entry_jan_code': 'JANコードを登録する',
       'txt_scanned_product': '読み取り末完了の商品',
-      'txt_scan_completed_product': '読み取りが末完了した商品',
+      'txt_scan_completed_product': '読み取りが完了した商品',
       'txt_jan_code': 'JANコード',
       'txt_category_name': 'カテゴリー名',
       'txt_submit_and_next': '登録して次へ',
@@ -146,16 +149,18 @@ class O2OLocalizations {
       'msg_confirm_change': '発送準備の完了した商品はドライバーが集荷に伺いますので、'
           '追加した分の商品を合わせて所定の場所に保管して下さい。',
       'txt_complete_shipping_preparation': '発送準備を完了する',
-      'msg_primary_qr_code_delete': '以下のQRコードを削除すると荷物管理番号が変更になるのでラベルの修正が必要になります。',
-      'msg_qr_code_delete': '以下のQRコードを削除します。\nよろしいですか？',
+      'msg_primary_qr_code_delete': '以下のQRコードを削除すると\n配送番号と個口数が変更になるので\nラベルの修正が必要になります。\n\nよろしいですか？',
+      'msg_qr_code_delete': '以下のQRコードを削除すると\n個口数が変更になるので\nラベルの修正が必要になります。\n\nよろしいですか？',
       'hint_search_order': '注文番号を入力してを検索',
       'txt_recent_search_history': '最近の検索履歴',
       'txt_required_picking_order': 'ピッキングが必要な注文',
       'txt_total_product_count': '合計商品点数',
       'txt_concept_of_label': 'ラベルの数の考え方',
       'txt_check_qr_code_to_delete': '読み取ったQRコードを削除する場合、対象のコードにチェックをつけてください。',
-      'error_msg_cannot_get_data': 'データが取得できません。\n電波の良いところで再度お試し下さい。',
+      'error_msg_cannot_get_data': 'データが取得できません。\n電波の良いところで再度お試しください。',
       'error_msg_no_data': '現在対応が必要な注文はありません。',
+      'error_msg_no_history_data': '対応履歴がありません。',
+      'error_msg_no_history_search_data': '該当する対応履歴がありません。',
       'txt_contact_us_part_1': '改善したい場合は以下の番号に\n電話でお問い合わせ下さい。\n\n'
           '①の番号につながらない場合は\n②にお問い合わせて下さい。\n',
       'txt_contact_us_part_2': '問い合わせ先①：　xxx-xxxx-xxxx',
@@ -165,18 +170,23 @@ class O2OLocalizations {
       'txt_read_qrcode': 'QR読取',
       'msg_read_barcode': 'バーコードをカメラで読み取ってください。\n読み取りが成功しますと、\n'
           '対象の商品情報が表示されます。',
-      'msg_read_qrcode': '荷札QRコードにカメラをかざしてください。読み取りが成功しますと、'
-          'そのQRコードに紐づいたの注文の対応履歴が表示されます。',
+      'msg_read_barcode_history': 'バーコードにカメラをかざしてください。\n読み取りが成功しますと、そのバーコードの\n'
+          '商品を含む注文の対応履歴が表示されます。',
+      'msg_read_qrcode': '荷札QRコードにカメラをかざしてください。\n読み取りが成功しますと、'
+          'そのQRコードに\n紐づいたの注文の対応履歴が表示されます。',
       'hint_search_by_barcode': 'JANコードを入力して対応履歴を検索',
       'hint_search_by_qrcode': '荷物番号を入力して対応履歴を検索',
       'txt_work_finishing_time': '作業完了時刻',
       'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを\n記載していた場合、赤字の部分を修正して下さい。',
-      'txt_pull_to_refresh': '引きて更新',
+      'txt_pull_to_refresh': '引っ張って更新',
       'txt_release_to_refresh': '解放して更新',
       'txt_refreshing': '更新しています',
       'txt_refresh_completed': '更新を完了',
       'error_server_is_not_available': 'サーバーが利用できません。もう一度やり直してください',
       'error_internet_is_not_available': 'インターネットは利用できません',
+      'msg_new_notification': '新しい注文を受け付けました。\n注文の一覧をご確認ください。',
+      'txt_search_with_jan_code': 'JANコード検索',
+      'txt_search_with_baggage_no': '荷物番号で検索',
     },
     'ja': {
       'title': 'O2O',
@@ -185,6 +195,9 @@ class O2OLocalizations {
       'home_navigation_2': '対応履歴',
       'home_navigation_1_title': '発送時間帯別の作業一覧',
       'home_navigation_2_title': '対応履歴',
+      'error_device_not_available': '端末はサーバーにまだありません。',
+      'error_cannot_get_device_info': '端末の情報は取得することができません。',
+      'error_cannot_register_device': '未登録の端末です。',
       'error_order_data': '注文情報が取得できません。\n電波の良いところで再度お試しください。',
       'no_time_order_data': '現在対応必要な注文はありません',
       'txt_reload': '再読み込みする',
@@ -201,9 +214,9 @@ class O2OLocalizations {
       'txt_start': '開始する',
       'txt_cancel': 'キャンセル',
       'txt_start_picking': 'ピッキング作業を開始します。',
-      'msg_start_picking': 'この注文のステータスを「作業中」に変更して作業を開始しますか？',
+      'msg_start_picking': 'この注文のステータスを「作業中」に変更して、作業を開始しますか？',
       'warning_other_device_is_picking': 'この注文は他の方が作業中です。\n発送準備を開始しますか？',
-      'msg_scan_barcode': 'バーコードをカメラで読み取ってください。',
+      'msg_scan_barcode': 'バーコードをカメラで読み取って下さい。',
       'msg_scan_barcode_extended': 'バーコードをカメラで読み取ってください。\n読み取りが成功しまと、\n対象の商品情報が表示されます。',
       'txt_settings': '設定',
       'txt_report_storage': '欠品を報告する',
@@ -211,7 +224,7 @@ class O2OLocalizations {
       'title_insert_code_manually': 'JANコードを手入力してください',
       'txt_entry_jan_code': 'JANコードを登録する',
       'txt_scanned_product': '読み取り末完了の商品',
-      'txt_scan_completed_product': '読み取りが末完了した商品',
+      'txt_scan_completed_product': '読み取りが完了した商品',
       'txt_jan_code': 'JANコード',
       'txt_category_name': 'カテゴリー名',
       'txt_submit_and_next': '登録して次へ',
@@ -253,7 +266,7 @@ class O2OLocalizations {
       'txt_delivery_number': '配送番号',
       'txt_baggage_number': '荷物番号',
       'txt_quantity': '個数',
-      'txt_number_of_pieces': '告口数',
+      'txt_number_of_pieces': '個口数',
       'txt_comment': 'コメント',
       'txt_confirm_shipping_preparation_completion': '発送準備の完了確認',
       'msg_confirm_shipping_preparation_completion': 'ラベルに「発送準備時間」、「荷物管理番号」、'
@@ -305,16 +318,18 @@ class O2OLocalizations {
       'msg_confirm_change': '発送準備の完了した商品はドライバーが集荷に伺いますので、'
           '追加した分の商品を合わせて所定の場所に保管して下さい。',
       'txt_complete_shipping_preparation': '発送準備を完了する',
-      'msg_primary_qr_code_delete': '以下のQRコードを削除すると荷物管理番号が変更になるのでラベルの修正が必要になります。',
-      'msg_qr_code_delete': '以下のQRコードを削除します。\nよろしいですか？',
+      'msg_primary_qr_code_delete': '以下のQRコードを削除すると\n配送番号と個口数が変更になるので\nラベルの修正が必要になります。\n\nよろしいですか？',
+      'msg_qr_code_delete': '以下のQRコードを削除すると\n個口数が変更になるので\nラベルの修正が必要になります。\n\nよろしいですか？',
       'hint_search_order': '注文番号を入力してを検索',
       'txt_recent_search_history': '最近の検索履歴',
       'txt_required_picking_order': 'ピッキングが必要な注文',
       'txt_total_product_count': '合計商品点数',
       'txt_concept_of_label': 'ラベルの数の考え方',
       'txt_check_qr_code_to_delete': '読み取ったQRコードを削除する場合、対象のコードにチェックをつけてください。',
-      'error_msg_cannot_get_data': 'データが取得できません。\n電波の良いところで再度お試し下さい。',
+      'error_msg_cannot_get_data': 'データが取得できません。\n電波の良いところで再度お試しください。',
       'error_msg_no_data': '現在対応が必要な注文はありません。',
+      'error_msg_no_history_data': '対応履歴がありません。',
+      'error_msg_no_history_search_data': '該当する対応履歴がありません。',
       'txt_contact_us_part_1': '改善したい場合は以下の番号に\n電話でお問い合わせ下さい。\n\n'
           '①の番号につながらない場合は\n②にお問い合わせて下さい。\n',
       'txt_contact_us_part_2': '問い合わせ先①：　xxx-xxxx-xxxx',
@@ -324,18 +339,23 @@ class O2OLocalizations {
       'txt_read_qrcode': 'QR読取',
       'msg_read_barcode': 'バーコードをカメラで読み取ってください。\n読み取りが成功しますと、\n'
           '対象の商品情報が表示されます。',
-      'msg_read_qrcode': '荷札QRコードにカメラをかざしてください。読み取りが成功しますと、'
-          'そのQRコードに紐づいたの注文の対応履歴が表示されます。',
+      'msg_read_barcode_history': 'バーコードにカメラをかざしてください。\n読み取りが成功しますと、そのバーコードの\n'
+          '商品を含む注文の対応履歴が表示されます。',
+      'msg_read_qrcode': '荷札QRコードにカメラをかざしてください。\n読み取りが成功しますと、'
+          'そのQRコードに\n紐づいたの注文の対応履歴が表示されます。',
       'hint_search_by_barcode': 'JANコードを入力して対応履歴を検索',
       'hint_search_by_qrcode': '荷物番号を入力して対応履歴を検索',
       'txt_work_finishing_time': '作業完了時刻',
       'warning_update_label_info': '赤字の部分が変更されていますので、既に配送ラベルを\n記載していた場合、赤字の部分を修正して下さい。',
-      'txt_pull_to_refresh': '引きて更新',
+      'txt_pull_to_refresh': '引っ張って更新',
       'txt_release_to_refresh': '解放して更新',
       'txt_refreshing': '更新しています',
       'txt_refresh_completed': '更新を完了',
       'error_server_is_not_available': 'サーバーが利用できません。もう一度やり直してください',
       'error_internet_is_not_available': 'インターネットは利用できません',
+      'msg_new_notification': '新しい注文を受け付けました。\n注文の一覧をご確認ください。',
+      'txt_search_with_jan_code': 'JANコード検索',
+      'txt_search_with_baggage_no': '荷物番号で検索',
     },
   };
 
@@ -349,6 +369,9 @@ class O2OLocalizations {
   String get homeNavigation2 => _getLocalizedValue('home_navigation_2');
   String get homeNavigation1Title => _getLocalizedValue('home_navigation_1_title');
   String get homeNavigation2Title => _getLocalizedValue('home_navigation_2_title');
+  String get errorDeviceNotAvailable => _getLocalizedValue('error_device_not_available');
+  String get errorCannotGetDeviceInfo => _getLocalizedValue('error_cannot_get_device_info');
+  String get errorCannotRegisterDevice => _getLocalizedValue('error_cannot_register_device');
   String get errorOrderData => _getLocalizedValue('error_order_data');
   String get noTimeOrderData => _getLocalizedValue('no_time_order_data');
   String get txtReload => _getLocalizedValue('txt_reload');
@@ -476,6 +499,8 @@ class O2OLocalizations {
   String get txtCheckQrCodeToDelete => _getLocalizedValue('txt_check_qr_code_to_delete');
   String get errorMsgCannotGetData => _getLocalizedValue('error_msg_cannot_get_data');
   String get errorMsgNoData => _getLocalizedValue('error_msg_no_data');
+  String get errorMsgNoHistoryData => _getLocalizedValue('error_msg_no_history_data');
+  String get errorMsgNoHistorySearchData => _getLocalizedValue('error_msg_no_history_search_data');
   String get txtContactUsPart1 => _getLocalizedValue('txt_contact_us_part_1');
   String get txtContactUsPart2 => _getLocalizedValue('txt_contact_us_part_2');
   String get txtContactUsPart3 => _getLocalizedValue('txt_contact_us_part_3');
@@ -483,6 +508,7 @@ class O2OLocalizations {
   String get txtReadBarcode => _getLocalizedValue('txt_read_barcode');
   String get txtReadQRCode => _getLocalizedValue('txt_read_qrcode');
   String get msgReadBarcode => _getLocalizedValue('msg_read_barcode');
+  String get msgReadBarcodeHistory => _getLocalizedValue('msg_read_barcode_history');
   String get msgReadQRCode => _getLocalizedValue('msg_read_qrcode');
   String get hintSearchByBarcode => _getLocalizedValue('hint_search_by_barcode');
   String get hintSearchByQrCode => _getLocalizedValue('hint_search_by_qrcode');
@@ -494,4 +520,7 @@ class O2OLocalizations {
   String get txtRefreshCompleted => _getLocalizedValue('txt_refresh_completed');
   String get errorServerIsNotAvailable => _getLocalizedValue('error_server_is_not_available');
   String get errorInternetIsNotAvailable => _getLocalizedValue('error_internet_is_not_available');
+  String get msgNewNotification => _getLocalizedValue('msg_new_notification');
+  String get txtSearchWithJanCode => _getLocalizedValue('txt_search_with_jan_code');
+  String get txtSearchWithBaggageNo => _getLocalizedValue('txt_search_with_baggage_no');
 }

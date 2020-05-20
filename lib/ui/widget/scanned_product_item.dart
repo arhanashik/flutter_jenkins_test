@@ -75,7 +75,7 @@ class ScannedProductItem extends StatelessWidget {
             '${locale.txtCategoryName}: ${product.category}',
             style: TextStyle(color: Colors.black, fontSize: 12,),
           ),
-          product.pickedItemCount < product.itemCount? Container(
+          product.pickedItemCount > 0 && product.pickedItemCount < product.itemCount? Container(
             height: 28.0,
             width: 100.0,
             margin: EdgeInsets.only(top: 5.0),

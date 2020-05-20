@@ -85,102 +85,123 @@ class _SplashScreenState extends BaseState<SplashScreen> {
     }
 
     setState(() => loadingState = LoadingState.LOADING);
-    String imei = await DeviceUtil.getIMEI();
-    await PrefUtil.save(PrefUtil.IMEI, imei);
-    final String fcmToken = await FcmManager().getFcmToken();
-    if(fcmToken == null || fcmToken.isEmpty) {
+
+    //Read and save the device serial number
+    String serial = await DeviceUtil.getSerialNumber();
+    await PrefUtil.save(PrefUtil.SERIAL_NUMBER, serial);
+
+    bool loggedIn = await _login();
+    if(!loggedIn) {
       setState(() => loadingState = LoadingState.ERROR);
-      SnackbarUtil.show(
-        context,
-        'Fcm token not found',
-        icon: Icon(Icons.error, color: Colors.white,),
-        background: Colors.redAccent,
-      );
       return;
     }
-    final oldFcmToken = await PrefUtil.read(PrefUtil.FCM_TOKEN);
-    if(oldFcmToken == null || oldFcmToken.isEmpty || fcmToken != oldFcmToken) {
-      final params = HashMap();
-      params['imei'] = imei;
-      params['token'] = fcmToken;
 
-      final response = await HttpUtil.post(HttpUtil.UPDATE_FCM_TOKEN, params);
-      if (response.statusCode != HttpCode.OK) {
-        setState(() => loadingState = LoadingState.ERROR);
-        SnackbarUtil.show(
-          context,
-          locale.errorServerIsNotAvailable,
-          icon: Icon(Icons.error, color: Colors.white,),
-          background: Colors.redAccent,
-        );
-        return;
-      }
-
-      final responseMap = json.decode(response.body);
-      final code = responseMap['code'];
-      if(code != HttpCode.OK) {
-        setState(() => loadingState = LoadingState.ERROR);
-        SnackbarUtil.show(
-          context,
-          '端末Tokenはサーバーに登録するはできません。',
-          icon: Icon(Icons.error, color: Colors.white,),
-          background: Colors.redAccent,
-        );
-        return;
-      }
-
-      await PrefUtil.save(PrefUtil.FCM_TOKEN, fcmToken);
+    bool tokenUpdated = await _updateFcmToken();
+    if(!tokenUpdated) {
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
     }
 
+    setState(() => loadingState = LoadingState.OK);
+    _goToNextScreen();
+  }
+
+  Future<bool> _login() async {
+    String serial = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
+
     final params = HashMap();
-    params['imei'] = imei;
+    params[Params.SERIAL] = serial;
     final response = await HttpUtil.get(HttpUtil.LOGIN, params: params);
     if (response.statusCode != HttpCode.OK) {
-      setState(() => loadingState = LoadingState.ERROR);
       SnackbarUtil.show(
         context,
         locale.errorServerIsNotAvailable,
         icon: Icon(Icons.error, color: Colors.white,),
         background: Colors.redAccent,
       );
-      return;
+      return false;
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
-    if(code == HttpCode.NOT_FOUND) {
-      setState(() => loadingState = LoadingState.ERROR);
+    final code = responseMap[Params.CODE];
+    if(code == HttpCode.NOT_FOUND || code != HttpCode.OK) {
       SnackbarUtil.show(
         context,
-        '端末はサーバーにまだありません。',
+        locale.errorDeviceNotAvailable,
         icon: Icon(Icons.error, color: Colors.white,),
         background: Colors.redAccent,
       );
-      return;
+      return false;
     }
-    final String deviceName = responseMap['data']['deviceName'];
-    final String storeName = responseMap['data']['storeName'];
+    final data = responseMap[Params.DATA];
+    final String deviceName = data[Params.DEVICE_NAME];
+    final String storeName = data[Params.STORE_NAME];
     print('deviceName: $deviceName, storeName: $storeName');
-//    if(deviceName.isEmpty || storeName.isEmpty) {
-//      setState(() => loadingState = LoadingState.ERROR);
-//      SnackbarUtil.show(
-//        context,
-//        '端末の情報は取得することができません。',
-//        icon: Icon(Icons.error, color: Colors.white,),
-//        background: Colors.redAccent,
-//      );
-//      return;
-//    }
+    if(deviceName == null || deviceName.isEmpty || storeName == null || storeName.isEmpty) {
+      SnackbarUtil.show(
+        context,
+        locale.errorCannotGetDeviceInfo,
+        icon: Icon(Icons.error, color: Colors.white,),
+        background: Colors.redAccent,
+      );
+      return false;
+    }
     await PrefUtil.save(PrefUtil.DEVICE_NAME, deviceName);
     await PrefUtil.save(PrefUtil.STORE_NAME, storeName);
 
-
-    setState(() => loadingState = LoadingState.OK);
-    _goToNextScreen();
+    return true;
   }
 
-  _updateFcmToken() {
+  Future<bool> _updateFcmToken() async {
+    String serial = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
 
+    //Read and save the fcm notification token
+    final fcmManager = FcmManager();
+    await fcmManager.init();
+    final String fcmToken = await fcmManager.getFcmToken();
+    if(fcmToken == null || fcmToken.isEmpty) {
+      SnackbarUtil.show(
+        context,
+        locale.errorCannotRegisterDevice,
+        icon: Icon(Icons.error, color: Colors.white,),
+        background: Colors.redAccent,
+      );
+      return false;
+    }
+
+    final oldFcmToken = await PrefUtil.read(PrefUtil.FCM_TOKEN);
+    if(oldFcmToken == null || oldFcmToken.isEmpty || fcmToken != oldFcmToken) {
+      final params = HashMap();
+      params[Params.SERIAL] = serial;
+      params[Params.TOKEN] = fcmToken;
+
+      final response = await HttpUtil.post(HttpUtil.UPDATE_FCM_TOKEN, params);
+      if (response.statusCode != HttpCode.OK) {
+        SnackbarUtil.show(
+          context,
+          locale.errorServerIsNotAvailable,
+          icon: Icon(Icons.error, color: Colors.white,),
+          background: Colors.redAccent,
+        );
+        return false;
+      }
+
+      final responseMap = json.decode(response.body);
+      final code = responseMap[Params.CODE];
+      if(code != HttpCode.OK) {
+        SnackbarUtil.show(
+          context,
+          locale.errorCannotRegisterDevice,
+          icon: Icon(Icons.error, color: Colors.white,),
+          background: Colors.redAccent,
+        );
+        return false;
+      }
+
+      await PrefUtil.save(PrefUtil.FCM_TOKEN, fcmToken);
+    }
+
+    return true;
   }
 
   _goToNextScreen() {

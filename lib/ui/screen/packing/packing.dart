@@ -19,9 +19,11 @@ import 'package:o2o/ui/widget/common/app_icons.dart';
 import 'package:o2o/ui/widget/common/common_widget.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
-import 'package:o2o/ui/widget/dialog/full_screen_stock_out_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_order_list_dialog.dart';
-import 'package:o2o/ui/widget/popup/shape_widget.dart';
+import 'package:o2o/ui/widget/dialog/full_screen_stock_out_dialog.dart';
+import 'package:o2o/ui/widget/popup/popup_divider.dart';
+import 'package:o2o/ui/widget/popup/popup_menu_item.dart';
+import 'package:o2o/ui/widget/popup/popup_shape.dart';
 import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/helper/common.dart';
@@ -354,58 +356,84 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     );
   }
 
-  bool _menuShown = false;
-  _buildMenu() {
-    return Container(
-      color: Colors.white,
-      width: 180.0,
-      child: Column(
-        children: <Widget>[
-          Visibility(
-            child: InkWell(
-              child: Padding(
-                child: Text(
-                  locale.txtReportStorage,
-                  style: TextStyle(
-                      color: AppColors.colorBlueDark,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14.0
-                  ),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 10.0),
-              ),
-              onTap: (){
-                setState(() => _menuShown = !_menuShown);
-                _checkStockOutStatus();
-              },
-            ),
-            visible: _currentStep == Step.STEP_1,
-          ),
-          Container(
-            height: _currentStep == Step.STEP_1? 1.5 : 0,
-            color: AppColors.colorF1F1F1,
-          ),
-          InkWell(
-            child: Padding(
-              child: Text(
-                locale.txtSeeOrderList,
-                style: TextStyle(
-                    color: AppColors.colorBlueDark,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.0
-                ),
-              ),
-              padding: EdgeInsets.symmetric(vertical: 10.0,),
-            ),
-            onTap: () {
-              setState(() => _menuShown = !_menuShown);
-              _showOrderProductList();
-            },
-          ),
-        ],
+  _showMenu(Offset offset) {
+    double left = offset.dx;
+//    double top = offset.dy + 28;
+    double top = _isUnderWork? 100.0 : 74.0;
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(left, top, 13, 0),
+      shape: PopupShape(
+        side: BorderSide(color: AppColors.colorBlue),
+        borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
+//        color: AppColors.colorBlue,
+      items: <PopupMenuEntry>[
+        _currentStep == Step.STEP_1? MyPopupMenuItem(
+          text: locale.txtReportStorage,
+          onTap: () => _checkStockOutStatus(),
+        ) : null,
+        _currentStep == Step.STEP_1? MyPopupMenuDivider() : null,
+        MyPopupMenuItem(
+          text: locale.txtSeeOrderList,
+          onTap: () => _showOrderProductList(),
+        ),
+      ],
     );
   }
+
+//  bool _menuShown = false;
+//  _buildMenu() {
+//    return Container(
+//      color: Colors.white,
+//      width: 180.0,
+//      child: Column(
+//        children: <Widget>[
+//          Visibility(
+//            child: InkWell(
+//              child: Padding(
+//                child: Text(
+//                  locale.txtReportStorage,
+//                  style: TextStyle(
+//                      color: AppColors.colorBlueDark,
+//                      fontWeight: FontWeight.w600,
+//                      fontSize: 14.0
+//                  ),
+//                ),
+//                padding: EdgeInsets.symmetric(vertical: 10.0),
+//              ),
+//              onTap: (){
+//                setState(() => _menuShown = !_menuShown);
+//                _checkStockOutStatus();
+//              },
+//            ),
+//            visible: _currentStep == Step.STEP_1,
+//          ),
+//          Container(
+//            height: _currentStep == Step.STEP_1? 1.5 : 0,
+//            color: AppColors.colorF1F1F1,
+//          ),
+//          InkWell(
+//            child: Padding(
+//              child: Text(
+//                locale.txtSeeOrderList,
+//                style: TextStyle(
+//                    color: AppColors.colorBlueDark,
+//                    fontWeight: FontWeight.w600,
+//                    fontSize: 14.0
+//                ),
+//              ),
+//              padding: EdgeInsets.symmetric(vertical: 10.0,),
+//            ),
+//            onTap: () {
+//              setState(() => _menuShown = !_menuShown);
+//              _showOrderProductList();
+//            },
+//          ),
+//        ],
+//      ),
+//    );
+//  }
 
   Future<bool> _onWillPop() async {
     return (await ConfirmationDialog(
@@ -460,9 +488,15 @@ class _PackingScreenState extends BaseState<PackingScreen> {
 //                  );
 //                }).toList();
 //              }),
-          menu: InkWell(
+//          menu: InkWell(
+//            child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: AppColors.colorBlue),
+//            onTap: () => setState(() => _menuShown = !_menuShown),
+//          ),
+          menu: GestureDetector(
+            onTapDown: (TapDownDetails details) {
+              _showMenu(details.globalPosition);
+            },
             child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: AppColors.colorBlue),
-            onTap: () => setState(() => _menuShown = !_menuShown),
           ),
           onTapNavigation: () => _onWillPop(),
           error: _isUnderWork? '${_orderItem.lockedName}が作業中' : '',
@@ -472,17 +506,17 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           overflow: Overflow.visible,
           children: <Widget>[
             _bodyBuilder(),
-            Visibility(
-              child: Positioned(
-                child: ShapedWidget(
-                  child: _buildMenu(),
-                  background: AppColors.colorBlue,
-                ),
-                right: 13.0,
-                top: 10.0,
-              ),
-              visible: _menuShown,
-            ),
+//            Visibility(
+//              child: Positioned(
+//                child: ShapedWidget(
+//                  child: _buildMenu(),
+//                  background: AppColors.colorBlue,
+//                ),
+//                right: 13.0,
+//                top: 10.0,
+//              ),
+//              visible: _menuShown,
+//            ),
           ],
         ),
       ),
@@ -496,7 +530,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     });
     final resultList = await Navigator.of(context).push(new MaterialPageRoute<List>(
         builder: (BuildContext context) {
-          return FullScreenStock0utDialog(
+          return FullScreenStockOutDialog(
             orderItem: _orderItem, products: products,
           );
         },
@@ -559,14 +593,22 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     if(_orderCompleted) _completeOrder();
 
     CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
-    final qrCodes = _scannedQrCodes.toList();
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
+//    final qrCodes = _scannedQrCodes.toList();
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
-    params['receiptNo'] = _receiptNumber;
-    params['primaryQrCode'] = "${qrCodes[0]}";
-    params['otherQrCode'] = qrCodes.length > 1? qrCodes.sublist(1) : List();
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
+    params[Params.RECEIPT_NO] = _receiptNumber;
+    int qrSerial = 0;
+    final qrCodes = List<String>();
+    _scannedQrCodes.forEach((qrCode) {
+      String qrStr = "$qrSerial:$qrCode";
+      qrCodes.add(qrStr);
+      qrSerial++;
+    });
+    params[Params.QR_CODE_LIST] = qrCodes;
+//    params[Params.PRIMARY_QR_CODE] = "${qrCodes[0]}";
+//    params[Params.OTHER_QR_CODE] = qrCodes.length > 1? qrCodes.sublist(1) : List();
     //params['status'] = PackingStatus.DONE;
 
     final response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_QR_CODE, params);
@@ -585,11 +627,11 @@ class _PackingScreenState extends BaseState<PackingScreen> {
   /// If successfully updated, close packing screen and return to order list
   _completeOrder() async {
     CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
-    params['status'] = PackingStatus.DONE;
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
+    params[Params.STATUS] = PackingStatus.DONE;
 
     final response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
     Navigator.of(context).pop();
@@ -599,7 +641,10 @@ class _PackingScreenState extends BaseState<PackingScreen> {
       return;
     }
 
-    Navigator.of(context).pop({'order_id': _orderItem.orderId});
+    Navigator.of(context).pop({
+      Params.ORDER_ID: _orderItem.orderId,
+      Params.STATUS: TransitStatus.PACKING_DONE,
+    });
   }
 
   _validateResponse(response, String errorMsg) {
@@ -612,12 +657,15 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
+    final code = responseMap[Params.CODE];
     if(code != HttpCode.OK) {
-      ToastUtil.show(context, errorMsg);
+      ToastUtil.show(
+          context, errorMsg,
+          icon: Icon(Icons.error, color: Colors.white,), error: true
+      );
       return null;
     }
 
-    return responseMap['data'];
+    return responseMap[Params.DATA];
   }
 }

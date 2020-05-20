@@ -12,6 +12,7 @@ class AddProductDialog {
     this.onCancel
   }) {
     pickCount = product.pickedItemCount;
+    if(pickCount == 0) pickCount = 1;
   }
   final BuildContext context;
   final ProductEntity product;
@@ -19,10 +20,10 @@ class AddProductDialog {
   Function onCancel;
   int pickCount;
 
-  _loadImg(String url, double padding) {
+  _loadImg(String url,) {
     return Padding(
-      padding: EdgeInsets.all(padding),
-      child: AppImages.loadSizedImage(url, height: 80.0, width: 80.0, isAsset: false),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      child: AppImages.loadSizedImage(url, height: 64.0, width: 64.0, isAsset: false),
     );
   }
 
@@ -110,6 +111,28 @@ class AddProductDialog {
     );
   }
 
+  _buildJanCodeView(O2OLocalizations locale, String janCode) {
+    final janCodeLeading = (janCode.length < 3)
+        ? janCode : janCode.substring(0, janCode.length - 3);
+    final janCodeTail = (janCode.length < 3)
+        ? '' : janCode.substring(janCode.length - 3);
+
+    return RichText(
+      text: TextSpan(
+          style: TextStyle(color: Colors.black, fontSize: 12),
+          children: [
+            TextSpan(text: '${locale.txtJanCode}: $janCodeLeading'),
+            TextSpan(
+                text: janCodeTail,
+                style: TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.bold
+                )
+            )
+          ]
+      ),
+    );
+  }
+
    _buildActionButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -127,6 +150,7 @@ class AddProductDialog {
           text: O2OLocalizations.of(context).txtSubmitAndNext,
           onPressed: () => onInsertAndNext(pickCount - product.pickedItemCount),
           showIcon: true,
+          enabled: pickCount > 0,
         ),
       ],
     );
@@ -149,8 +173,9 @@ class AddProductDialog {
                         context, O2OLocalizations.of(context).txtProductScanned
                     ),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        _loadImg(product.imageUrl, 10.0),
+                        _loadImg(product.imageUrl,),
                         Flexible(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,11 +191,11 @@ class AddProductDialog {
                                   ),
                                 ),
                               ),
+                              _buildJanCodeView(locale, product.janCode.toString()),
                               Padding(
                                 padding: EdgeInsets.only(bottom: 10, right: 10),
                                 child: Text(
-                                  '${locale.txtJanCode}: ${product.janCode}'
-                                      '\n${locale.txtCategoryName}: ${product.category}',
+                                  '${locale.txtCategoryName}: ${product.category}',
                                   style: TextStyle(color: Colors.black, fontSize: 12),
                                 ),
                               ),

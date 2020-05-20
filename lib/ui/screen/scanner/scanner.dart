@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
-import 'package:o2o/ui/screen/home/history/search_history.dart';
+import 'package:o2o/ui/screen/searchhistory/search_history.dart';
 import 'package:o2o/ui/screen/scanner/full_screen_scanner_overlay_shape.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/common/topbar.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:qr_code_scanner/qr_scanner_overlay_shape.dart';
 
 class ScannerScreen extends StatefulWidget {
   ScannerScreen({
@@ -152,13 +152,13 @@ class _ScannerScreenState extends BaseState<ScannerScreen> {
   }
 
   void _exitScannerWithResult() {
-    Navigator.of(context).pop({'qrCode': _qrCode});
+    Navigator.of(context).pop({Params.QR_CODE: _qrCode});
   }
 
   void _searchQrCode() {
     Navigator.of(context).push(
       MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => SearchHistory(
+        builder: (BuildContext context) => SearchHistoryScreen(
           searchQuery: _qrCode,
           hint: locale.hintSearchByQrCode,
           type: SearchType.QR_CODE,

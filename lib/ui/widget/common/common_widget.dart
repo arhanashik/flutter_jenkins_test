@@ -132,7 +132,7 @@ class CommonWidget {
     );
   }
 
-  static Text _boldTextBuilder(String text, double size) {
+  static Text boldTextBuilder(String text, double size) {
     return Text(
       text,
       style: TextStyle(
@@ -151,17 +151,17 @@ class CommonWidget {
       margin: EdgeInsets.only(bottom: 10),
       child: Row(
         children: <Widget>[
-          _boldTextBuilder(month.toString(), 22),
+          boldTextBuilder(month.toString(), 22),
           Padding(
             padding: EdgeInsets.only(right: 5, top: 8),
-            child: _boldTextBuilder('月', 12),
+            child: boldTextBuilder('月', 12),
           ),
-          _boldTextBuilder(day.toString(), 22),
+          boldTextBuilder(day.toString(), 22),
           Padding(
             padding: EdgeInsets.only(right: 5, top: 8),
-            child: _boldTextBuilder('日', 12),
+            child: boldTextBuilder('日', 12),
           ),
-          _boldTextBuilder('($dayStr)', 18),
+          boldTextBuilder('($dayStr)', 18),
         ],
       ),
     );
@@ -176,10 +176,10 @@ class CommonWidget {
       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
       child: Row(
         children: <Widget>[
-          _boldTextBuilder('$hour:$min', 20),
+          boldTextBuilder('$hour:$min', 20),
           Padding(
             padding: EdgeInsets.only(left: 5, top: 5),
-            child: _boldTextBuilder('発送分', 12),
+            child: boldTextBuilder('発送分', 12),
           ),
         ],
       ),
@@ -282,7 +282,7 @@ class CommonWidget {
     );
   }
 
-  static sectionTitleBuilder(String title) {
+  static sectionTitleBuilder(String title, {double fontSize = 14}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -299,7 +299,7 @@ class CommonWidget {
           padding: EdgeInsets.only(left: 10),
           child: Text(
             title, style: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black
+              fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black
           ),
           ),
         )

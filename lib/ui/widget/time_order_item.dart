@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:o2o/data/timeorder/time_order.dart';
 import 'package:o2o/ui/screen/orderlist/order_list.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
-import 'package:o2o/ui/widget/toast/toast_util.dart';
 
 class TimeOrderItem extends StatelessWidget {
 
@@ -39,7 +38,7 @@ class TimeOrderItem extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(left: 5, top: 3),
+            padding: EdgeInsets.only(left: 5, top: 2.5),
             child: Text(
               '発送分',
               style: TextStyle(
@@ -74,16 +73,17 @@ class TimeOrderItem extends StatelessWidget {
                 fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black
             ),
           ),
-          Padding(padding: EdgeInsets.only(left: 10),),
-          Text(
-            timeOrder.incompleteOrderCount.toString(),
-            style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.colorAccent
+          Padding(
+            padding: EdgeInsets.only(left: 10, bottom: 3.5, right: 5),
+            child: Text(
+              timeOrder.incompleteOrderCount.toString(),
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.colorAccent
+              ),
             ),
           ),
-          Padding(padding: EdgeInsets.only(left: 5),),
           Text(
             "件",
             style: TextStyle(
@@ -104,14 +104,15 @@ class TimeOrderItem extends StatelessWidget {
                 fontSize: 14, color: Colors.black
             ),
           ),
-          Padding(padding: EdgeInsets.only(left: 5),),
-          Text(
-            timeOrder.orderCount.toString(),
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black
+          Padding(
+            padding: EdgeInsets.only(left: 5, bottom: 3, right: 5),
+            child: Text(
+              timeOrder.orderCount.toString(),
+              style: TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black
+              ),
             ),
           ),
-          Padding(padding: EdgeInsets.only(left: 5),),
           Text(
             "件",
             style: TextStyle(

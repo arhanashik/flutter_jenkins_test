@@ -5,6 +5,7 @@ import 'package:o2o/ui/widget/common/app_images.dart';
 import 'package:o2o/ui/widget/dialog/details_dialog.dart';
 import 'package:o2o/util/helper/common.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
+import 'package:o2o/util/lib/remote/http_util.dart';
 
 class PackingProductItem extends StatelessWidget {
   final ProductEntity product;
@@ -16,7 +17,7 @@ class PackingProductItem extends StatelessWidget {
     this.onPressed,
   }) : super(key: key);
 
-  _buildLeading(BuildContext context, O2OLocalizations locale, ProductEntity product) {
+  _buildLeading(BuildContext context, O2OLocalizations locale,) {
     return InkWell(
       child: AppImages.loadSizedImage(
           product.imageUrl, isAsset: false, width: 48.0, height: 48.0
@@ -75,17 +76,28 @@ class PackingProductItem extends StatelessWidget {
     );
   }
 
-  _buildItemCountView(int itemCount) {
+  _buildItemCountView() {
+    int itemCount = product.itemCount;
+    bool isMissing = false;
+    if(product.flag == SearchOrderFlag.MISSING) isMissing = true;
+
     return Container(
       height: 22,
       width: 48,
       alignment: Alignment.center,
       margin: EdgeInsets.only(top: 8),
       decoration: BoxDecoration(
-        color: const Color(0x11FF6591),
+        color: isMissing? AppColors.colorAccent : Color(0x11FF6591),
         borderRadius: BorderRadius.all(Radius.circular(2)),
       ),
-      child: Row(
+      child: isMissing? Text(
+        '欠品',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ) : Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Padding(
@@ -105,13 +117,13 @@ class PackingProductItem extends StatelessWidget {
     );
   }
 
-  ListTile _listTileBuilder(context) {
+  _listTileBuilder(context) {
     O2OLocalizations locale = O2OLocalizations.of(context);
 
     final janCode = product.janCode == null? '' : product.janCode.toString();
 
     return ListTile(
-      leading: _buildLeading(context, locale, product),
+      leading: _buildLeading(context, locale,),
       title: Text(
         product.title,
         style: TextStyle(
@@ -128,7 +140,7 @@ class PackingProductItem extends StatelessWidget {
             children: <Widget>[
               _buildPriceView(locale, product.price),
               Spacer(),
-              _buildItemCountView(product.itemCount),
+              _buildItemCountView(),
             ],
           )
         ],

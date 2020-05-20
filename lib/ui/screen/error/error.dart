@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:o2o/data/pref/pref.dart';
 import 'package:o2o/ui/screen/base/base_state.dart';
 import 'package:o2o/ui/widget/button/gradient_button.dart';
+import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/util/helper/device_util.dart';
 
@@ -94,16 +95,7 @@ class _ErrorScreenState extends BaseState<ErrorScreen> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _readDeviceInfo();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
+  _bodyBuilder() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
@@ -130,6 +122,22 @@ class _ErrorScreenState extends BaseState<ErrorScreen> {
           visible: !showHelpTxt,
         ),
       ],
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _readDeviceInfo();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: _bodyBuilder(),
     );
   }
 

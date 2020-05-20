@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/data/timeorder/time_order.dart';
-import 'package:o2o/ui/screen/home/history/order_list_history.dart';
+import 'package:o2o/ui/screen/home/history/history_type.dart';
+import 'package:o2o/ui/screen/orderlisthistory/order_list_history.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
@@ -15,7 +16,8 @@ class TimeOrderHistoryItem extends StatelessWidget {
   ): super(key: key);
 
   Container _itemHeaderBuilder() {
-    final deliveryTime = timeOrder.scheduledDeliveryDateTime.substring(
+    String deliveryTime = '';
+    deliveryTime = timeOrder.scheduledDeliveryDateTime.substring(
         timeOrder.scheduledDeliveryDateTime.lastIndexOf(" ")
     );
 
@@ -30,7 +32,7 @@ class TimeOrderHistoryItem extends StatelessWidget {
         )
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 13),
+        padding: EdgeInsets.symmetric(horizontal: 13),
         child: Row(
           children: <Widget>[
             Text(
@@ -40,7 +42,7 @@ class TimeOrderHistoryItem extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(left: 5, top: 5.5),
+              padding: EdgeInsets.only(left: 5, top: 2.5),
               child: Text(
                 '発送分',
                 style: TextStyle(
@@ -73,24 +75,19 @@ class TimeOrderHistoryItem extends StatelessWidget {
         children: <Widget>[
           Padding(padding: EdgeInsets.only(left: 18),),
           Text(
-            locale.txtOrderQuantity,
-            style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black
+            locale.txtOrderQuantity, style: TextStyle(fontSize: 14, color: Colors.black),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 3, bottom: 3.5, right: 3),
+            child: Text(
+              timeOrder.orderCount.toString(),
+              style: TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.colorBlueDark
+              ),
             ),
           ),
-          Padding(padding: EdgeInsets.only(left: 10),),
           Text(
-            timeOrder.totalProductCount.toString(),
-            style: TextStyle(
-                fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.colorBlueDark
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(left: 5),),
-          Text(
-            "件",
-            style: TextStyle(
-                fontSize: 14, color: Colors.black
-            ),
+            "件", style: TextStyle(fontSize: 14, color: Colors.black),
           ),
           Spacer(),
           Icon(Icons.keyboard_arrow_right, color: AppColors.colorBlue,),
@@ -102,16 +99,11 @@ class TimeOrderHistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String title = '12月10日 (金) 13:00 発送分';
-//    if(historyType == HistoryType.PLANNING) title += '発送予定の注文';
-//    else if(historyType == HistoryType.COMPLETE) title += '発送済みの注文';
-//    else if(historyType == HistoryType.MISSING) title += '欠品報告をした注文';
+//    String title = '12月10日 (金) 13:00 発送分';
 
     return InkWell(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => OrderListHistoryScreen(
-              title, timeOrder, historyType
-          )
+          builder: (context) => OrderListHistoryScreen(timeOrder, historyType)
       )),
       child: Container(
         child: Column(

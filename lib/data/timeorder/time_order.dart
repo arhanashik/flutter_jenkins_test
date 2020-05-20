@@ -8,14 +8,14 @@ class TimeOrder {
     this.scheduledDeliveryDateTime,
     this.orderCount,
     this.incompleteOrderCount,
-    this.totalProductCount
+    this.totalProductCount,
   });
 
   TimeOrder({
     this.scheduledDeliveryDateTime,
     this.orderCount,
     this.incompleteOrderCount,
-    this.totalProductCount
+    this.totalProductCount,
   });
 
   factory TimeOrder.fromJson(Map<String, dynamic> json) {

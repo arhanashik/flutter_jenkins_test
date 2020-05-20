@@ -20,6 +20,7 @@ class AppColors {
   static const colorF5F7FA = const Color(0xFFF5F7FA);
   static const colorF1F1F1 = const Color(0xFFF1F1F1);
   static const colorCCCCCC = const Color(0xFFCCCCCC);
+  static const color99000000 = const Color(0x99000000);
 
   static const colorAccent = const Color(0xFFFF6591);
 

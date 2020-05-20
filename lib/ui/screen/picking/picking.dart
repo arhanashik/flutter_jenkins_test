@@ -22,7 +22,9 @@ import 'package:o2o/ui/widget/dialog/confirmation_dialog.dart';
 import 'package:o2o/ui/widget/dialog/full_screen_stock_out_dialog.dart';
 import 'package:o2o/ui/widget/dialog/input_dialog.dart';
 import 'package:o2o/ui/widget/dialog/select_next_step_dialog.dart';
-import 'package:o2o/ui/widget/popup/shape_widget.dart';
+import 'package:o2o/ui/widget/popup/popup_divider.dart';
+import 'package:o2o/ui/widget/popup/popup_menu_item.dart';
+import 'package:o2o/ui/widget/popup/popup_shape.dart';
 import 'package:o2o/ui/widget/scanned_product_item.dart';
 import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/ui/widget/toast/toast_util.dart';
@@ -156,14 +158,14 @@ class _PickingScreenState extends BaseState<PickingScreen> {
   }
 
   /// Checking the missing status of the products
-  _checkStockOutStatus() async {
+  _checkStockOutStatus({fromNextStepDialog = false}) async {
     final products = List<ProductEntity>();
     products.addAll(_scannedProducts);
     products.addAll(_scanCompletedProducts);
 
     final resultList = await Navigator.of(context).push(new MaterialPageRoute<List>(
         builder: (BuildContext context) {
-          return FullScreenStock0utDialog(orderItem: _orderItem, products: products,);
+          return FullScreenStockOutDialog(orderItem: _orderItem, products: products,);
         },
         fullscreenDialog: true
     ));
@@ -175,6 +177,8 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         icon: Icon(Icons.cancel, size: 24, color: Colors.white,),
       );
       Navigator.of(context).pop();
+    } else {
+      if(fromNextStepDialog) _selectNextStep();
     }
   }
 
@@ -185,7 +189,7 @@ class _PickingScreenState extends BaseState<PickingScreen> {
             (code) {
           if (code.isNotEmpty) {
             Navigator.of(context).pop();
-            _checkJanCodeProduct(code);
+            _checkJanCodeProduct(code, true);
           }
         }, onCancel: () => _resumeCamera()).show();
   }
@@ -211,7 +215,9 @@ class _PickingScreenState extends BaseState<PickingScreen> {
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                 child: ScannedProductItem(
                   scannedProduct: item,
-                  onPressed: () => _selectNextStep(),
+                  onPressed: () {
+                    if(_isPickingComplete()) _selectNextStep();
+                  },
                   onChangeQuantity:
                       () => _getProductPickingCount(item),
                 ),
@@ -274,7 +280,7 @@ class _PickingScreenState extends BaseState<PickingScreen> {
       btnText: locale.refreshOrderList,
       onClickBtn: () => _fetchData(),
 
-    ): Container(
+    ) : Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -299,69 +305,101 @@ class _PickingScreenState extends BaseState<PickingScreen> {
     );
   }
 
-  bool _menuShown = false;
-  _buildMenu() {
-    return Container(
-      color: Colors.white,
-      width: 180.0,
-      child: Column(
-        children: <Widget>[
-          InkWell(
-            child: Padding(
-              child: Text(
-                locale.txtReportStorage,
-                style: TextStyle(
-                    color: AppColors.colorBlueDark,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.0
-                ),
-              ),
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-            ),
-            onTap: (){
-              setState(() => _menuShown = !_menuShown);
-              _checkStockOutStatus();
-            },
+  _showMenu(Offset offset) {
+    double left = offset.dx;
+//    double top = offset.dy + 28;
+    double top = _isUnderWork? 100.0 : 74.0;
+    showMenu(
+        context: context,
+        position: RelativeRect.fromLTRB(left, top, 13, 0),
+        shape: PopupShape(
+            side: BorderSide(color: AppColors.colorBlue),
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+        ),
+//        color: AppColors.colorBlue,
+        items: <PopupMenuEntry>[
+          MyPopupMenuItem(
+            text: locale.txtReportStorage,
+            icon: null,
+            onTap: () => _checkStockOutStatus(),
           ),
-          Container(height: 1.5, color: AppColors.colorF1F1F1,),
-          InkWell(
-            child: Padding(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(Icons.edit, color: AppColors.colorBlue, size: 18.0,),
-                  Text(
-                    locale.txtInsertCodeManually,
-                    style: TextStyle(
-                        color: AppColors.colorBlueDark,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14.0
-                    ),
-                  )
-                ],
-              ),
-              padding: EdgeInsets.symmetric(vertical: 10.0,),
-            ),
-            onTap: (){
-              setState(() => _menuShown = !_menuShown);
-              _customJANCodeInput();
-            },
+          MyPopupMenuDivider(),
+          MyPopupMenuItem(
+            text: locale.txtInsertCodeManually,
+            icon: Icon(Icons.edit, color: AppColors.colorBlue, size: 18.0,),
+            onTap: () => _customJANCodeInput(),
           ),
         ],
-      ),
     );
   }
+
+//  bool _menuShown = false;
+//  _buildMenu() {
+//    return Container(
+//      color: Colors.white,
+//      width: 180.0,
+//      child: Column(
+//        children: <Widget>[
+//          InkWell(
+//            child: Padding(
+//              child: Text(
+//                locale.txtReportStorage,
+//                style: TextStyle(
+//                    color: AppColors.colorBlueDark,
+//                    fontWeight: FontWeight.w600,
+//                    fontSize: 14.0
+//                ),
+//              ),
+//              padding: EdgeInsets.symmetric(vertical: 10.0),
+//            ),
+//            onTap: (){
+//              setState(() => _menuShown = !_menuShown);
+//              _checkStockOutStatus();
+//            },
+//          ),
+//          Container(height: 1.5, color: AppColors.colorF1F1F1,),
+//          InkWell(
+//            child: Padding(
+//              child: Row(
+//                mainAxisAlignment: MainAxisAlignment.center,
+//                children: <Widget>[
+//                  Icon(Icons.edit, color: AppColors.colorBlue, size: 18.0,),
+//                  Text(
+//                    locale.txtInsertCodeManually,
+//                    style: TextStyle(
+//                        color: AppColors.colorBlueDark,
+//                        fontWeight: FontWeight.w600,
+//                        fontSize: 14.0
+//                    ),
+//                  )
+//                ],
+//              ),
+//              padding: EdgeInsets.symmetric(vertical: 10.0,),
+//            ),
+//            onTap: (){
+//              setState(() => _menuShown = !_menuShown);
+//              _customJANCodeInput();
+//            },
+//          ),
+//        ],
+//      ),
+//    );
+//  }
 
   /// If user press on the back button, show the confirmation popup
   /// and return to order list on confirmation
   Future<bool> _onWillPop() async {
-    return (await ConfirmationDialog(
+    if(loadingState == LoadingState.NO_DATA || loadingState == LoadingState.ERROR) {
+      Navigator.of(context).pop();
+      return false;
+    }
+    return await ConfirmationDialog(
       context,
       locale.txtReturnToOrderList,
       locale.msgReturnToOrderList,
       locale.txtReturnToTheList,
           () => Navigator.of(context).pop(),
-    ).show()) ?? false;
+    ).show() ?? false;
   }
 
   /// 1. Fetch the data list for the first time
@@ -389,13 +427,19 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         appBar: TopBar (
           title: '',
           navigationIcon: AppIcons.loadIcon(
-              AppIcons.icBackToList, size: 48.0, color: Colors.white
+              AppIcons.icBackToList, size: 48.0, color: loadingState == LoadingState.NO_DATA || loadingState == LoadingState.ERROR? AppColors.colorBlue : Colors.white
           ),
           iconColor: Colors.white,
           background: Colors.transparent,
-          menu: InkWell(
+//          menu: InkWell(
+//            child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
+//            onTap: () => setState(() => _menuShown = !_menuShown),
+//          ),
+          menu: GestureDetector(
+            onTapDown: (TapDownDetails details) {
+              _showMenu(details.globalPosition);
+            },
             child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
-            onTap: () => setState(() => _menuShown = !_menuShown),
           ),
           onTapNavigation: () => _onWillPop(),
           error: _isUnderWork? '${_orderItem.lockedName}が作業中' : '',
@@ -404,18 +448,21 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         body: Stack(
           overflow: Overflow.visible,
           children: <Widget>[
-            _bodyBuilder(),
-            Visibility(
-                child: Positioned(
-                  child: ShapedWidget(
-                    child: _buildMenu(),
-                    background: AppColors.colorBlue,
-                  ),
-                  right: 13.0,
-                  top: _isUnderWork? 105.0 : 74.0,
-                ),
-              visible: _menuShown,
+            Padding(
+              padding: EdgeInsets.only(top: loadingState == LoadingState.NO_DATA || loadingState == LoadingState.ERROR? _isUnderWork? 100.0 : 74.0 : 0),
+              child: _bodyBuilder(),
             ),
+//            Visibility(
+//                child: Positioned(
+//                  child: ShapedWidget(
+//                    child: _buildMenu(),
+//                    background: AppColors.colorBlue,
+//                  ),
+//                  right: 13.0,
+//                  top: _isUnderWork? 105.0 : 74.0,
+//                ),
+//              visible: _menuShown,
+//            ),
           ],
         ),
       ),
@@ -430,7 +477,7 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         _qrText = scanData;
       });
       _pauseCamera();
-      _checkJanCodeProduct(_qrText);
+      _checkJanCodeProduct(_qrText, false);
     });
   }
 
@@ -460,11 +507,17 @@ class _PickingScreenState extends BaseState<PickingScreen> {
     //if (loadingState == LoadingState.LOADING) return;
 
     //setState(() => loadingState = LoadingState.LOADING);
+    if(!isOnline) {
+      _showToast(locale.errorInternetIsNotAvailable);
+      _refreshController.refreshCompleted();
+      setState(() => loadingState = LoadingState.ERROR);
+      return;
+    }
 
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
 
     final response = await HttpUtil.get(HttpUtil.GET_PICKING_LIST, params: params);
     _refreshController.refreshCompleted();
@@ -474,12 +527,12 @@ class _PickingScreenState extends BaseState<PickingScreen> {
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
+    final code = responseMap[Params.CODE];
     if(code == HttpCode.NOT_FOUND) {
       setState(() => loadingState = LoadingState.ERROR);
       return;
     }
-    final List data = responseMap['data'];
+    final List data = responseMap[Params.DATA];
     List<ProductEntity> items = data.map(
             (data) => ProductEntity.fromJson(data)
     ).toList();
@@ -517,24 +570,33 @@ class _PickingScreenState extends BaseState<PickingScreen> {
                   size: 48.0,
                   color: Colors.white
               ),
-              menu: InkWell(
-                child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() => _menuShown = !_menuShown);
+              menu: GestureDetector(
+                onTapDown: (TapDownDetails details) {
+                  _showMenu(details.globalPosition);
                 },
+                child: AppIcons.loadIcon(AppIcons.icSettings, size: 48.0, color: Colors.white),
               ),
+//              menu: InkWell(
+//                child: AppIcons.loadIcon(
+//                    AppIcons.icSettings, size: 48.0, color: Colors.white
+//                ),
+//                onTap: () {
+//                  Navigator.pop(context);
+//
+//                  setState(() => _menuShown = !_menuShown);
+//                },
+//              ),
             ),
             fullscreenDialog: true
         )
     );
 
     _resumeCamera();
-    if (results != null && results.containsKey('qrCode')) {
+    if (results != null && results.containsKey(Params.QR_CODE)) {
       setState(() {
-        _qrText = results['qrCode'];
+        _qrText = results[Params.QR_CODE];
       });
-      _checkJanCodeProduct(_qrText);
+      _checkJanCodeProduct(_qrText, false);
     }
   }
 
@@ -545,58 +607,46 @@ class _PickingScreenState extends BaseState<PickingScreen> {
   /// 1. No product found for the janCode
   /// 2. The product is already picked
   /// 3. New product
-  _checkJanCodeProduct(janCode) async {
+  _checkJanCodeProduct(janCode, bool manualInput) async {
     if(!isOnline) {
-      ToastUtil.show(
-          context, locale.errorInternetIsNotAvailable,
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
+      _showToast(locale.errorInternetIsNotAvailable);
       _resumeCamera();
       return;
     }
 
     CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
-    params['janCode'] = janCode;
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
+    params[Params.JAN_CODE] = janCode;
+    params[Params.FLAG] = manualInput? JANCodeScanFlag.MANUAL : JANCodeScanFlag.SCAN;
 
     final response = await HttpUtil.get(HttpUtil.CHECK_PICKED_ITEM, params: params);
     Navigator.of(context).pop();
-    if (response.statusCode != 200) {
-      ToastUtil.show(
-          context, locale.errorServerIsNotAvailable,
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
+    if (response.statusCode != HttpCode.OK) {
+      _showToast(locale.errorServerIsNotAvailable,);
       _resumeCamera();
       return;
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
-    final msg = responseMap['msg'];
-    if(code == PickingCheckStatus.NOT_AVAILABLE) {
-      ToastUtil.show(
-          context, '有効なバーコードではありません。',
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
-      _resumeCamera();
-      return;
-    }
+    final code = responseMap[Params.CODE];
+    final msg = responseMap[Params.MSG];
     if(code == PickingCheckStatus.PICKED) {
-      ToastUtil.show(
-          context, '読み取り済みのバーコードです。',
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
+//      _showToast('読み取り済みのバーコードです。',);
+      _showToast(msg);
       _resumeCamera();
       return;
     }
-    final data = responseMap['data'];
+    if(code == PickingCheckStatus.NOT_AVAILABLE
+        || code == PickingCheckStatus.NOT_AVAILABLE_IN_THE_ORDER) {
+//      _showToast('注文の商品と異なる商品です。',);
+      _showToast(msg);
+      _resumeCamera();
+      return;
+    }
+    final data = responseMap[Params.DATA];
     ProductEntity product = ProductEntity.fromJson(data);
 
     _getProductPickingCount(product);
@@ -630,8 +680,8 @@ class _PickingScreenState extends BaseState<PickingScreen> {
 
     AddProductDialog(context, product, (int pickCount) {
       Navigator.of(context).pop();
-      if(pickCount > 0)
-        _updateProductPickingCount(product, pickCount);
+      pickCount > 0? _updateProductPickingCount(product, pickCount)
+          : _resumeCamera();
     }, onCancel: () => _resumeCamera()).show();
   }
 
@@ -641,53 +691,40 @@ class _PickingScreenState extends BaseState<PickingScreen> {
   /// 2. If equal, add to the picked list and remove from the picking list
   /// Finally, Update the state with the new data
   _updateProductPickingCount(ProductEntity product, int pickCount) async {
+    if(!isOnline) {
+      _showToast(locale.errorInternetIsNotAvailable);
+      return;
+    }
 
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
-    params['janCode'] = product.janCode;
-    params['pickingCount'] = pickCount;
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
+    params[Params.JAN_CODE] = product.janCode;
+    params[Params.PICKING_COUNT] = pickCount;
 
     final response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_COUNT, params);
     if (response.statusCode != HttpCode.OK) {
-      ToastUtil.show(context, locale.errorServerIsNotAvailable,);
+      _showToast(locale.errorServerIsNotAvailable,);
       _resumeCamera();
       return;
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
-    final msg = responseMap['msg'];
+    final code = responseMap[Params.CODE];
+//    final msg = responseMap[Params.MSG];
     if(code == PickingCheckStatus.OVER_REGISTRATION_QUANTITY) {
-      ToastUtil.show(
-          context, '読み取り済みバーコードです。',
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
+      _showToast('読み取り済みのバーコードです。',);
       _resumeCamera();
       _fetchData();
       return;
     }
     if(code != HttpCode.OK) {
-      ToastUtil.show(
-          context, '読み取り済みバーコードです。',
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
+      _showToast('読み取り済みのバーコードです。',);
       _resumeCamera();
       _fetchData();
       return;
     }
-//    final data = responseMap['data'];
-//    if(product.itemCount == product.pickedItemCount) {
-//      setState(() {
-//        _scannedProducts.remove(product);
-//        _scanCompletedProducts.add(product);
-//      });
-//    }
-
-//    ToastUtil.show(context, 'Product picked');
     if(_isPickingComplete()) await _completePicking();
     _resumeCamera();
     _fetchData();
@@ -705,35 +742,29 @@ class _PickingScreenState extends BaseState<PickingScreen> {
   /// 2. Check missing order -> Check missing order
   /// 3. Start picking for another order -> Go back to order list screen
   _selectNextStep() async {
+    _pauseCamera();
     SelectNextStepDialog(
         context: context,
-        title: locale.txtAllProductsPickingDone,
-        msg: locale.txtSelectNextStep,
-        warning: locale.txtProvideMissingInfo,
-        confirmBtnTxt: locale.txtProceedToShippingPreparation,
-        otherButtonText: locale.txtPickAnotherOrder,
-        onConfirm: () {
-          Navigator.of(context).pop();
-          _confirmPacking();
-        },
-        onReportMissing: () {
-          Navigator.of(context).pop();
-          _checkStockOutStatus();
-        },
-        onOther: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
-        }
+        onConfirm: () => _confirmPacking(),
+        onReportMissing: () => _checkStockOutStatus(fromNextStepDialog: true),
+        onOther: () => Navigator.of(context).pop({
+          Params.ORDER_ID: _orderItem.orderId,
+          Params.STATUS: TransitStatus.PICKING_DONE,
+        }),
     ).show();
   }
 
   _completePicking() async {
+    if(!isOnline) {
+      _showToast(locale.errorInternetIsNotAvailable);
+      return;
+    }
     CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
-    params['status'] = PickingStatus.DONE;
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
+    params[Params.STATUS] = PickingStatus.DONE;
 
     var response = await HttpUtil.post(HttpUtil.UPDATE_PICKING_STATUS, params);
     Navigator.of(context).pop();
@@ -743,13 +774,9 @@ class _PickingScreenState extends BaseState<PickingScreen> {
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
+    final code = responseMap[Params.CODE];
     if(code != HttpCode.OK) {
-      ToastUtil.show(
-          context, 'ピッキングStatusは更新する事ができません。',
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
+      _showToast('ピッキングStatusは更新する事ができません。',);
       return;
     }
   }
@@ -761,7 +788,9 @@ class _PickingScreenState extends BaseState<PickingScreen> {
         context,
         locale.txtStartShippingPreparation,
         locale.msgStartPicking,
-        locale.txtStart, () => _startPackingForResult()
+        locale.txtStart, () => _startPackingForResult(),
+      cancelable: false,
+      onCancel: () => _selectNextStep()
     ).show();
   }
 
@@ -769,12 +798,17 @@ class _PickingScreenState extends BaseState<PickingScreen> {
   /// First change the packing status of the order as working
   /// Then Go to the packing screen and wait for the result
   _startPackingForResult() async {
+    if(!isOnline) {
+      _showToast(locale.errorInternetIsNotAvailable);
+      return;
+    }
+
     CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.IMEI);
+    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
     final params = HashMap();
-    params['imei'] = imei;
-    params['orderId'] = _orderItem.orderId;
-    params['status'] = PackingStatus.WORKING;
+    params[Params.SERIAL] = imei;
+    params[Params.ORDER_ID] = _orderItem.orderId;
+    params[Params.STATUS] = PackingStatus.WORKING;
     var response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
     Navigator.of(context).pop();
     if (response.statusCode != HttpCode.OK) {
@@ -783,13 +817,9 @@ class _PickingScreenState extends BaseState<PickingScreen> {
     }
 
     final responseMap = json.decode(response.body);
-    final code = responseMap['code'];
+    final code = responseMap[Params.CODE];
     if(code != HttpCode.OK) {
-      ToastUtil.show(
-          context, 'パッキングStatusは更新する事ができません。',
-          icon: Icon(Icons.error, color: Colors.white,),
-          fromTop: true, verticalMargin: 110, error: true
-      );
+      _showToast('パッキングStatusは更新する事ができません。',);
       return;
     }
 
@@ -811,5 +841,20 @@ class _PickingScreenState extends BaseState<PickingScreen> {
     _refreshController.dispose();
     _controller?.dispose();
     super.dispose();
+  }
+
+  _showToast(
+      String msg, {
+        error = true,
+        fromTop = true,
+  }) {
+    final icon = AppIcons.loadIcon(
+      error? AppIcons.icError : AppIcons.icLike, color: Colors.white, size: 16.0
+    );
+    ToastUtil.show(
+        context, msg,
+        icon: icon,
+        fromTop: fromTop, verticalMargin: 150, error: error
+    );
   }
 }

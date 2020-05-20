@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/ui/widget/animation/slide_in.dart';
+import 'package:o2o/ui/widget/common/app_colors.dart';
 import 'dart:async';
+
+import 'package:o2o/ui/widget/common/app_icons.dart';
 
 class ToastUtil {
   static Timer toastTimer;
   static OverlayEntry _overlayEntry;
 
-  static void show(
+  static show(
       BuildContext context,
       String message, {
-        Icon icon = const Icon(Icons.thumb_up, size: 24, color: Colors.white,),
+        Widget icon,
         bool fromTop = false,
         double verticalMargin = 40.0,
-        bool error = false
-  }) {
+        bool error = false,
+        duration = const Duration(seconds: 3),
+      }) {
     if (toastTimer == null || !toastTimer.isActive) {
 //      _overlayEntry = fromTop? _createOverlayEntryTop(
 //          context, message, icon, verticalMargin: verticalMargin, error: error
@@ -21,19 +25,26 @@ class ToastUtil {
 //          context, message, icon,  verticalMargin: verticalMargin, error: error
 //      );
       _overlayEntry = _createOverlayEntryDirectional(
-          context, 
-          message, 
-          icon, 
-          fromTop: fromTop, 
+          context,
+          message,
+          icon,
+          fromTop: fromTop,
           verticalMargin: verticalMargin,
           error: error
       );
       Overlay.of(context).insert(_overlayEntry);
-      toastTimer = Timer(Duration(seconds: 2), () {
+      toastTimer = Timer(duration, () {
         if (_overlayEntry != null) {
           _overlayEntry.remove();
         }
       });
+    }
+  }
+
+  static clear() {
+    if(_overlayEntry != null && toastTimer.isActive) {
+      _overlayEntry.remove();
+      toastTimer.cancel();
     }
   }
 
@@ -43,7 +54,7 @@ class ToastUtil {
       Icon icon,{
         double verticalMargin = 40.0,
         bool error = false
-  }) {
+      }) {
     return OverlayEntry(
       builder: (context) => Positioned(
         bottom: verticalMargin,
@@ -87,25 +98,28 @@ class ToastUtil {
 
   static _toastView(
       String message,
-      Icon icon,
+      Widget icon,
       bool error,
-  ) {
+      ) {
+    final toastIcon = icon == null? AppIcons.loadIcon(
+        AppIcons.icLike, color: Colors.white, size: 16.0
+    ) : icon;
     return Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(3),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         decoration: BoxDecoration(
-            color: error? Colors.redAccent : Colors.blue,
+            color: error? AppColors.colorAccent : AppColors.colorBlue,
             borderRadius: BorderRadius.circular(3)
         ),
         child: Flexible(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              icon,
+              toastIcon,
               Flexible (
                 child: Padding(
                   padding: EdgeInsets.only(left: 5),
@@ -114,7 +128,7 @@ class ToastUtil {
                     textAlign: TextAlign.left,
                     softWrap: true,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 16,
                       color: Colors.white,
                     ),
                   ),
@@ -130,7 +144,7 @@ class ToastUtil {
   static OverlayEntry _createOverlayEntryDirectional(
       BuildContext context,
       String message,
-      Icon icon, {
+      Widget icon, {
         bool fromTop = false,
         double verticalMargin = 40.0,
         bool error = false
@@ -150,3 +164,4 @@ class ToastUtil {
     );
   }
 }
+

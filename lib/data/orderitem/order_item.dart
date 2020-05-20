@@ -7,9 +7,12 @@ class OrderItem {
   final int totalPrice;
   int pickingStatus;
   final String lockedName;
-  final String workCompletionTime;
+  final String endingTime;
   String deliveryTime;
-  final String cancellationTime;
+  final String stockoutReportDate;
+  final int packageManageNo;
+  final String deliveredTime;
+  final int flag;
 
   OrderItem._({
     this.orderId,
@@ -17,9 +20,12 @@ class OrderItem {
     this.totalPrice,
     this.pickingStatus,
     this.lockedName,
-    this.workCompletionTime,
+    this.endingTime,
     this.deliveryTime,
-    this.cancellationTime,
+    this.stockoutReportDate,
+    this.packageManageNo,
+    this.deliveredTime,
+    this.flag,
   });
 
   OrderItem({
@@ -28,9 +34,12 @@ class OrderItem {
     this.totalPrice,
     this.pickingStatus,
     this.lockedName,
-    this.workCompletionTime,
+    this.endingTime,
     this.deliveryTime,
-    this.cancellationTime,
+    this.stockoutReportDate,
+    this.packageManageNo,
+    this.deliveredTime,
+    this.flag,
   });
 
   isUnderWork(_myDeviceName) {
@@ -46,9 +55,12 @@ class OrderItem {
       totalPrice: json['totalPrice'],
       pickingStatus: json['pickingStatus'],
       lockedName: json['lockedName'],
-      workCompletionTime: json['workCompletionTime'],
+      endingTime: json['endingTime'],
       deliveryTime: json['appointedDeliveringTime'],
-      cancellationTime: json['cancellationTime'],
+      stockoutReportDate: json['stockoutReportDate'],
+      packageManageNo: json['packageManageNo'],
+      deliveredTime: json['deliveredTime'],
+      flag: json['flag'],
     );
   }
 
@@ -58,9 +70,12 @@ class OrderItem {
     'totalPrice': totalPrice,
     'pickingStatus': pickingStatus,
     'lockedName': lockedName,
-    'workCompletionTime': workCompletionTime,
+    'endingTime': endingTime,
     'appointedDeliveringTime': deliveryTime,
-    'cancellationTime': cancellationTime,
+    'stockoutReportDate': stockoutReportDate,
+    'packageManageNo': packageManageNo,
+    'deliveredTime': deliveredTime,
+    'flag': flag,
   };
 
   static dummyOrderItems() {
@@ -71,9 +86,12 @@ class OrderItem {
         totalPrice: 1000,
         pickingStatus: PickingStatus.WORKING,
         lockedName: '0123',
-        workCompletionTime: '12:45',
+        endingTime: '12:45',
         deliveryTime: '10:50',
-        cancellationTime: '12:50',
+        stockoutReportDate: '12:50',
+        packageManageNo: 123,
+        deliveredTime: '12:50',
+        flag: 1011,
       ),
       OrderItem(
         orderId: 324353532,
@@ -81,9 +99,12 @@ class OrderItem {
         totalPrice: 2000,
         pickingStatus: PickingStatus.NOT_STARTED,
         lockedName: '',
-        workCompletionTime: '12:45',
+        endingTime: '12:45',
         deliveryTime: '11:00',
-        cancellationTime: '12:45',
+        stockoutReportDate: '12:45',
+        packageManageNo: 123,
+        deliveredTime: '12:50',
+        flag: 1010,
       ),
       OrderItem(
         orderId: 324353532,
@@ -91,9 +112,12 @@ class OrderItem {
         totalPrice: 2000,
         pickingStatus: PickingStatus.DONE,
         lockedName: '0123',
-        workCompletionTime: '12:45',
+        endingTime: '12:45',
         deliveryTime: '11:00',
-        cancellationTime: '12:45',
+        stockoutReportDate: '12:45',
+        packageManageNo: 123,
+        deliveredTime: '12:50',
+        flag: 1008,
       ),
       OrderItem(
         orderId: 324353532,
@@ -101,9 +125,12 @@ class OrderItem {
         totalPrice: 2000,
         pickingStatus: PickingStatus.DONE,
         lockedName: '',
-        workCompletionTime: '12:45',
+        endingTime: '12:45',
         deliveryTime: '11:00',
-        cancellationTime: '12:45',
+        stockoutReportDate: '12:45',
+        packageManageNo: 123,
+        deliveredTime: '12:50',
+        flag: 1011,
       ),
       OrderItem(
         orderId: 324353532,
@@ -111,9 +138,12 @@ class OrderItem {
         totalPrice: 2000,
         pickingStatus: PickingStatus.NOT_STARTED,
         lockedName: '',
-        workCompletionTime: '12:45',
+        endingTime: '12:45',
         deliveryTime: '11:00',
-        cancellationTime: '12:45',
+        stockoutReportDate: '12:45',
+        packageManageNo: 123,
+        deliveredTime: '12:50',
+        flag: 1010,
       ),
     ];
   }
