@@ -249,7 +249,7 @@ class _Step4ScreenState extends BaseState<Step4Screen> {
 
     if(code == PackingQrCodeStatus.REGISTERED) {
       _showToast(locale.txtAlreadyScannedQRCode);
-      //return;
+      return;
     }
 
     setState(() => _scannedQrCodes.add(_qrText));

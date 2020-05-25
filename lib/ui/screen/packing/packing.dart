@@ -578,7 +578,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     setState(() => _currentStep = Step.STEP_3);
   }
 
-  /// Register packing information(qr codes, imei, orderId..etc) to server
+  /// Register packing information(qr codes, serial, orderId..etc) to server
   /// After that call _completeOrder() to update packing status and complete
   /// the order
   _updatePackingInfo() async {
@@ -593,10 +593,10 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     if(_orderCompleted) _completeOrder();
 
     CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
+    String serial = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
 //    final qrCodes = _scannedQrCodes.toList();
     final params = HashMap();
-    params[Params.SERIAL] = imei;
+    params[Params.SERIAL] = serial;
     params[Params.ORDER_ID] = _orderItem.orderId;
     params[Params.RECEIPT_NO] = _receiptNumber;
     int qrSerial = 0;
@@ -609,12 +609,12 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     params[Params.QR_CODE_LIST] = qrCodes;
 //    params[Params.PRIMARY_QR_CODE] = "${qrCodes[0]}";
 //    params[Params.OTHER_QR_CODE] = qrCodes.length > 1? qrCodes.sublist(1) : List();
-    //params['status'] = PackingStatus.DONE;
+    params[Params.STATUS] = PackingStatus.DONE;
 
     final response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_QR_CODE, params);
     Navigator.of(context).pop();
     final data = _validateResponse(response, 'Qrコード一覧は登録する事ができません');
-    if(data == null) {
+    if(!data) {
       setState(() => loadingState = LoadingState.ERROR);
       return;
     }
@@ -626,20 +626,20 @@ class _PackingScreenState extends BaseState<PackingScreen> {
   /// Update the packing status as DONE.
   /// If successfully updated, close packing screen and return to order list
   _completeOrder() async {
-    CommonWidget.showLoader(context, cancelable: true);
-    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
-    final params = HashMap();
-    params[Params.SERIAL] = imei;
-    params[Params.ORDER_ID] = _orderItem.orderId;
-    params[Params.STATUS] = PackingStatus.DONE;
-
-    final response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
-    Navigator.of(context).pop();
-    final data = _validateResponse(response, 'パッキングstatusは更新する事ができません');
-    if(data == null) {
-      setState(() => loadingState = LoadingState.ERROR);
-      return;
-    }
+//    CommonWidget.showLoader(context, cancelable: true);
+//    String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);
+//    final params = HashMap();
+//    params[Params.SERIAL] = imei;
+//    params[Params.ORDER_ID] = _orderItem.orderId;
+//    params[Params.STATUS] = PackingStatus.DONE;
+//
+//    final response = await HttpUtil.post(HttpUtil.UPDATE_PACKING_STATUS, params);
+//    Navigator.of(context).pop();
+//    final data = _validateResponse(response, 'パッキングstatusは更新する事ができません');
+//    if(data == null) {
+//      setState(() => loadingState = LoadingState.ERROR);
+//      return;
+//    }
 
     Navigator.of(context).pop({
       Params.ORDER_ID: _orderItem.orderId,
@@ -653,7 +653,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           context, locale.errorServerIsNotAvailable,
           icon: Icon(Icons.error, color: Colors.white,), error: true
       );
-      return null;
+      return false;
     }
 
     final responseMap = json.decode(response.body);
@@ -663,9 +663,9 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           context, errorMsg,
           icon: Icon(Icons.error, color: Colors.white,), error: true
       );
-      return null;
+      return false;
     }
 
-    return responseMap[Params.DATA];
+    return true;
   }
 }

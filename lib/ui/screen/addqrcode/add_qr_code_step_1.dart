@@ -172,7 +172,7 @@ class _AddQrCodeStep1State extends BaseState<AddQrCodeStep1> {
 
     if(code == PackingQrCodeStatus.REGISTERED) {
       _showToast(locale.txtAlreadyScannedQRCode);
-      //return;
+      return;
     }
 
     setState(() => widget.newQrCodes.add(_qrText));
