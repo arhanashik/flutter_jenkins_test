@@ -1,5 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
+/// Created by mdhasnain
+/// Email: md.hasnain@healthcare-tech.co.jp
+///
+/// Purpose of the class:
+/// 1. Provides all localized texts
+/// 2.
+/// 3.
 class O2OLocalizations {
   O2OLocalizations(this.locale);
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:o2o/ui/widget/common/app_colors.dart';
 
+///Custom theme for the app
+///Custom font 'NotoSansCJKjp' is set from here
 ThemeData buildTheme() {
 
   TextStyle _buildTitleTheme() {

@@ -242,7 +242,7 @@ class _TimeOrderListScreenState extends BaseState<TimeOrderListScreen> {
       _timeOrders.clear();
       for (int i = 0; i < items.length; i++) {
         final item = items[i];
-        final dateTime = Common.convertToDateTime(item.date);
+        final dateTime = Converter.toDateTime(item.date);
         final header = TimeOrderHeading(
           dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday-1],
         );

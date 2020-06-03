@@ -15,6 +15,13 @@ import 'package:o2o/ui/widget/toast/toast_util.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
+/// Created by mdhasnain
+/// Email: md.hasnain@healthcare-tech.co.jp
+///
+/// Purpose of the class:
+/// 1. Step 1 view for the Qr Code adding dialog
+/// 2.
+/// 3.
 class AddQrCodeStep1 extends StatefulWidget {
 
   AddQrCodeStep1(

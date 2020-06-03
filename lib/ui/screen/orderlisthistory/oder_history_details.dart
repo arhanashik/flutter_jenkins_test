@@ -56,7 +56,7 @@ class _OrderHistoryDetailsScreenState extends BaseState<OrderHistoryDetailsScree
     if(widget.historyType == HistoryType.DELIVERED) dateStr = widget.orderItem.deliveredTime;
     else if(widget.historyType == HistoryType.STOCK_OUT) dateStr = widget.orderItem.stockoutReportDate;
     if(dateStr == null) dateStr = '1970-01-01 00:00';
-    final dateTime = Common.convertToDateTime(dateStr);
+    final dateTime = Converter.toDateTime(dateStr);
     final dayStr = AppConst.WEEKDAYS[dateTime.weekday-1];
 
     final deliveryTime = dateStr.substring(dateStr.lastIndexOf(' '));

@@ -17,6 +17,13 @@ import 'package:o2o/ui/widget/snackbar/snackbar_util.dart';
 import 'package:o2o/util/helper/common.dart';
 import 'package:o2o/util/lib/remote/http_util.dart';
 
+/// Created by mdhasnain
+/// Email: md.hasnain@healthcare-tech.co.jp
+///
+/// Purpose of the class:
+/// 1. Full screen dialog to add qr code
+/// 2.
+/// 3.
 class FullScreenAddQrCodeDialog extends StatefulWidget {
   FullScreenAddQrCodeDialog({
     this.orderHistoryDetails,
@@ -28,6 +35,10 @@ class FullScreenAddQrCodeDialog extends StatefulWidget {
   _FullScreenAddQrCodeDialogState createState() => new _FullScreenAddQrCodeDialogState();
 }
 
+///Total 3 steps to add a new qr code
+///1. Scan the qr code
+///2. Show the newly added qr code
+///3. Show all the qr codes and confirmation
 enum Step {
   STEP_1, STEP_2, STEP_3,
 }
@@ -37,6 +48,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
 
   Step _currentStep = Step.STEP_1;
 
+  /// build the step view at the top of the screen
   _singleStepBuilder(Step step, String indicatorText) {
     int thisStepIndex = Step.values.indexOf(step);
     int currentStepIndex = Step.values.indexOf(_currentStep);
@@ -62,6 +74,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     }
   }
 
+  /// build the step's label(text)
   _singleStepLabelBuilder(Step step, String label) {
     int thisStepIndex = Step.values.indexOf(step);
     int currentStepIndex = Step.values.indexOf(_currentStep);
@@ -70,7 +83,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     Color labelColor = thisStepActive
         ? AppColors.colorBlueDark : AppColors.colorCCCCCC;
     double paddingLeft = step == Step.STEP_1? 0 : 0;
-    double paddingTop = Common.toDp(context, 10);
+    double paddingTop = Converter.toDp(context, 10);
     double paddingRight = step == Step.STEP_3? 10 : step == Step.STEP_2? 10 : 0;
 
     return Padding(
@@ -89,6 +102,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     );
   }
 
+  /// Gather the step view and step label and build the steps view
   Column _stepsBuilder() {
     return Column(
       children: <Widget>[
@@ -115,6 +129,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     );
   }
 
+  /// provide the step view with state change
   _getStepView(Step step) {
     switch(Step.values.indexOf(step)) {
       case 0:
@@ -144,6 +159,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     }
   }
 
+  /// Step's rich text message builder
   _richTextMsgBuilder() {
     RichText richTextMsg;
     switch(_currentStep) {
@@ -208,6 +224,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     return richTextMsg;
   }
 
+  /// Every step's message view
   Container _msgBuilder() {
     return Container(
 //      height: 68,
@@ -222,6 +239,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     );
   }
 
+  /// Build the body here
   _bodyBuilder() {
     return Container(
       color: AppColors.colorF1F1F1,
@@ -239,6 +257,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     );
   }
 
+  /// Main function to build and return the screen view
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -262,6 +281,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     );
   }
 
+  /// This function works when the back button(widget and device's back button) is pressed
   Future<bool> _onWillPop() async {
     switch(_currentStep) {
       case Step.STEP_2:
@@ -283,6 +303,7 @@ class _FullScreenAddQrCodeDialogState extends BaseState<FullScreenAddQrCodeDialo
     }
   }
 
+  ///Update the newly added qr codes on the server
   _updateQrCodes() async {
     CommonWidget.showLoader(context);
     String imei = await PrefUtil.read(PrefUtil.SERIAL_NUMBER);

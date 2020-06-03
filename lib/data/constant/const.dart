@@ -2,7 +2,7 @@
 /// Email: md.hasnain@healthcare-tech.co.jp
 ///  
 /// Purpose of the class:
-/// 1. 
+/// 1. Provides constant values
 /// 2. 
 /// 3.
 

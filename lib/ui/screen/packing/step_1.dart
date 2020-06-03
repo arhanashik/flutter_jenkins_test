@@ -150,7 +150,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
       }
     });
 
-    final deliveryDate = Common.convertToDateTime(
+    final deliveryDate = Converter.toDateTime(
         _packingList.appointedDeliveringTime
     );
     return Container(
@@ -175,7 +175,7 @@ class _Step1ScreenState extends BaseState<Step1Screen> {
                   style: TextStyle(fontSize: 10),
                 )
               ],
-            Common.formatPrice(_packingList.totalPrice),
+            Converter.formatPrice(_packingList.totalPrice),
             fontSize: _packingList.totalPrice.toString().length > 6? 10 : 14
           ),
           _buildFooterItem(

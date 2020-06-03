@@ -6,6 +6,17 @@ import 'package:o2o/theme.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations_delegate.dart';
 
+///This is where everything begins.
+/// Created by mdhasnain
+/// Email: md.hasnain@healthcare-tech.co.jp
+///
+/// Purpose of the class:
+/// 1. Returning Material App to main.dart
+/// 2. Generating localized title
+/// 3. Customising theme
+/// 4. Declaring and calling initial Route(Splash Screen)
+/// 5. Declaring and initialing localization
+
 class O2OApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

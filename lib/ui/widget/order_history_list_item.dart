@@ -29,7 +29,7 @@ class OrderHistoryListItem extends StatelessWidget {
         : historyType == HistoryType.DELIVERED? orderItem.deliveredTime
         : orderItem.stockoutReportDate;
     if(deliveryTime == null) deliveryTime = '1970-01-01 00:00';
-    final deliveryDate = Common.convertToDateTime(deliveryTime);
+    final deliveryDate = Converter.toDateTime(deliveryTime);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),

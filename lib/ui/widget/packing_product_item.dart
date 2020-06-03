@@ -65,7 +65,7 @@ class PackingProductItem extends StatelessWidget {
           ),
         ),
         Text(
-          Common.formatPrice(price),
+          Converter.formatPrice(price),
           style: TextStyle(
               color: AppColors.colorAccent,
               fontSize: 16,

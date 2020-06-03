@@ -45,7 +45,7 @@ class _OrderListHistoryScreenState extends BaseState<OrderListHistoryScreen> {
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   _buildTitle() {
-    final dateTime = Common.convertToDateTime(widget.timeOrder.scheduledDeliveryDateTime);
+    final dateTime = Converter.toDateTime(widget.timeOrder.scheduledDeliveryDateTime);
     final dayStr = AppConst.WEEKDAYS[dateTime.weekday-1];
 
     final deliveryTime = widget.timeOrder.scheduledDeliveryDateTime.substring(

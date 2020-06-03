@@ -395,7 +395,7 @@ class _SearchHistoryScreenState extends BaseState<SearchHistoryScreen> {
       for (int i = 0; i < searchResults.length; i++) {
         final searchResult = searchResults[i];
         if(searchResult is SearchHistoryResponse) {
-          final dateTime = Common.convertToDateTime(searchResult.date);
+          final dateTime = Converter.toDateTime(searchResult.date);
           final header = TimeOrderHeading(
             dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday-1],
           );

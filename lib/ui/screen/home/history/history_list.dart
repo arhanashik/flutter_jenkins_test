@@ -142,7 +142,7 @@ class _HistoryListScreenState extends BaseState<HistoryListScreen> {
       _dataMap.clear();
       for (int i = 0; i < items.length; i++) {
         final item = items[i];
-        final dateTime = Common.convertToDateTime(item.date);
+        final dateTime = Converter.toDateTime(item.date);
         final header = TimeOrderHeading(
           dateTime.day, dateTime.month, AppConst.WEEKDAYS[dateTime.weekday-1],
         );

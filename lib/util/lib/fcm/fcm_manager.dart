@@ -5,9 +5,9 @@ import 'package:o2o/util/lib/notification/notification_manager.dart';
 /// Email: md.hasnain@healthcare-tech.co.jp
 ///  
 /// Purpose of the class:
-/// 1. 
-/// 2. 
-/// 3.
+/// 1. Singleton class for Firebase Cloud Messaging
+/// 2. Initializing fcm and maintaining callbacks for fcm events
+/// 3. Getting fcm token and listing fcm events
 
 class FcmManager {
   FcmManager._();

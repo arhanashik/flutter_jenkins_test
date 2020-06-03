@@ -93,7 +93,7 @@ class _Step5ScreenState extends BaseState<Step5Screen> {
     String primaryQrCode = _qrCodes.isEmpty? '12121212' : _qrCodes.toList()[0];
     String primaryQrCodeLast4Digit = primaryQrCode.substring(primaryQrCode.length-4);
 
-    final deliveryDate = Common.convertToDateTime(_orderItem.deliveryTime);
+    final deliveryDate = Converter.toDateTime(_orderItem.deliveryTime);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

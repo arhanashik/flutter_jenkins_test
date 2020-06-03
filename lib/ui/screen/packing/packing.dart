@@ -176,7 +176,7 @@ class _PackingScreenState extends BaseState<PackingScreen> {
     Color labelColor = thisStepActive
         ? AppColors.colorBlueDark : AppColors.colorCCCCCC;
     double paddingLeft = step == Step.STEP_1? 0 : 0;
-    double paddingTop = Common.toDp(context, 10);
+    double paddingTop = Converter.toDp(context, 10);
     double paddingRight = step == Step.STEP_5? 5 : 0;
 
     return Padding(
@@ -333,16 +333,16 @@ class _PackingScreenState extends BaseState<PackingScreen> {
           Container (
             color: AppColors.colorF1F1F1,
             padding: EdgeInsets.only(
-              top: Common.toDp(context, 18.0),
-              bottom: Common.toDp(context, 14.0),
+              top: Converter.toDp(context, 18.0),
+              bottom: Converter.toDp(context, 14.0),
             ),
             child: Column(
               children: <Widget>[
                 Padding(
                   padding: EdgeInsets.only(
-                      left: Common.toDp(context, 16.0),
-                      right: Common.toDp(context, 16.0),
-                      bottom: Common.toDp(context, 16.0),
+                      left: Converter.toDp(context, 16.0),
+                      right: Converter.toDp(context, 16.0),
+                      bottom: Converter.toDp(context, 16.0),
                   ),
                   child: _stepsBuilder(),
                 ),

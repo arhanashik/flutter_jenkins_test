@@ -33,7 +33,7 @@ class _AddQrCodeStep2State extends BaseState<AddQrCodeStep2> {
     String primaryQrCode = oldQrCodes.isEmpty? '00000000' : oldQrCodes[0];
     String primaryQrCodeLast4Digit = primaryQrCode.substring(primaryQrCode.length-4);
 
-    final deliveryDate = Common.convertToDateTime(widget.orderHistoryDetails.endingTime);
+    final deliveryDate = Converter.toDateTime(widget.orderHistoryDetails.endingTime);
 
     final qrCodeCount = oldQrCodes.length + widget.newQrCodes.length;
 

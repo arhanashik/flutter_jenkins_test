@@ -2,6 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:o2o/util/helper/localization/o2o_localizations.dart';
 
+/// Created by mdhasnain
+/// Email: md.hasnain@healthcare-tech.co.jp
+///
+/// Purpose of the class:
+/// 1. Initialize and set up localization
+/// 2.
+/// 3.
 class O2OLocalizationsDelegate extends LocalizationsDelegate<O2OLocalizations> {
   const O2OLocalizationsDelegate();
 

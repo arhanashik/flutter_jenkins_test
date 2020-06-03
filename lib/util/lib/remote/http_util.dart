@@ -11,7 +11,6 @@ import 'package:http/http.dart';
 /// 1. Making http requests from one place
 /// 2. Providing the api urls from one place
 /// 3. Providing the request/response code and status from one place
-///
 
 abstract class HttpUtil {
 

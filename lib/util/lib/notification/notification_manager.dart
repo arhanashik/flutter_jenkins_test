@@ -5,9 +5,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// Email: md.hasnain@healthcare-tech.co.jp
 ///  
 /// Purpose of the class:
-/// 1. 
-/// 2. 
-/// 3.
+/// 1. Building local notification
+/// 2. Singleton pattern for notification manager
+/// 3. Clearing notification if necessary
 
 class NotificationManager {
   NotificationManager._();
