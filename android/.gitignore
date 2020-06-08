@@ -3,5 +3,5 @@
 /captures/
 #/gradlew
 #/gradlew.bat
-/local.properties
+#/local.properties
 GeneratedPluginRegistrant.java
