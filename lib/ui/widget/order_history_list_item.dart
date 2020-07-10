@@ -46,7 +46,7 @@ class OrderHistoryListItem extends StatelessWidget {
                 ),
               ),
               Padding(padding: EdgeInsets.only(left: 16),),
-              Text(orderItem.orderId.toString(), style: TextStyle(fontSize: 14,),),
+              Text(orderItem.packageManageNo.toString(), style: TextStyle(fontSize: 14,),),
             ],
           ),
           Row(

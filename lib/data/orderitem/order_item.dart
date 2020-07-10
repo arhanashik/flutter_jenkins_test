@@ -10,7 +10,7 @@ class OrderItem {
   final String endingTime;
   String deliveryTime;
   final String stockoutReportDate;
-  final int packageManageNo;
+  final String packageManageNo;
   final String deliveredTime;
   final int flag;
 
@@ -89,7 +89,7 @@ class OrderItem {
         endingTime: '12:45',
         deliveryTime: '10:50',
         stockoutReportDate: '12:50',
-        packageManageNo: 123,
+        packageManageNo: '123',
         deliveredTime: '12:50',
         flag: 1011,
       ),
@@ -102,7 +102,7 @@ class OrderItem {
         endingTime: '12:45',
         deliveryTime: '11:00',
         stockoutReportDate: '12:45',
-        packageManageNo: 123,
+        packageManageNo: '123',
         deliveredTime: '12:50',
         flag: 1010,
       ),
@@ -115,7 +115,7 @@ class OrderItem {
         endingTime: '12:45',
         deliveryTime: '11:00',
         stockoutReportDate: '12:45',
-        packageManageNo: 123,
+        packageManageNo: '123',
         deliveredTime: '12:50',
         flag: 1008,
       ),
@@ -128,7 +128,7 @@ class OrderItem {
         endingTime: '12:45',
         deliveryTime: '11:00',
         stockoutReportDate: '12:45',
-        packageManageNo: 123,
+        packageManageNo: '123',
         deliveredTime: '12:50',
         flag: 1011,
       ),
@@ -141,7 +141,7 @@ class OrderItem {
         endingTime: '12:45',
         deliveryTime: '11:00',
         stockoutReportDate: '12:45',
-        packageManageNo: 123,
+        packageManageNo: '123',
         deliveredTime: '12:50',
         flag: 1010,
       ),

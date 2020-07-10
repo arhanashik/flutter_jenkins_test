@@ -10,7 +10,7 @@ class OrderHistoryDetails {
   int receiptNo;
   String lockedName;
   List products = List();
-  final int baggageControlNumber;
+  final String baggageControlNumber;
 
   OrderHistoryDetails._({
     this.orderId,
@@ -33,7 +33,7 @@ class OrderHistoryDetails {
     this.receiptNo = 0,
     this.lockedName = '',
     this.products = const [],
-    this.baggageControlNumber = 0,
+    this.baggageControlNumber = '0',
   });
 
   factory OrderHistoryDetails.fromJson(Map<String, dynamic> json) {
@@ -74,7 +74,7 @@ class OrderHistoryDetails {
       receiptNo: 1234,
       lockedName: '2223',
       products: ProductEntity.dummyProducts(),
-      baggageControlNumber: 12345,
+      baggageControlNumber: '12345',
     );
   }
 }
